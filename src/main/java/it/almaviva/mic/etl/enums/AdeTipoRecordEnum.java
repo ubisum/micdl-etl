@@ -1,5 +1,9 @@
 package it.almaviva.mic.etl.enums;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
 public enum AdeTipoRecordEnum 
 {
 	ADE_TIPO_RECORD_1(1),
@@ -17,6 +21,26 @@ public enum AdeTipoRecordEnum
 
 	public Integer getTipoRecord() {
 		return tipoRecord;
+	}
+	
+	public static List<Integer> listaValori()
+	{
+		return Arrays.asList(AdeTipoRecordEnum.values()).stream().map(t -> t.getTipoRecord()).collect(Collectors.toList());
+	}
+	
+	public static AdeTipoRecordEnum getFromValue(Integer value)
+	{
+		AdeTipoRecordEnum[] values = AdeTipoRecordEnum.values();
+		AdeTipoRecordEnum returnValue = null;
+		
+		for(AdeTipoRecordEnum tipo : values)
+		{
+			if(tipo.getTipoRecord().equals(value))
+				returnValue = tipo;
+		}
+		
+		return returnValue;
+			
 	}
 	
 	

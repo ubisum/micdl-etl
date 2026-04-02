@@ -1,5 +1,6 @@
 package it.almaviva.mic.etl.dto.ade.fabbricati;
 
+import it.almaviva.mic.etl.parsers.CsvPosition;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
@@ -12,19 +13,24 @@ import lombok.NoArgsConstructor;
 public class FabbricatoBaseDto 
 {
 	@NotNull(message = "Il codice comune non puo' essere nullo")
+	@CsvPosition(0)
 	private String codiceComune;
 	
+	@CsvPosition(1)
 	private String sezione;
+	
+	@CsvPosition(2)
 	private String id_imm_catasto;
 	
 	@NotNull(message = "Il tipo catasto non puo' essere nullo")
+	@Pattern(regexp = "T|F", message = "Il valore del tipo dev'essere 'T' o 'F'")
+	@CsvPosition(3)
 	private String tipo_catasto;
 	
+	@CsvPosition(4)
 	private String progressivo;
 	
-	@Pattern(regexp = "T|F", message = "Il valore del tipo dev'essere 'T' o 'F'")
-	private String tipo; 
-
 	@Pattern(regexp = "1|2|3|4|5", message = "Il valore del tipo record dev'essere compreso tra 1 e 5")
+	@CsvPosition(5)
 	private String tipo_record;
 }
