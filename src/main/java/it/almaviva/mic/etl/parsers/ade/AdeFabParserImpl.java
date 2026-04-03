@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import it.almaviva.mic.etl.dto.EsitoDTO;
 import it.almaviva.mic.etl.dto.ade.fabbricati.DatoCatastaleDto;
 import it.almaviva.mic.etl.dto.ade.fabbricati.FabbricatoTipoRecord1Dto;
 import it.almaviva.mic.etl.dto.ade.fabbricati.FabbricatoTipoRecord2Dto;
@@ -39,7 +40,7 @@ public class AdeFabParserImpl implements ParserInterface {
 	 }
 	
 	@Override
-	public Object[] parseFile(Reader reader) 
+	public EsitoDTO parseFile(Reader reader) 
 	{
 		logger.info("Inizio parsing del file FAB...");
 		
@@ -65,6 +66,7 @@ public class AdeFabParserImpl implements ParserInterface {
 				/* controllo presenza minima elementi */
 				if(elementiRiga.length < 6)
 				{
+					logger.info("Errore sul record {}", rowCounter);
 					logger.info(MicDlEtlParsingConsts.ERR_MISSING_ELEMS);
 					aggiungiErrore(erroriRecord, rowCounter, Arrays.asList(MicDlEtlParsingConsts.ERR_MISSING_ELEMS));
 					rowCounter++;
@@ -73,12 +75,13 @@ public class AdeFabParserImpl implements ParserInterface {
 				
 				/* controllo tipo */
 				String tipo = elementiRiga[5];
-				if(StringUtils.isBlank(tipo) || tipo.length() != 1 || 
-				   !tipo.matches("^[0-9]{1}$"))
+				if(StringUtils.isBlank(tipo) || !tipo.matches("^[0-9]{1}$"))
 				{
+					logger.info("Errore sul record {}", rowCounter);
 					logger.info(MicDlEtlParsingConsts.ERR_WRONG_TYPE);
 					aggiungiErrore(erroriRecord, rowCounter, Arrays.asList(MicDlEtlParsingConsts.ERR_MISSING_ELEMS));
 					rowCounter++;
+					
 					break;
 				}
 				
@@ -88,19 +91,21 @@ public class AdeFabParserImpl implements ParserInterface {
 				
 				if(!listaTipi.contains(tipoEstratto))
 				{
+					logger.info("Errore sul record {}", rowCounter);
 					logger.info(MicDlEtlParsingConsts.ERR_WRONG_TYPE);
 					aggiungiErrore(erroriRecord, rowCounter, Arrays.asList(MicDlEtlParsingConsts.ERR_WRONG_TYPE));
 					rowCounter++;
+					
 					break;
 				}
 				
 				/* ramificazione per tipo */
 				AdeTipoRecordEnum tipoRecord = AdeTipoRecordEnum.getFromValue(tipoEstratto);
 				
-				
 				switch(tipoRecord)
 				{
 					case ADE_TIPO_RECORD_1:
+						
 						/* costruzione del record di tipo 1 */
 						FabbricatoTipoRecord1Dto fabbricato1 = CsvMapper.associaCampi(elementiRiga, FabbricatoTipoRecord1Dto.class);
 						Set<ConstraintViolation<FabbricatoTipoRecord1Dto>> violations1 = null;
@@ -111,6 +116,10 @@ public class AdeFabParserImpl implements ParserInterface {
 						{
 							logger.error(MicDlEtlParsingConsts.ERR_VALIDATION);
 							aggiungiErrore(erroriRecord, rowCounter, estraiDescrizioniErrori(violations1));
+							
+							rowCounter++;
+							
+							break;
 						}
 						
 						rowCounter++;
@@ -118,10 +127,12 @@ public class AdeFabParserImpl implements ParserInterface {
 						break;
 						
 					case ADE_TIPO_RECORD_2:
+						
 						/* si verifica che i campi non obbligatori siano in un numero multiplo di 6, cioe' 
 						 * siano rappresentazioni valide di uno o piu' dati catastali */
 						if(elementiRiga.length %6 != 0)
 						{
+							logger.info("Errore sul record {}", rowCounter);
 							logger.error(MicDlEtlParsingConsts.ERR_ESTATE_REG_NUM);
 							aggiungiErrore(erroriRecord, rowCounter, Arrays.asList(MicDlEtlParsingConsts.ERR_ESTATE_REG_NUM));
 							
@@ -133,13 +144,14 @@ public class AdeFabParserImpl implements ParserInterface {
 						FabbricatoTipoRecord2Dto fabbricato2 = CsvMapper.associaCampi(Arrays.copyOfRange(elementiRiga, 0, 6), 
 								                                                      FabbricatoTipoRecord2Dto.class);
 						
-						/* validzione */
+						/* validazione */
 						Set<ConstraintViolation<FabbricatoTipoRecord2Dto>> violations2 = null;
 						violations2 = validator.validate(fabbricato2);
 						
 						/* controllo del risultato della validazione */
 						if(CollectionUtils.isNotEmpty(violations2))
 						{
+							logger.info("Errore sul record {}", rowCounter);
 							logger.error(MicDlEtlParsingConsts.ERR_VALIDATION);
 							aggiungiErrore(erroriRecord, rowCounter, estraiDescrizioniErrori(violations2));
 							
@@ -160,6 +172,7 @@ public class AdeFabParserImpl implements ParserInterface {
 							Set<ConstraintViolation<DatoCatastaleDto>> violationsDatoCatastale = validator.validate(datoCatastale);
 							if(CollectionUtils.isNotEmpty(violationsDatoCatastale))
 							{
+								logger.info("Errore sul record {}", rowCounter);
 								logger.error(MicDlEtlParsingConsts.ERR_VALIDATION);
 								aggiungiErrore(erroriRecord, rowCounter, estraiDescrizioniErrori(violationsDatoCatastale));
 								
@@ -181,10 +194,12 @@ public class AdeFabParserImpl implements ParserInterface {
 						
 						break;
 					case ADE_TIPO_RECORD_3:
+						
 						/* si verifica che i campi non obbligatori siano in un numero multiplo di 6, cioe' 
 						 * siano rappresentazioni valide di uno o piu' indirizzi */
 						if(elementiRiga.length %6 != 0)
 						{
+							logger.info("Errore sul record {}", rowCounter);
 							logger.error(MicDlEtlParsingConsts.ERR_ADDR_NUM);
 							aggiungiErrore(erroriRecord, rowCounter, Arrays.asList(MicDlEtlParsingConsts.ERR_ADDR_NUM));
 							
@@ -202,6 +217,7 @@ public class AdeFabParserImpl implements ParserInterface {
 						/* controllo del risultato della validazione */
 						if(CollectionUtils.isNotEmpty(violations3))
 						{
+							logger.info("Errore sul record {}", rowCounter);
 							logger.error(MicDlEtlParsingConsts.ERR_VALIDATION);
 							aggiungiErrore(erroriRecord, rowCounter, estraiDescrizioniErrori(violations3));
 							
@@ -222,6 +238,7 @@ public class AdeFabParserImpl implements ParserInterface {
 							Set<ConstraintViolation<IndirizzoDto>> violationsIndirizzo = validator.validate(indirizzo);
 							if(CollectionUtils.isNotEmpty(violationsIndirizzo))
 							{
+								logger.info("Errore sul record {}", rowCounter);
 								logger.error(MicDlEtlParsingConsts.ERR_VALIDATION);
 								aggiungiErrore(erroriRecord, rowCounter, estraiDescrizioniErrori(violationsIndirizzo));
 								

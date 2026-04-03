@@ -122,12 +122,19 @@ public class FabbricatoTipoRecord1Dto extends FabbricatoBaseDto
 	@CsvPosition(39)
 	private String data_notifica;
 	
-	/** DA DECOMMENTARE ALL'ARRIVO DEI NUOVI CAMPI NEL TRACCIATO 
+	@CsvPosition(40)
 	private String cd_causale_atto_generante;
+	
+	@CsvPosition(41)
 	private String descrizione_atto_generante;
+	
+	@CsvPosition(42)
 	private String cd_causale_atto_conclusivo;
+	
+	@CsvPosition(43)
 	private String descrizione_atto_conclusivo;
+	
+	@CsvPosition(44)
 	private String flag_classamento;
-	**/
 
 }

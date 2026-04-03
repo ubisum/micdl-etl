@@ -7,11 +7,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.collections4.CollectionUtils;
+
+import it.almaviva.mic.etl.dto.EsitoDTO;
 import jakarta.validation.ConstraintViolation;
 
 public interface ParserInterface 
 {
-	public Object[] parseFile(Reader reader);
+	public EsitoDTO parseFile(Reader reader);
 	
 	/* il metodo aggiunge tutti gli errori trovati in corrispondenza 
 	 * dell'isimo record */
@@ -22,7 +25,7 @@ public interface ParserInterface
 			mappaErrori = new HashMap<>();
 		
 		/* controllo della coppia chiave - valore */
-		if(indice == null || errori == null)
+		if(indice == null || CollectionUtils.isEmpty(errori))
 			return;
 		
 		/* primo inserimento della chiave */
