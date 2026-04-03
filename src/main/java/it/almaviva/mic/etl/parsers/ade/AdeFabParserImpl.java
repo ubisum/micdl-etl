@@ -79,7 +79,7 @@ public class AdeFabParserImpl implements ParserInterface {
 				{
 					logger.info("Errore sul record {}", rowCounter);
 					logger.info(MicDlEtlParsingConsts.ERR_WRONG_TYPE);
-					aggiungiErrore(erroriRecord, rowCounter, Arrays.asList(MicDlEtlParsingConsts.ERR_MISSING_ELEMS));
+					aggiungiErrore(erroriRecord, rowCounter, Arrays.asList(MicDlEtlParsingConsts.ERR_WRONG_TYPE));
 					rowCounter++;
 					
 					break;

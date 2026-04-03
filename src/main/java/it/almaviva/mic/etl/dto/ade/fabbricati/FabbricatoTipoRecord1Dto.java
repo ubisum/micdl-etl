@@ -79,7 +79,7 @@ public class FabbricatoTipoRecord1Dto extends FabbricatoBaseDto
 	@CsvPosition(26)
 	private String progressivo_nota;
 	
-	@Pattern(regexp = "^([0-9]{4})$", message = "La data nota dev'essere nel formato AAAA")
+	@Pattern(regexp = "^([0-9]{4})$", message = "L'anno nota dev'essere nel formato AAAA")
 	@CsvPosition(27)
 	private String anno_nota;
 	
@@ -101,6 +101,7 @@ public class FabbricatoTipoRecord1Dto extends FabbricatoBaseDto
 	@CsvPosition(32)
 	private String progressivo_nota_concl;
 	
+	@Pattern(regexp = "^([0-9]{4})$", message = "L'anno nota (conslusione atto) dev'essere nel formato AAAA")
 	@CsvPosition(33)
 	private String anno_nota_concl;
 	
