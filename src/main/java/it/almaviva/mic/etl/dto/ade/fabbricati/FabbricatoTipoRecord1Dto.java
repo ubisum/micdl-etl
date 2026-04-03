@@ -13,7 +13,7 @@ public class FabbricatoTipoRecord1Dto extends FabbricatoBaseDto
 {
 	/* ---------------------------- classe dell'unita' immobiliare ---------------------------------- */
 	@CsvPosition(6)
-	private String zona_censuaria;
+	private String zonaCensuaria;
 	
 	@CsvPosition(7)
 	private String categoria;
@@ -28,14 +28,14 @@ public class FabbricatoTipoRecord1Dto extends FabbricatoBaseDto
 	private String superficie;
 	
 	@CsvPosition(11)
-	private String rendita_lire;
+	private String renditaLire;
 	
 	@CsvPosition(12)
-	private String rendita_euro;
+	private String renditaEuro;
 	
 	/* ----------------------------- ubicazione immobile ----------------------------------------- */
 	@CsvPosition(13)
-	private String otto;
+	private String lotto;
 	
 	@CsvPosition(14)
 	private String edificio;
@@ -64,78 +64,78 @@ public class FabbricatoTipoRecord1Dto extends FabbricatoBaseDto
 	/* -------------------------------- registrazione atto unita' ------------------------------- */
 	@Pattern(regexp = "^(0[1-9]|[12][0-9]|3[01])(0[1-9]|1[0-2])([0-9]{4})$", message = "La data efficacia dev'essere nel formato DDMMAAAA")
 	@CsvPosition(22)
-	private String data_efficacia;
+	private String regDataEfficiacia;
 	
 	@Pattern(regexp = "^(0[1-9]|[12][0-9]|3[01])(0[1-9]|1[0-2])([0-9]{4})$", message = "La data registrazione atti dev'essere nel formato DDMMAAAA")
 	@CsvPosition(23)
-	private String data_registrazione_atti;
+	private String regDataregAtto;
 	
 	@CsvPosition(24)
-	private String tipo_nota;
+	private String regTipoNota;
 	
 	@CsvPosition(25)
-	private String numero_nota;
+	private String regNumeroNota;
 	
 	@CsvPosition(26)
-	private String progressivo_nota;
+	private String regProgressivoNota;
 	
 	@Pattern(regexp = "^([0-9]{4})$", message = "L'anno nota dev'essere nel formato AAAA")
 	@CsvPosition(27)
-	private String anno_nota;
+	private String regAnnoNota;
 	
 	/* conclusione atto unita' */
 	@Pattern(regexp = "^(0[1-9]|[12][0-9]|3[01])(0[1-9]|1[0-2])([0-9]{4})$", message = "La data efficacia (conclusione atto) dev'essere nel formato DDMMAAAA")
 	@CsvPosition(28)
-	private String data_efficacia_concl;
+	private String concDataEfficacia;
 	
 	@Pattern(regexp = "^(0[1-9]|[12][0-9]|3[01])(0[1-9]|1[0-2])([0-9]{4})$", message = "La data registrazione (conclusione atto) dev'essere nel formato DDMMAAAA")
 	@CsvPosition(29)
-	private String data_registrazione_atti_concl;
+	private String concDataRegAtto;
 	
 	@CsvPosition(30)
-	private String tipo_nota_concl;
+	private String concTipoNota;
 	
 	@CsvPosition(31)
-	private String numero_nota_concl;
+	private String concNumeroNota;
 	
 	@CsvPosition(32)
-	private String progressivo_nota_concl;
+	private String concProgressivoNota;
 	
 	@Pattern(regexp = "^([0-9]{4})$", message = "L'anno nota (conslusione atto) dev'essere nel formato AAAA")
 	@CsvPosition(33)
-	private String anno_nota_concl;
+	private String concAnnoNota;
 	
 	@CsvPosition(34)
-	private String partita;
+	private String concPartita;
 	
 	@CsvPosition(35)
-	private String annotazione;
+	private String concAnnotazione;
 	
 	@CsvPosition(36)
-	private String id_mutazione_iniz;
+	private String concIdMutIniz;
 	
 	@CsvPosition(37)
-	private String id_mutazione_fin;
+	private String concIdMutFin;
 	
 	@CsvPosition(38)
-	private String protocollo_notifica;
+	private String concProtocolloNotifica;
 	
 	@CsvPosition(39)
-	private String data_notifica;
+	private String concDataNotifica;
 	
 	@CsvPosition(40)
-	private String cd_causale_atto_generante;
+	private String concCdAttoGenerante;
 	
 	@CsvPosition(41)
-	private String descrizione_atto_generante;
+	private String concDescrAttoGenerante;
 	
 	@CsvPosition(42)
-	private String cd_causale_atto_conclusivo;
+	private String concCdAttoConclusivo;
 	
 	@CsvPosition(43)
-	private String descrizione_atto_conclusivo;
+	private String concDescrAttoConclusivo;
 	
 	@CsvPosition(44)
-	private String flag_classamento;
+	private String concFlagClassamento;
 
 }

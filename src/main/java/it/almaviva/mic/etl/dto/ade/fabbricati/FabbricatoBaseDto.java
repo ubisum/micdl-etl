@@ -20,7 +20,7 @@ public class FabbricatoBaseDto
 	private String sezione;
 	
 	@CsvPosition(2)
-	private String id_imm_catasto;
+	private String idImmCatasto;
 	
 	@NotNull(message = "Il tipo catasto non puo' essere nullo")
 	@Pattern(regexp = "T|F", message = "Il valore del tipo dev'essere 'T' o 'F'")
@@ -32,5 +32,5 @@ public class FabbricatoBaseDto
 	
 	@Pattern(regexp = "1|2|3|4|5", message = "Il valore del tipo record dev'essere compreso tra 1 e 5")
 	@CsvPosition(5)
-	private String tipo_record;
+	private String tipoRecord;
 }
