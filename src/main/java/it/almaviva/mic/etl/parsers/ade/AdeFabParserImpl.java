@@ -23,8 +23,8 @@ import it.almaviva.mic.etl.dto.ade.fabbricati.FabbricatoTipoRecord3Dto;
 import it.almaviva.mic.etl.dto.ade.fabbricati.IndirizzoDto;
 import it.almaviva.mic.etl.enums.AdeTipoRecordEnum;
 import it.almaviva.mic.etl.parsers.CsvMapper;
-import it.almaviva.mic.etl.parsers.MicDlEtlParsingConsts;
 import it.almaviva.mic.etl.parsers.ParserInterface;
+import it.almaviva.mic.etl.utils.MicDlEtlConsts;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
 
@@ -67,8 +67,8 @@ public class AdeFabParserImpl implements ParserInterface {
 				if(elementiRiga.length < 6)
 				{
 					logger.info("Errore sul record {}", rowCounter);
-					logger.info(MicDlEtlParsingConsts.ERR_MISSING_ELEMS);
-					aggiungiErrore(erroriRecord, rowCounter, Arrays.asList(MicDlEtlParsingConsts.ERR_MISSING_ELEMS));
+					logger.info(MicDlEtlConsts.ERR_MISSING_ELEMS);
+					aggiungiErrore(erroriRecord, rowCounter, Arrays.asList(MicDlEtlConsts.ERR_MISSING_ELEMS));
 					rowCounter++;
 					break;
 				}
@@ -78,8 +78,8 @@ public class AdeFabParserImpl implements ParserInterface {
 				if(StringUtils.isBlank(tipo) || !tipo.matches("^[0-9]{1}$"))
 				{
 					logger.info("Errore sul record {}", rowCounter);
-					logger.info(MicDlEtlParsingConsts.ERR_WRONG_TYPE);
-					aggiungiErrore(erroriRecord, rowCounter, Arrays.asList(MicDlEtlParsingConsts.ERR_WRONG_TYPE));
+					logger.info(MicDlEtlConsts.ERR_WRONG_TYPE);
+					aggiungiErrore(erroriRecord, rowCounter, Arrays.asList(MicDlEtlConsts.ERR_WRONG_TYPE));
 					rowCounter++;
 					
 					break;
@@ -92,8 +92,8 @@ public class AdeFabParserImpl implements ParserInterface {
 				if(!listaTipi.contains(tipoEstratto))
 				{
 					logger.info("Errore sul record {}", rowCounter);
-					logger.info(MicDlEtlParsingConsts.ERR_WRONG_TYPE);
-					aggiungiErrore(erroriRecord, rowCounter, Arrays.asList(MicDlEtlParsingConsts.ERR_WRONG_TYPE));
+					logger.info(MicDlEtlConsts.ERR_WRONG_TYPE);
+					aggiungiErrore(erroriRecord, rowCounter, Arrays.asList(MicDlEtlConsts.ERR_WRONG_TYPE));
 					rowCounter++;
 					
 					break;
@@ -114,7 +114,7 @@ public class AdeFabParserImpl implements ParserInterface {
 						/* controllo del risultato della validazione */
 						if(CollectionUtils.isNotEmpty(violations1))
 						{
-							logger.error(MicDlEtlParsingConsts.ERR_VALIDATION);
+							logger.error(MicDlEtlConsts.ERR_VALIDATION);
 							aggiungiErrore(erroriRecord, rowCounter, estraiDescrizioniErrori(violations1));
 							
 							rowCounter++;
@@ -133,8 +133,8 @@ public class AdeFabParserImpl implements ParserInterface {
 						if(elementiRiga.length %6 != 0)
 						{
 							logger.info("Errore sul record {}", rowCounter);
-							logger.error(MicDlEtlParsingConsts.ERR_ESTATE_REG_NUM);
-							aggiungiErrore(erroriRecord, rowCounter, Arrays.asList(MicDlEtlParsingConsts.ERR_ESTATE_REG_NUM));
+							logger.error(MicDlEtlConsts.ERR_ESTATE_REG_NUM);
+							aggiungiErrore(erroriRecord, rowCounter, Arrays.asList(MicDlEtlConsts.ERR_ESTATE_REG_NUM));
 							
 							rowCounter++;
 							break;
@@ -152,7 +152,7 @@ public class AdeFabParserImpl implements ParserInterface {
 						if(CollectionUtils.isNotEmpty(violations2))
 						{
 							logger.info("Errore sul record {}", rowCounter);
-							logger.error(MicDlEtlParsingConsts.ERR_VALIDATION);
+							logger.error(MicDlEtlConsts.ERR_VALIDATION);
 							aggiungiErrore(erroriRecord, rowCounter, estraiDescrizioniErrori(violations2));
 							
 							rowCounter++;
@@ -173,7 +173,7 @@ public class AdeFabParserImpl implements ParserInterface {
 							if(CollectionUtils.isNotEmpty(violationsDatoCatastale))
 							{
 								logger.info("Errore sul record {}", rowCounter);
-								logger.error(MicDlEtlParsingConsts.ERR_VALIDATION);
+								logger.error(MicDlEtlConsts.ERR_VALIDATION);
 								aggiungiErrore(erroriRecord, rowCounter, estraiDescrizioniErrori(violationsDatoCatastale));
 								
 								rowCounter++;
@@ -200,8 +200,8 @@ public class AdeFabParserImpl implements ParserInterface {
 						if(elementiRiga.length %6 != 0)
 						{
 							logger.info("Errore sul record {}", rowCounter);
-							logger.error(MicDlEtlParsingConsts.ERR_ADDR_NUM);
-							aggiungiErrore(erroriRecord, rowCounter, Arrays.asList(MicDlEtlParsingConsts.ERR_ADDR_NUM));
+							logger.error(MicDlEtlConsts.ERR_ADDR_NUM);
+							aggiungiErrore(erroriRecord, rowCounter, Arrays.asList(MicDlEtlConsts.ERR_ADDR_NUM));
 							
 							rowCounter++;
 							break;
@@ -218,7 +218,7 @@ public class AdeFabParserImpl implements ParserInterface {
 						if(CollectionUtils.isNotEmpty(violations3))
 						{
 							logger.info("Errore sul record {}", rowCounter);
-							logger.error(MicDlEtlParsingConsts.ERR_VALIDATION);
+							logger.error(MicDlEtlConsts.ERR_VALIDATION);
 							aggiungiErrore(erroriRecord, rowCounter, estraiDescrizioniErrori(violations3));
 							
 							rowCounter++;
@@ -239,7 +239,7 @@ public class AdeFabParserImpl implements ParserInterface {
 							if(CollectionUtils.isNotEmpty(violationsIndirizzo))
 							{
 								logger.info("Errore sul record {}", rowCounter);
-								logger.error(MicDlEtlParsingConsts.ERR_VALIDATION);
+								logger.error(MicDlEtlConsts.ERR_VALIDATION);
 								aggiungiErrore(erroriRecord, rowCounter, estraiDescrizioniErrori(violationsIndirizzo));
 								
 								rowCounter++;
