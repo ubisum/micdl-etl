@@ -18,7 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 import it.almaviva.mic.etl.dto.EsitoDTO;
 import it.almaviva.mic.etl.exceptions.MicdlETLException;
 import it.almaviva.mic.etl.parsers.ParserInterface;
-import it.almaviva.mic.etl.utils.ParserServiceFactory;
+import it.almaviva.mic.etl.parsers.ParserServiceFactory;
 
 
 @RestController

@@ -1,10 +1,8 @@
-package it.almaviva.mic.etl.utils;
+package it.almaviva.mic.etl.parsers;
 
 import java.util.Map;
 
 import org.springframework.stereotype.Component;
-
-import it.almaviva.mic.etl.parsers.ParserInterface;
 
 @Component
 public class ParserServiceFactory 

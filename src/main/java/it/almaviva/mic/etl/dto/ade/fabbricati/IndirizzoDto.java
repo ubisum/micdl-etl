@@ -26,5 +26,5 @@ public class IndirizzoDto
 	private String civico3;
 	
 	@CsvPosition(5)
-	private String cod_strada;
+	private String codStrada;
 }

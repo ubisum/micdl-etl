@@ -1,4 +1,4 @@
-package it.almaviva.mic.etl.utils;
+package it.almaviva.mic.etl.parsers;
 
 public class MicDlEtlParsingConsts 
 {

@@ -27,7 +27,7 @@ public class HashingUtils
 
 	     String input =  Arrays.stream(fields)
 	                /* si filtrano solo i campi che hanno l'annotazione progressiva maggiore di un certo valore
-	                 * (questo ci permette di escludere i primi campi che di solito rappresentano uan chiave 
+	                 * (questo ci permette di escludere i primi campi che di solito rappresentano una chiave 
 	                 * e che non devono essere presi in considerazione dall'algoritmo di hashing) */
 	                .filter(f -> f.isAnnotationPresent(CsvPosition.class)
 	                        && (lowestIndex == null || f.getAnnotation(CsvPosition.class).value() > lowestIndex))

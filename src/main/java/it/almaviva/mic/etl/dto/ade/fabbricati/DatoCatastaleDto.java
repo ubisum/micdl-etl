@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 public class DatoCatastaleDto 
 {
 	@CsvPosition(0)
-	private String sezione_rbana;
+	private String sezioneUrbana;
 	
 	@CsvPosition(1)
 	private String foglio;

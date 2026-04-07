@@ -23,8 +23,8 @@ import it.almaviva.mic.etl.dto.ade.fabbricati.FabbricatoTipoRecord3Dto;
 import it.almaviva.mic.etl.dto.ade.fabbricati.IndirizzoDto;
 import it.almaviva.mic.etl.enums.AdeTipoRecordEnum;
 import it.almaviva.mic.etl.parsers.CsvMapper;
+import it.almaviva.mic.etl.parsers.MicDlEtlParsingConsts;
 import it.almaviva.mic.etl.parsers.ParserInterface;
-import it.almaviva.mic.etl.utils.MicDlEtlParsingConsts;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
 

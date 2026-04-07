@@ -2,14 +2,21 @@ package it.almaviva.mic.etl.entities.ade;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+@Data
+@NoArgsConstructor
 @Entity
 @Table(name = "ade_unita_imm_hist")
 public class AdeUnitaImmHist 
@@ -38,7 +45,7 @@ public class AdeUnitaImmHist
 	private String tipoRecord;
 	
 	@Column(name = "zona_censuaria")
-	private String zonaCensuaia;
+	private String zonaCensuaria;
 	
 	@Column(name = "categoria")
 	private String categoria;
@@ -167,6 +174,12 @@ public class AdeUnitaImmHist
 	private Boolean isCurrent;
 	
 	@Column(name = "batch_id")
-	private Boolean batchId;
+	private BigDecimal batchId;
+	
+	@OneToMany(mappedBy = "unitaImm", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<AdeDatoCatastaleHist> datiCatastali;
+	
+	@OneToMany(mappedBy = "unitaImm", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<AdeIndirizzoHist> indirizzi;
 
 }
