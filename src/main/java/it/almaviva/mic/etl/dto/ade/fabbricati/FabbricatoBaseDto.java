@@ -25,7 +25,7 @@ public class FabbricatoBaseDto
 	@NotNull(message = "Il tipo catasto non puo' essere nullo")
 	@Pattern(regexp = "T|F", message = "Il valore del tipo dev'essere 'T' o 'F'")
 	@CsvPosition(3)
-	private String tipo_catasto;
+	private String tipoCatasto;
 	
 	@CsvPosition(4)
 	private String progressivo;

@@ -1,6 +1,6 @@
-CREATE TEMPORARY TABLE ade_unita_imm_hist_staging
+CREATE TEMPORARY TABLE ADE_UNITA_IMM_HIST_STAGING
  (
-  cod_comune,
+  cod_comune varchar(4),
   sezione varchar(1),
   id_imm_catasto varchar(9),
   tipo_catasto varchar(1),
@@ -27,13 +27,13 @@ CREATE TEMPORARY TABLE ade_unita_imm_hist_staging
   reg_tipo_nota varchar(1),
   reg_numero_nota varchar(6),
   reg_progressivo_nota varchar(3),
-  reg_anno_nota,
+  reg_anno_nota int,
   conc_data_efficacia varchar(8),
   conc_data_reg_atto varchar(8),
   conc_tipo_nota varchar(1),
   conc_numero_nota varchar(6),
   conc_progressivo_nota varchar(3),
-  conc_anno_nota,
+  conc_anno_nota int,
   conc_partita varchar(7),
   conc_annotazione varchar(200),
   conc_id_mut_iniz varchar(9),
@@ -44,5 +44,6 @@ CREATE TEMPORARY TABLE ade_unita_imm_hist_staging
   conc_descr_atto_generante varchar(100),
   conc_cd_atto_conclusivo varchar(3),
   conc_descr_atto_conclusivo varchar(100),
-  conc_flag_classamento varchar(1)
+  conc_flag_classamento varchar(1),
+  hash varchar(64)
 ) 

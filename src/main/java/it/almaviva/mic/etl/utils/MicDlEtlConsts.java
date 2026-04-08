@@ -11,5 +11,6 @@ public class MicDlEtlConsts
 	
 	/* file SQL */
 	public static final String ADE_UNITA_IMM_CREATE_STAGING = "sql/ade_unita_imm_hist_staging.sql";
+	public static final String ADE_UNITA_IMM_CREATE_STAGING_INSERT = "sql/ade_unita_imm_hist_staging_insert.sql";
 	
 }
