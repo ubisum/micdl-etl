@@ -1,8 +1,8 @@
 package it.almaviva.mic.etl.parsers.ade;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.Reader;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -13,15 +13,17 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
-import it.almaviva.mic.etl.dto.EsitoDTO;
+import it.almaviva.mic.etl.dto.ParsingDTO;
 import it.almaviva.mic.etl.dto.ade.fabbricati.DatoCatastaleDto;
 import it.almaviva.mic.etl.dto.ade.fabbricati.FabbricatoTipoRecord1Dto;
 import it.almaviva.mic.etl.dto.ade.fabbricati.FabbricatoTipoRecord2Dto;
 import it.almaviva.mic.etl.dto.ade.fabbricati.FabbricatoTipoRecord3Dto;
 import it.almaviva.mic.etl.dto.ade.fabbricati.IndirizzoDto;
 import it.almaviva.mic.etl.enums.AdeTipoRecordEnum;
+import it.almaviva.mic.etl.exceptions.MicdlETLException;
 import it.almaviva.mic.etl.parsers.CsvMapper;
 import it.almaviva.mic.etl.parsers.ParserInterface;
 import it.almaviva.mic.etl.utils.MicDlEtlConsts;
@@ -40,20 +42,30 @@ public class AdeFabParserImpl implements ParserInterface {
 	 }
 	
 	@Override
-	public EsitoDTO parseFile(Reader reader) 
+	public ParsingDTO parseFile(Reader reader) 
 	{
 		logger.info("Inizio parsing del file FAB...");
 		
 		/* preparazione alla lettura */
 		 BufferedReader br = new BufferedReader(reader);
-		 Map<Integer, List<String>> erroriRecord = new HashMap<>();
 		 String line;
+		 
+		 /* strutture di appoggio */
+		 Map<Integer, List<String>> erroriRecord = new HashMap<>();
+		 List<FabbricatoTipoRecord1Dto> listaFabbricati = new ArrayList<>();
+		 List<FabbricatoTipoRecord2Dto> listaDatiCatastali = new ArrayList<>();
+		 List<FabbricatoTipoRecord3Dto> listaIndirizzi = new ArrayList<>();
+		 
+		 /* output */
+		 ParsingDTO output = new ParsingDTO();
 		
 		 try 
 		 {
 			 /* contatore delle righe */
 			 int rowCounter = 1;
 			 
+			logger.info("Inizio analisi file...");
+			
 			while ((line = br.readLine()) != null) 
 			{
 				 /* controllo della presenza del carattere | finale */
@@ -123,6 +135,7 @@ public class AdeFabParserImpl implements ParserInterface {
 						}
 						
 						rowCounter++;
+						listaFabbricati.add(fabbricato1);
 						
 						break;
 						
@@ -137,6 +150,7 @@ public class AdeFabParserImpl implements ParserInterface {
 							aggiungiErrore(erroriRecord, rowCounter, Arrays.asList(MicDlEtlConsts.ERR_ESTATE_REG_NUM));
 							
 							rowCounter++;
+							
 							break;
 						}
 						
@@ -191,6 +205,7 @@ public class AdeFabParserImpl implements ParserInterface {
 						}
 						
 						rowCounter++;
+						listaDatiCatastali.add(fabbricato2);
 						
 						break;
 					case ADE_TIPO_RECORD_3:
@@ -257,6 +272,7 @@ public class AdeFabParserImpl implements ParserInterface {
 						}
 						
 						rowCounter++;
+						listaIndirizzi.add(fabbricato3);
 						
 						break;
 					case ADE_TIPO_RECORD_4:
@@ -277,14 +293,30 @@ public class AdeFabParserImpl implements ParserInterface {
 				}
 				
 			 }
+			
+			/* aggiornamento output */
+			output.setUnitaImmobiliari(listaFabbricati);
+			output.setDatiCatastali(listaDatiCatastali);
+			output.setIndirizzi(listaIndirizzi);
+			output.setRecordLetti(rowCounter - 1);
+			output.setReportRecord(erroriRecord);
+			
+			logger.info("Effettuata la lettura di {} record", rowCounter - 1);
+			logger.info("Dati derivati dalla lettura dei record validi: {} unita' immobiliari, {} dati catastali, {} indirizzi", 
+					    listaFabbricati.size(),
+					    listaDatiCatastali.size(),
+					    listaIndirizzi.size());
+			logger.info("Record interessati da errori di validazione: {}", erroriRecord.size());
+			logger.info("Totale record validi: {}", rowCounter - 1 - erroriRecord.size());
 		} 
 		 
-		 catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		 catch (Throwable e) 
+		 {
+			 logger.info("Si e' verificata un'eccezione durante il parsing del file", e);
+			 throw new MicdlETLException("Si e' verificato un errore durante il parsing del file", HttpStatus.INTERNAL_SERVER_ERROR);
+		 }
 		
-		return null;
+		return output;
 	}
 
 }

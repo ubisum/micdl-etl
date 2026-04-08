@@ -9,12 +9,12 @@ import java.util.Set;
 
 import org.apache.commons.collections4.CollectionUtils;
 
-import it.almaviva.mic.etl.dto.EsitoDTO;
+import it.almaviva.mic.etl.dto.ParsingDTO;
 import jakarta.validation.ConstraintViolation;
 
 public interface ParserInterface 
 {
-	public EsitoDTO parseFile(Reader reader);
+	public ParsingDTO parseFile(Reader reader);
 	
 	/* il metodo aggiunge tutti gli errori trovati in corrispondenza 
 	 * dell'isimo record */
