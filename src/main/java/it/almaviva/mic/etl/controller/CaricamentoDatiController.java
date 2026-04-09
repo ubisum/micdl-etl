@@ -17,22 +17,22 @@ import org.springframework.web.multipart.MultipartFile;
 
 import it.almaviva.mic.etl.dto.EsitoDTO;
 import it.almaviva.mic.etl.exceptions.MicdlETLException;
-import it.almaviva.mic.etl.parsers.ParserInterface;
-import it.almaviva.mic.etl.parsers.ParserServiceFactory;
+import it.almaviva.mic.etl.services.MicDllEtlService;
+import it.almaviva.mic.etl.services.ServiceFactory;
 
 
 @RestController
 @RequestMapping("/etl") 
 public class CaricamentoDatiController 
 {
-	private ParserServiceFactory parserServiceFactory;
+	private ServiceFactory serviceFactory;
 	private static final Logger logger = LoggerFactory.getLogger(CaricamentoDatiController.class);
 	
 	
 	
-	public CaricamentoDatiController(ParserServiceFactory parserServiceFactory) {
+	public CaricamentoDatiController(ServiceFactory serviceFactory) {
 		super();
-		this.parserServiceFactory = parserServiceFactory;
+		this.serviceFactory = serviceFactory;
 	}
 
 	@GetMapping("test")
@@ -65,11 +65,11 @@ public class CaricamentoDatiController
 			throw new MicdlETLException("Il nome del file ricevuto non rispetta lo standard previsto", HttpStatus.BAD_REQUEST);
 		}
 		
-		logger.info("Ricerca dell'interfaccia di parsing associata...");
-		ParserInterface parser = parserServiceFactory.getParserInterface(filename.substring(filename.indexOf(".") + 1));
+		logger.info("Ricerca del service associat...");
+		MicDllEtlService service = serviceFactory.getService(filename.substring(filename.indexOf(".") + 1));
 		
-		if(parser == null)
-			throw new MicdlETLException("Nessun parser associato al tipo di file fornito", HttpStatus.BAD_REQUEST);
+		if(service == null)
+			throw new MicdlETLException("Nessun service associato al tipo di file fornito", HttpStatus.BAD_REQUEST);
 		
 		try 
 		{
@@ -77,7 +77,7 @@ public class CaricamentoDatiController
 			Reader reader = new BufferedReader(new InputStreamReader(file.getInputStream()));
 			
 			logger.info("Inizio parsing del file...");
-			parser.parseFile(reader);
+			service.parseAndStore(reader);
 		} 
 		
 		catch(MicdlETLException micex)

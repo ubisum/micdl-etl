@@ -8,10 +8,12 @@ import java.util.List;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.hibernate.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Component;
 
 import it.almaviva.mic.etl.entities.ade.AdeUnitaImmHist;
 import it.almaviva.mic.etl.exceptions.MicdlETLException;
@@ -20,33 +22,47 @@ import it.almaviva.mic.etl.utils.MicdlEtlUtils;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 
+@Component
 public class AdeFabDAOImpl implements AdeFabDAO
 {
 	 @PersistenceContext
 	 private EntityManager entityManager;
 	 
-	 @Value("micdl.batch.size")
-	 private Integer batchSize;
+	 @Value("${spring.jpa.properties.hibernate.jdbc.batch_size}")
+	 private String batchSize;
 	
 	private static final Logger logger = LoggerFactory.getLogger(AdeFabDAOImpl.class);
 	
 	@Override
-	public void insertUnitaImm(List<AdeUnitaImmHist> unitaImmobiliari) 
+	public Integer insertUnitaImm(List<AdeUnitaImmHist> unitaImmobiliari) 
 	{
 		logger.info("Inizio salvataggio delle unita' immobiliari sulla tabella di staging...");
 		
 		if(CollectionUtils.isEmpty(unitaImmobiliari))
 		{
 			logger.info("Nessuna unita' immobiliare fornita, nessun inserimento verra' effettuato");
-			return;
+			return 0;
 		}
+		
+		/* grandezza batch */
+		Integer maxNumRecords = null;
+		if(StringUtils.isBlank(batchSize))
+		{
+			logger.info("Nessuna property indicante la misura del batch trovata. Si imposta la grandezza massima di default a 1000");
+			maxNumRecords = Integer.valueOf(1000);
+		}
+		
+		else
+			maxNumRecords = Integer.valueOf(batchSize);
 		
 		try
 		{
 			logger.info("Sono presenti {} unita' immobiliari da inserire", unitaImmobiliari.size());
 			
 			logger.info("Creazione connessione verso il DB...");
-			Connection conn = entityManager.unwrap(Connection.class);
+			Session session = entityManager.unwrap(Session.class);
+			Connection conn = session.doReturningWork(c -> c);
+
 			
 			logger.info("Lettura del codice SQL per la creazione della tabella temporanea...");
 			String sqlTabellaTemporanea = MicdlEtlUtils.readContentFromFile(MicDlEtlConsts.ADE_UNITA_IMM_CREATE_STAGING);
@@ -57,8 +73,11 @@ public class AdeFabDAOImpl implements AdeFabDAO
 						                    HttpStatus.INTERNAL_SERVER_ERROR);
 			}
 			
-			logger.info("Creazione tabella temporanea...");
+			logger.info("Rimozione della tabella temporanea (se presente)...");
 			Statement createStagingStmt = conn.createStatement();
+			createStagingStmt.execute("DROP TEMPORARY TABLE IF EXISTS ADE_UNITA_IMM_HIST_STAGING");
+			
+			logger.info("Creazione tabella temporanea...");
 			createStagingStmt.executeUpdate(sqlTabellaTemporanea);
 			
 			logger.info("Lettura codice SQL per l'inserimento dei dati nella tabella di staging...");
@@ -85,7 +104,7 @@ public class AdeFabDAOImpl implements AdeFabDAO
 				inserimentoStagingPs.addBatch();
 				
 				/* controllo del raggiungimento del numero massimo di elementi per batch */
-				if(++counter % batchSize == 0)
+				if(++counter % Integer.valueOf(batchSize) == 0)
 					inserimentoStagingPs.executeBatch();
 			}
 			
@@ -95,12 +114,15 @@ public class AdeFabDAOImpl implements AdeFabDAO
 			logger.info("Inserimento terminato");
 			
 			/* verifica del numero dei record effettivamente scritti */
+			logger.info("Verifica dei record effettivamente scritti sulla tabella temporanea...");
+			
 			String sqlCountRecords = "SELECT COUNT(*) FROM ADE_UNITA_IMM_HIST_STAGING";
 			Statement countRecords = conn.createStatement();
-			ResultSet result = countRecords.executeQuery(sqlCountRecords);
 			
-			logger.info("Record effettivamente inseriti sulla tabella di staging: {}",
-					    result.next() ? result.getInt(1) : 0);
+			ResultSet result = countRecords.executeQuery(sqlCountRecords);
+			Integer numeroRecordScritti = result.next() ? result.getInt(1) : 0;
+			
+			logger.info("Record effettivamente inseriti sulla tabella di staging: {}", numeroRecordScritti);
 			
 			logger.info("Terminato inserimento in tabella di staging");
 		}

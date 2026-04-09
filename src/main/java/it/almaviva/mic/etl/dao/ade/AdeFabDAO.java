@@ -6,5 +6,5 @@ import it.almaviva.mic.etl.entities.ade.AdeUnitaImmHist;
 
 public interface AdeFabDAO 
 {
-	public void insertUnitaImm(List<AdeUnitaImmHist> unitaImmobiliari);
+	public Integer insertUnitaImm(List<AdeUnitaImmHist> unitaImmobiliari);
 }

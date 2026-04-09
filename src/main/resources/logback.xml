@@ -3,16 +3,15 @@
     <!-- ===================== FILE APPENDER ===================== -->
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>Micdl-etl.log</file>
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <!-- Rotazione giornaliera -->
+
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <!-- Rotazione giornaliera + dimensione max per file -->
             <fileNamePattern>Micdl-etl.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
-            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
-                <!-- Max size per file -->
-                <maxFileSize>5MB</maxFileSize>
-            </timeBasedFileNamingAndTriggeringPolicy>
-            <!-- Mantieni ultimi 30 giorni -->
+            <maxFileSize>5MB</maxFileSize>
             <maxHistory>30</maxHistory>
+            <totalSizeCap>500MB</totalSizeCap>
         </rollingPolicy>
+
         <encoder>
             <pattern>%d{dd-MM-yyyy HH:mm:ss} %class.%method - %msg%n</pattern>
         </encoder>

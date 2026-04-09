@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
 
 import it.almaviva.mic.etl.converters.ade.AdeConverter;
 import it.almaviva.mic.etl.dao.ade.AdeFabDAO;
@@ -16,6 +17,7 @@ import it.almaviva.mic.etl.entities.ade.AdeUnitaImmHist;
 import it.almaviva.mic.etl.parsers.ParserInterface;
 import jakarta.transaction.Transactional;
 
+@Service
 public class AdeETLFabServiceImpl implements MicDllEtlService 
 {
 	@Autowired
@@ -29,7 +31,7 @@ public class AdeETLFabServiceImpl implements MicDllEtlService
 	
 	@Override
 	@Transactional
-	public void parseAndStore(Reader csvReader) 
+	public ParsingDTO parseAndStore(Reader csvReader) 
 	{
 		logger.info("Ingresso nel servizio di scansione e salvataggio dei file Ade");
 		
@@ -41,7 +43,10 @@ public class AdeETLFabServiceImpl implements MicDllEtlService
 				                           .map(unita -> AdeConverter.convertFABRec1FromDto(unita))
 				                           .collect(Collectors.toList());
 		
+		logger.info("Richiesta di salvataggio su tabella di staging...");
+		fabDAO.insertUnitaImm(listaUnita);
 		
+		return parsingResult;
 		
 	}
 

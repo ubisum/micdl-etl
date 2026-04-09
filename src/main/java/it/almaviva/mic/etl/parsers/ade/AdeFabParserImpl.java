@@ -196,7 +196,11 @@ public class AdeFabParserImpl implements ParserInterface {
 							
 							/* inserimento del dato catastale nel record di tipo 2 */
 							if(CollectionUtils.isEmpty(fabbricato2.getArray_id_dato_catastale()))
-								fabbricato2.setArray_id_dato_catastale(Arrays.asList(datoCatastale));
+							{
+								List<DatoCatastaleDto> nuovaListaCatasto = new ArrayList<>();
+								nuovaListaCatasto.add(datoCatastale);
+								fabbricato2.setArray_id_dato_catastale(nuovaListaCatasto);
+							}
 							
 							else
 								fabbricato2.getArray_id_dato_catastale().add(datoCatastale);
@@ -263,7 +267,11 @@ public class AdeFabParserImpl implements ParserInterface {
 							
 							/* aggiunta dell'indirizzo */
 							if(CollectionUtils.isEmpty(fabbricato3.getArray_id_indirizzi()))
-								fabbricato3.setArray_id_indirizzi(Arrays.asList(indirizzo));
+							{
+								List<IndirizzoDto> nuovaListaIndirizzi = new ArrayList<>();
+								nuovaListaIndirizzi.add(indirizzo);
+								fabbricato3.setArray_id_indirizzi(nuovaListaIndirizzi);
+							}
 							
 							else
 								fabbricato3.getArray_id_indirizzi().add(indirizzo);

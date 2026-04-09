@@ -2,7 +2,9 @@ package it.almaviva.mic.etl.services;
 
 import java.io.Reader;
 
+import it.almaviva.mic.etl.dto.ParsingDTO;
+
 public interface MicDllEtlService 
 {
-	void parseAndStore(Reader csvReader);
+	ParsingDTO parseAndStore(Reader csvReader);
 }
