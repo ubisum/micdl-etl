@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import it.almaviva.mic.etl.dto.EsitoDTO;
+import it.almaviva.mic.etl.dto.ParsingDTO;
 import it.almaviva.mic.etl.exceptions.MicdlETLException;
 import it.almaviva.mic.etl.services.MicDllEtlService;
 import it.almaviva.mic.etl.services.ServiceFactory;
@@ -35,7 +36,7 @@ public class CaricamentoDatiController
 		this.serviceFactory = serviceFactory;
 	}
 
-	@GetMapping("test")
+	@GetMapping("/test")
 	public ResponseEntity<EsitoDTO> testConnessione()
 	{
 		logger.info("Inizio procedura");
@@ -77,7 +78,12 @@ public class CaricamentoDatiController
 			Reader reader = new BufferedReader(new InputStreamReader(file.getInputStream()));
 			
 			logger.info("Inizio parsing del file...");
-			service.parseAndStore(reader);
+			ParsingDTO result =  service.parseAndStore(reader);
+			
+			logger.info("Creazione risposta...");
+			result.setCodice(HttpStatus.OK.value());
+			
+			return ResponseEntity.ok(result);
 		} 
 		
 		catch(MicdlETLException micex)

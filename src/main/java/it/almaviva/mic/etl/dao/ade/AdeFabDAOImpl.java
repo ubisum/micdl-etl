@@ -125,6 +125,8 @@ public class AdeFabDAOImpl implements AdeFabDAO
 			logger.info("Record effettivamente inseriti sulla tabella di staging: {}", numeroRecordScritti);
 			
 			logger.info("Terminato inserimento in tabella di staging");
+			
+			return numeroRecordScritti;
 		}
 		
 		catch(Throwable ex)
