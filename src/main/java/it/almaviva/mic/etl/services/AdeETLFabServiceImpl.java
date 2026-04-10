@@ -11,10 +11,12 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import it.almaviva.mic.etl.converters.ade.AdeConverter;
+import it.almaviva.mic.etl.dao.GenericDAO;
 import it.almaviva.mic.etl.dao.ade.AdeFabDAO;
 import it.almaviva.mic.etl.dto.ParsingDTO;
 import it.almaviva.mic.etl.entities.ade.AdeUnitaImmHist;
 import it.almaviva.mic.etl.parsers.ParserInterface;
+import it.almaviva.mic.etl.utils.MicDlEtlConsts;
 import jakarta.transaction.Transactional;
 
 @Service
@@ -27,6 +29,9 @@ public class AdeETLFabServiceImpl implements MicDllEtlService
 	@Autowired
 	private AdeFabDAO fabDAO;
 	
+	@Autowired
+	private GenericDAO genericDAO;
+	
 	private static final Logger logger = LoggerFactory.getLogger(AdeETLFabServiceImpl.class);
 	
 	@Override
@@ -38,13 +43,29 @@ public class AdeETLFabServiceImpl implements MicDllEtlService
 		logger.info("Scansione del file...");
 		ParsingDTO parsingResult = parser.parseFile(csvReader);
 		
-		logger.info("Estrazione delle entita' dai DTO...");
+		logger.info("Estrazione delle entita' immobiliari dai DTO...");
 		List<AdeUnitaImmHist> listaUnita = parsingResult.getUnitaImmobiliari().stream()
 				                           .map(unita -> AdeConverter.convertFABRec1FromDto(unita))
 				                           .collect(Collectors.toList());
 		
-		logger.info("Richiesta di salvataggio su tabella di staging...");
-		fabDAO.insertUnitaImm(listaUnita);
+		/*
+		logger.info("Categorie: {}", listaUnita.stream().map(m -> m.getCategoria()).distinct().toList());
+		logger.info("Conc. flag. classamento: {}", listaUnita.stream().map(m -> m.getConcFlagClassamento()).distinct().toList());
+		logger.info("Zone censuarie: {}", listaUnita.stream().map(m -> m.getZonaCensuaria()).distinct().toList());
+		logger.info("Conc.tipo nota: {}", listaUnita.stream().map(m -> m.getConcTipoNota()).distinct().toList());
+		*/
+		
+		logger.info("Richiesta di salvataggio su tabella di staging delle unita' immobiliari...");
+		Integer numeroRecordInseriti = fabDAO.insertUnitaImm(listaUnita);
+		parsingResult.setRecordInseriti(parsingResult.getRecordInseriti() != null ? 
+				                        parsingResult.getRecordInseriti() + numeroRecordInseriti : numeroRecordInseriti);
+		
+		logger.info("Inseriti {} record sulla tabella di staging", numeroRecordInseriti);
+		
+		logger.info("Esecuzione stored procedure per tabella unita' immobiliari...");
+		genericDAO.eseguiStoredProcedure(MicDlEtlConsts.ADE_UNITA_IMM_SP);
+		logger.info("Esecuzione stored procedure {} terminata", MicDlEtlConsts.ADE_UNITA_IMM_SP);
+		
 		
 		return parsingResult;
 		

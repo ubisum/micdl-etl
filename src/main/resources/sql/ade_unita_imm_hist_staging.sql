@@ -46,4 +46,4 @@ CREATE TEMPORARY TABLE ADE_UNITA_IMM_HIST_STAGING
   conc_descr_atto_conclusivo varchar(100),
   conc_flag_classamento varchar(1),
   hash varchar(64)
-) 
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;

@@ -1,3 +1,5 @@
+DROP PROCEDURE IF EXISTS sp_unita_imm_scd2_load;
+
 DELIMITER $$
 
 CREATE PROCEDURE sp_unita_imm_scd2_load()
@@ -14,17 +16,17 @@ BEGIN
     -- ---------------------------------------
     UPDATE ade_unita_imm_hist tgt
     INNER JOIN ADE_UNITA_IMM_HIST_STAGING src
-       ON tgt.cod_comune = src.cod_comune
-       AND tgt.sezione = src.sezione
-       AND tgt.id_imm_catasto = src.id_imm_catasto
-       AND tgt.tipo_catasto = src.tipo_catasto
-       AND tgt.progressivo = src.progressivo
-       AND tgt.tipo_record = src.tipo_record
+       ON tgt.cod_comune COLLATE utf8mb4_unicode_ci = src.cod_comune COLLATE utf8mb4_unicode_ci 
+       AND tgt.sezione COLLATE utf8mb4_unicode_ci = src.sezione COLLATE utf8mb4_unicode_ci
+       AND tgt.id_imm_catasto COLLATE utf8mb4_unicode_ci = src.id_imm_catasto COLLATE utf8mb4_unicode_ci
+       AND tgt.tipo_catasto COLLATE utf8mb4_unicode_ci = src.tipo_catasto COLLATE utf8mb4_unicode_ci
+       AND tgt.progressivo COLLATE utf8mb4_unicode_ci = src.progressivo COLLATE utf8mb4_unicode_ci
+       AND tgt.tipo_record COLLATE utf8mb4_unicode_ci = src.tipo_record COLLATE utf8mb4_unicode_ci
     SET 
         tgt.is_current = 0,
         tgt.valid_to = v_oggi
     WHERE tgt.is_current = 1
-      AND tgt.hash_value <> src.hash_value;
+      AND tgt.hash COLLATE utf8mb4_unicode_ci <> src.hash COLLATE utf8mb4_unicode_ci;
 
     -- ---------------------------------------
     -- 2. INSERT RECORD NUOVI O MODIFICATI
@@ -63,20 +65,20 @@ BEGIN
         v_oggi,
         NULL,
         1, 
-		NULL
+		1
     FROM ADE_UNITA_IMM_HIST_STAGING src
     WHERE NOT EXISTS (
         SELECT 1
         FROM ade_unita_imm_hist tgt
         WHERE 
-			tgt.cod_comune = src.cod_comune
-			AND tgt.sezione = src.sezione
-			AND tgt.id_imm_catasto = src.id_imm_catasto
-			AND tgt.tipo_catasto = src.tipo_catasto
-			AND tgt.progressivo = src.progressivo
-			AND tgt.tipo_record = src.tipo_record
-			AND tgt.is_valid = 1
-			AND tgt.hash_value = src.hash_value
+			tgt.cod_comune COLLATE utf8mb4_unicode_ci = src.cod_comune COLLATE utf8mb4_unicode_ci
+			AND tgt.sezione COLLATE utf8mb4_unicode_ci = src.sezione COLLATE utf8mb4_unicode_ci
+			AND tgt.id_imm_catasto COLLATE utf8mb4_unicode_ci = src.id_imm_catasto COLLATE utf8mb4_unicode_ci
+			AND tgt.tipo_catasto COLLATE utf8mb4_unicode_ci = src.tipo_catasto COLLATE utf8mb4_unicode_ci  
+			AND tgt.progressivo COLLATE utf8mb4_unicode_ci = src.progressivo COLLATE utf8mb4_unicode_ci
+			AND tgt.tipo_record COLLATE utf8mb4_unicode_ci = src.tipo_record COLLATE utf8mb4_unicode_ci
+			AND tgt.is_current = 1
+			AND tgt.hash COLLATE utf8mb4_unicode_ci = src.hash COLLATE utf8mb4_unicode_ci
     );
 
     -- ---------------------------------------
@@ -110,7 +112,7 @@ BEGIN
 		new_imm.id_imm_hist,
 		v_oggi_dt
 	FROM 
-		ade_dato_catastale_hist new_imm
+		ade_unita_imm_hist new_imm
 	WHERE 
 		new_imm.is_current = 1
 	AND 
@@ -118,7 +120,7 @@ BEGIN
 	AND NOT EXISTS 
 	(
       SELECT 1
-      FROM ade_dato_catastale_hist old_imm
+      FROM ade_unita_imm_hist old_imm
       WHERE 
 		old_imm.cod_comune = new_imm.cod_comune
        AND 
@@ -132,7 +134,7 @@ BEGIN
        AND 
 		old_imm.tipo_record = new_imm.tipo_record
        AND 
-		old_imm.data_inizio_validita < v_oggi
+		old_imm.valid_from < v_oggi
 	);
 
     -- -----------------------------------------------------------------------

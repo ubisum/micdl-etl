@@ -9,8 +9,11 @@ public class MicDlEtlConsts
 	public static final String ERR_ESTATE_REG_NUM = "Numero dei campi dei dati catastali non corretto";
 	public static final String ERR_ADDR_NUM = "Numero dei campi degli indirizzi non corretto";
 	
-	/* file SQL */
+	/* file SQL per operazioni CRUD */
 	public static final String ADE_UNITA_IMM_CREATE_STAGING = "sql/ade_unita_imm_hist_staging.sql";
 	public static final String ADE_UNITA_IMM_CREATE_STAGING_INSERT = "sql/ade_unita_imm_hist_staging_insert.sql";
+	
+	/* stored procedure */
+	public static final String ADE_UNITA_IMM_SP = "sp_unita_imm_scd2_load"; 
 	
 }

@@ -14,7 +14,7 @@ public class FabbricatoBaseDto
 {
 	@NotNull(message = "Il codice comune non puo' essere nullo")
 	@CsvPosition(0)
-	private String codiceComune;
+	private String codComune;
 	
 	@CsvPosition(1)
 	private String sezione;

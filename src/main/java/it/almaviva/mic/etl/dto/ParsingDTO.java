@@ -21,7 +21,7 @@ public class ParsingDTO extends EsitoDTO
 	private Integer recordLetti;
 	private Map<Integer, List<String>> reportRecord;
 	private Integer recordNonInseriti;
-	private String recordInseriti;	
+	private Integer recordInseriti;	
 	
 	/* flusso FAB */
 	@JsonIgnore
