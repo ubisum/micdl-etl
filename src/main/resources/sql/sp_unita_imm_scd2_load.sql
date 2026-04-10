@@ -135,6 +135,24 @@ BEGIN
 		old_imm.tipo_record = new_imm.tipo_record
        AND 
 		old_imm.valid_from < v_oggi
+	)
+	AND NOT EXISTS 
+	(
+		SELECT 1
+		FROM ade_unita_imm inspect_aui
+		INNER JOIN ade_unita_imm_hist test_imm ON test_imm.id_imm_hist = inspect_aui.id_imm_hist
+		WHERE 
+		test_imm.cod_comune = new_imm.cod_comune
+       AND 
+		test_imm.sezione = new_imm.sezione
+       AND 
+		test_imm.id_imm_catasto = new_imm.id_imm_catasto
+       AND 
+		test_imm.tipo_catasto = new_imm.tipo_catasto
+       AND 
+		test_imm.progressivo = new_imm.progressivo
+       AND 
+		test_imm.tipo_record = new_imm.tipo_record
 	);
 
     -- -----------------------------------------------------------------------
