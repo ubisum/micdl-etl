@@ -55,10 +55,11 @@ public class AdeDatoCatastaleHist
 	@Column(name = "is_current")
 	private Boolean isCurrent;
 	
-	@Column(name = "batch_id")
-	private BigDecimal batchId;
-	
 	@ManyToOne
 	@JoinColumn(name = "id_imm_hist", nullable = false)
 	private AdeUnitaImmHist unitaImm;
+	
+	@ManyToOne
+	@JoinColumn(name = "batch_id", nullable = false)
+	private BatchJob batchJob;
 }

@@ -64,4 +64,8 @@ public class AdeIndirizzoHist
 	@ManyToOne
 	@JoinColumn(name = "id_imm_hist", nullable = false)
 	private AdeUnitaImmHist unitaImm;
+	
+	@ManyToOne
+	@JoinColumn(name = "batch_id", nullable = false)
+	private BatchJob batchJob;
 }
