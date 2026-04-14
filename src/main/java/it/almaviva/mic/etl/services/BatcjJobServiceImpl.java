@@ -1,0 +1,62 @@
+package it.almaviva.mic.etl.services;
+
+import java.math.BigDecimal;
+
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+
+import it.almaviva.mic.etl.dao.GenericDAO;
+import it.almaviva.mic.etl.enums.AdeEsitoBatchJob;
+import it.almaviva.mic.etl.exceptions.MicdlETLException;
+import jakarta.transaction.Transactional;
+
+@Service
+public class BatcjJobServiceImpl implements BatchJobService 
+{
+	@Autowired
+	private GenericDAO genericDAO;
+	
+	private static final Logger logger = LoggerFactory.getLogger(BatcjJobServiceImpl.class);
+	
+	@Override
+	@Transactional
+	public BigDecimal insertBatchJob(String fonte, String tipoCarico) 
+	{
+		logger.info("Accesso alla funzione service per l'inserimento del batch job...");
+		try
+		{
+			return genericDAO.insertBatchJob(fonte, tipoCarico);
+		}
+		
+		catch(Throwable ex)
+		{
+			logger.info("Si e' verificata un'eccezione durante l'inserimento del batch job", ex);
+			throw new MicdlETLException(StringUtils.isNoneBlank(ex.getMessage()) ? ex.getMessage() : 
+				                        "Si e' verificato un errore interno", HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		
+	}
+
+	@Override
+	public void updateBatchJob(BigDecimal idBatch, AdeEsitoBatchJob esito) 
+	{
+		logger.info("Accesso alla funzione service per l'aggiornamento del batch job...");
+		try
+		{
+			genericDAO.updateBatchJob(idBatch, esito);
+		}
+		
+		catch(Throwable ex)
+		{
+			logger.info("Si e' verificata un'eccezione durante l'aggiornamento del batch job", ex);
+			throw new MicdlETLException(StringUtils.isNoneBlank(ex.getMessage()) ? ex.getMessage() : 
+				                        "Si e' verificato un errore interno", HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		
+	}
+
+}

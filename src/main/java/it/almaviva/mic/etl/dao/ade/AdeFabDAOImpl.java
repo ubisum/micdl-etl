@@ -1,5 +1,6 @@
 package it.almaviva.mic.etl.dao.ade;
 
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -34,7 +35,7 @@ public class AdeFabDAOImpl implements AdeFabDAO
 	private static final Logger logger = LoggerFactory.getLogger(AdeFabDAOImpl.class);
 	
 	@Override
-	public Integer insertUnitaImm(List<AdeUnitaImmHist> unitaImmobiliari) 
+	public Integer insertUnitaImm(List<AdeUnitaImmHist> unitaImmobiliari, BigDecimal idBatch) 
 	{
 		logger.info("Inizio salvataggio delle unita' immobiliari sulla tabella di staging...");
 		
@@ -98,7 +99,7 @@ public class AdeFabDAOImpl implements AdeFabDAO
 			for(AdeUnitaImmHist unita : unitaImmobiliari)
 			{
 				/* riempimento dei parametri per l'i-simo record */
-				prepareInsertUnitaImm(inserimentoStagingPs, unita);
+				prepareInsertUnitaImm(inserimentoStagingPs, unita, idBatch);
 				
 				/* aggiunta al batch */
 				inserimentoStagingPs.addBatch();
@@ -141,7 +142,7 @@ public class AdeFabDAOImpl implements AdeFabDAO
 	
 	/* metodo di popolamento della insert delle unita' immobiliari 
 	 * nella tabella di staging */
-	private void prepareInsertUnitaImm(PreparedStatement ps, AdeUnitaImmHist r) throws Exception {
+	private void prepareInsertUnitaImm(PreparedStatement ps, AdeUnitaImmHist r, BigDecimal idBatch) throws Exception {
 
 		/* indice di puntamento */
 	    int indice = 1;
@@ -207,9 +208,10 @@ public class AdeFabDAOImpl implements AdeFabDAO
 	    ps.setString(indice++, r.getConcFlagClassamento());
 
 	    ps.setString(indice++, r.getHash());
+	    ps.setBigDecimal(indice++, idBatch);
 
 	    /* safety check */
-	    if (indice != 47) 
+	    if (indice != 48) 
 	    {
 	    	logger.info("Numero parametri errato: {}", indice - 1);
 	        throw new MicdlETLException("Numero parametri errato: " + (indice - 1), HttpStatus.INTERNAL_SERVER_ERROR);

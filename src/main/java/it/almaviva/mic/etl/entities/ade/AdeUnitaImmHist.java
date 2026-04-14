@@ -175,9 +175,6 @@ public class AdeUnitaImmHist
 	@Column(name = "is_current")
 	private Boolean isCurrent;
 	
-	@Column(name = "batch_id")
-	private BigDecimal batchId;
-	
 	@OneToMany(mappedBy = "unitaImm", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<AdeDatoCatastaleHist> datiCatastali;
 	

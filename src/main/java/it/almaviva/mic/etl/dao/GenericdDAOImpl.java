@@ -10,6 +10,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import it.almaviva.mic.etl.entities.ade.BatchJob;
 import it.almaviva.mic.etl.enums.AdeEsitoBatchJob;
@@ -17,6 +19,7 @@ import it.almaviva.mic.etl.exceptions.MicdlETLException;
 import it.almaviva.mic.etl.repositories.BatchJobRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+
 
 @Component
 public class GenericdDAOImpl implements GenericDAO 
@@ -48,7 +51,7 @@ public class GenericdDAOImpl implements GenericDAO
 		
 		catch(Throwable ex)
 		{
-			logger.info("Si e' verificato un errroe durante l'esecuzione della procedure {}", procedure);
+			logger.info("Si e' verificato un errroe durante l'esecuzione della procedure {}", procedure, ex);
 			throw new MicdlETLException("Si e' verificato un errore interno", HttpStatus.INTERNAL_SERVER_ERROR);
 			
 		}

@@ -58,9 +58,6 @@ public class AdeIndirizzoHist
 	@Column(name = "is_current")
 	private Boolean isCurrent;
 	
-	@Column(name = "batch_id")
-	private Boolean batchId;
-	
 	@ManyToOne
 	@JoinColumn(name = "id_imm_hist", nullable = false)
 	private AdeUnitaImmHist unitaImm;

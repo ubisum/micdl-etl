@@ -65,7 +65,7 @@ BEGIN
         v_oggi,
         NULL,
         1, 
-		1
+		batch_id
     FROM ADE_UNITA_IMM_HIST_STAGING src
     WHERE NOT EXISTS (
         SELECT 1
