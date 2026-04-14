@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
+import it.almaviva.mic.etl.dto.ade.fabbricati.FabbricatoTipoRecord2Dto;
 import it.almaviva.mic.etl.entities.ade.AdeUnitaImmHist;
 import it.almaviva.mic.etl.exceptions.MicdlETLException;
 import it.almaviva.mic.etl.utils.MicDlEtlConsts;
@@ -33,6 +34,32 @@ public class AdeFabDAOImpl implements AdeFabDAO
 	 private String batchSize;
 	
 	private static final Logger logger = LoggerFactory.getLogger(AdeFabDAOImpl.class);
+	
+	@Override
+	public Integer insertDatiCatastali(List<FabbricatoTipoRecord2Dto> datiCatastali, BigDecimal idBatch) 
+	{
+		logger.info("Richiesta di inserimento dei dati catastali nella tabella di staging...");
+		
+		if(CollectionUtils.isEmpty(datiCatastali))
+		{
+			logger.info("Nessun dato catastale fornito, nessun inserimento verra' effettuato");
+			return 0;
+		}
+		
+		/* grandezza batch */
+		Integer maxNumRecords = null;
+		if(StringUtils.isBlank(batchSize))
+		{
+			logger.info("Nessuna property indicante la misura del batch trovata. Si imposta la grandezza massima di default a 1000");
+			maxNumRecords = Integer.valueOf(1000);
+		}
+		
+		else
+			maxNumRecords = Integer.valueOf(batchSize);
+		
+		return null;
+		
+	}
 	
 	@Override
 	public Integer insertUnitaImm(List<AdeUnitaImmHist> unitaImmobiliari, BigDecimal idBatch) 
@@ -217,6 +244,8 @@ public class AdeFabDAOImpl implements AdeFabDAO
 	        throw new MicdlETLException("Numero parametri errato: " + (indice - 1), HttpStatus.INTERNAL_SERVER_ERROR);
 	    }
 	}
+
+	
 
 
 }
