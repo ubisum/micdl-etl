@@ -16,7 +16,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
+import it.almaviva.mic.etl.converters.ade.AdeConverter;
+import it.almaviva.mic.etl.dto.ade.fabbricati.DatoCatastaleDto;
 import it.almaviva.mic.etl.dto.ade.fabbricati.FabbricatoTipoRecord2Dto;
+import it.almaviva.mic.etl.entities.ade.AdeDatoCatastaleHist;
 import it.almaviva.mic.etl.entities.ade.AdeUnitaImmHist;
 import it.almaviva.mic.etl.exceptions.MicdlETLException;
 import it.almaviva.mic.etl.utils.MicDlEtlConsts;
@@ -57,7 +60,87 @@ public class AdeFabDAOImpl implements AdeFabDAO
 		else
 			maxNumRecords = Integer.valueOf(batchSize);
 		
-		return null;
+		try
+		{
+			logger.info("Sono presenti {} dati catastali da inserire nella tabella di staging",
+					    datiCatastali.stream().mapToInt(dc -> dc.getArray_id_dato_catastale().size()).sum());
+			
+			logger.info("Creazione connessione verso il DB...");
+			Session session = entityManager.unwrap(Session.class);
+			Connection conn = session.doReturningWork(c -> c);
+			
+			logger.info("Lettura del codice SQL per la creazione della tabella temporanea...");
+			String sqlTabellaTemporanea = MicdlEtlUtils.readContentFromFile(MicDlEtlConsts.ADE_DATO_CATASTALE_CREATE_STAGING);
+			if(StringUtils.isEmpty(sqlTabellaTemporanea))
+			{
+				logger.info("Impossibile leggere il codice per la creazione della tabella di staging");
+				throw new MicdlETLException("Impossibile leggere codice per la creazione della tabella di staging", 
+						                    HttpStatus.INTERNAL_SERVER_ERROR);
+			}
+			
+			logger.info("Rimozione della tabella temporanea (se presente)...");
+			Statement createStagingStmt = conn.createStatement();
+			createStagingStmt.execute("DROP TEMPORARY TABLE IF EXISTS ADE_DATO_CATASTALE_HIST_STAGING");
+			
+			logger.info("Creazione tabella temporanea...");
+			createStagingStmt.executeUpdate(sqlTabellaTemporanea);
+			
+			logger.info("Lettura codice SQL per l'inserimento dei dati nella tabella di staging...");
+			String sqlInserimentoDatiCatastali = MicdlEtlUtils.readContentFromFile(MicDlEtlConsts.ADE_DATO_CATASTALE_CREATE_STAGING_INSERT);
+			if(StringUtils.isEmpty(sqlInserimentoDatiCatastali))
+			{
+				logger.info("Impossibile leggere il codice per l'inserimento dei dati nella tabella di staging");
+				throw new MicdlETLException("Impossibile leggere il codice per l'inserimento dei dati nella tabella di staging", 
+						                    HttpStatus.INTERNAL_SERVER_ERROR);
+			}
+			
+			/* creazione del prepared statement */
+			PreparedStatement inserimentoStagingPs = conn.prepareStatement(sqlInserimentoDatiCatastali);
+
+			/* contatore dei record */
+			int counter = 0;
+			
+			for(FabbricatoTipoRecord2Dto dto : datiCatastali)
+			{
+				/* riempimento dei parametri per l'i-simo record */
+				popolamentoDatiCatastali(inserimentoStagingPs, dto, idBatch);
+				
+				/* aggiunta al batch */
+				inserimentoStagingPs.addBatch();
+				
+				/* controllo del raggiungimento del numero massimo di elementi per batch */
+				if(++counter % Integer.valueOf(batchSize) == 0)
+					inserimentoStagingPs.executeBatch();
+			}
+			
+			/* esecuzione del batch, se non avvenuto nel ciclo */
+			inserimentoStagingPs.executeBatch();
+			
+			logger.info("Inserimento terminato");
+			
+			/* verifica del numero dei record effettivamente scritti */
+			logger.info("Verifica dei record effettivamente scritti sulla tabella temporanea...");
+			
+			String sqlCountRecords = "SELECT COUNT(*) FROM ADE_DATO_CATASTALE_HIST_STAGING";
+			Statement countRecords = conn.createStatement();
+			
+			ResultSet result = countRecords.executeQuery(sqlCountRecords);
+			Integer numeroRecordScritti = result.next() ? result.getInt(1) : 0;
+			
+			logger.info("Dati catastali effettivamente inseriti sulla tabella di staging: {}", numeroRecordScritti);
+			
+			logger.info("Terminato inserimento dati catastali in tabella di staging");
+			
+			return numeroRecordScritti;
+			
+		}
+		
+		catch(Throwable ex)
+		{
+			logger.info("Si e' verificato un errore durante l'inserimento dei dati catastali", ex);
+			throw new MicdlETLException("Si e' verificato un errore durante l'inserimento dei dati catastali", 
+					                    HttpStatus.INTERNAL_SERVER_ERROR);    
+		}
 		
 	}
 	
@@ -150,9 +233,9 @@ public class AdeFabDAOImpl implements AdeFabDAO
 			ResultSet result = countRecords.executeQuery(sqlCountRecords);
 			Integer numeroRecordScritti = result.next() ? result.getInt(1) : 0;
 			
-			logger.info("Record effettivamente inseriti sulla tabella di staging: {}", numeroRecordScritti);
+			logger.info("Unita' immobiliari effettivamente inseriti sulla tabella di staging: {}", numeroRecordScritti);
 			
-			logger.info("Terminato inserimento in tabella di staging");
+			logger.info("Terminato inserimento unita' immobiliari in tabella di staging");
 			
 			return numeroRecordScritti;
 		}
@@ -162,6 +245,54 @@ public class AdeFabDAOImpl implements AdeFabDAO
 			logger.info("Si e' verificato un errore durante l'inserimento delle unita' immobiliari", ex);
 			throw new MicdlETLException("Si e' verificato un errore durante l'inserimento delle unita' immobiliari", 
 					                    HttpStatus.INTERNAL_SERVER_ERROR);           
+		}
+		
+		
+	}
+	
+	/* metodo di popolamento della insert dei dati catastali nella tabella di staging */
+	private void popolamentoDatiCatastali(PreparedStatement ps, FabbricatoTipoRecord2Dto dto, BigDecimal idBatch) throws Exception
+	{
+		/* iterazione sui dati catastali del fabbricato corrente */
+		for(DatoCatastaleDto dato : dto.getArray_id_dato_catastale())
+		{
+			/* indice di puntamento */
+			int indice = 1;
+			
+			/* conversione */
+			AdeDatoCatastaleHist datoConvertito = AdeConverter.convertDatoCatastaleFromDto(dato);
+			
+			/* inserimento parametri */
+		    ps.setString(indice++, dto.getCodComune());
+		    ps.setString(indice++, dto.getSezione());
+		    ps.setString(indice++, dto.getIdImmCatasto());
+		    ps.setString(indice++, dto.getTipoCatasto());
+		    ps.setString(indice++, dto.getProgressivo());
+		    ps.setString(indice++, dto.getTipoRecord());
+		    
+		    ps.setString(indice++, datoConvertito.getSezioneUrbana());
+		    ps.setString(indice++, datoConvertito.getFoglio());
+		    ps.setString(indice++, datoConvertito.getNumero());
+		    
+		    if(datoConvertito.getDenominatore() != null)
+		    	ps.setInt(indice++, datoConvertito.getDenominatore());
+		    
+		    else
+		    	ps.setNull(indice++, java.sql.Types.INTEGER);
+		    
+		    ps.setString(indice++, datoConvertito.getSubalterno());
+		    ps.setString(indice++, datoConvertito.getEdificialita());
+		    ps.setString(indice++, datoConvertito.getHash());
+		    ps.setBigDecimal(indice++, idBatch);
+		    
+		    /* safety check */
+		    if (indice != 15) 
+		    {
+		    	logger.info("Numero parametri errato per dato catastale: {}", indice - 1);
+		        throw new MicdlETLException("Numero parametri errato per dato catastale:" + (indice - 1), HttpStatus.INTERNAL_SERVER_ERROR);
+		    }
+		    
+		    
 		}
 		
 		

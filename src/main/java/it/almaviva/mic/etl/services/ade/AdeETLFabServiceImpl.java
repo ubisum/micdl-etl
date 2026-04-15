@@ -66,7 +66,7 @@ public class AdeETLFabServiceImpl implements MicDllEtlService
 			logger.info("Conc.tipo nota: {}", listaUnita.stream().map(m -> m.getConcTipoNota()).distinct().toList());
 			*/
 						
-			logger.info("Richiesta di salvataggio su tabella di staging delle unita' immobiliari...");
+			logger.info("Salvataggio su tabella di staging delle unita' immobiliari...");
 			Integer numeroRecordInseriti = fabDAO.insertUnitaImm(listaUnita, idBatch);
 			parsingResult.setRecordInseriti(parsingResult.getRecordInseriti() != null ? 
 			          parsingResult.getRecordInseriti() + numeroRecordInseriti : numeroRecordInseriti);
@@ -76,6 +76,11 @@ public class AdeETLFabServiceImpl implements MicDllEtlService
 			logger.info("Esecuzione stored procedure per tabella unita' immobiliari...");
 			genericDAO.eseguiStoredProcedure(MicDlEtlConsts.ADE_UNITA_IMM_SP);
 			logger.info("Esecuzione stored procedure {} terminata", MicDlEtlConsts.ADE_UNITA_IMM_SP);
+			
+			logger.info("Salvataggio dei dati catastali sulla tabella di staging...");
+			Integer datiCatastaliInseriti = fabDAO.insertDatiCatastali(parsingResult.getDatiCatastali(), idBatch);
+			parsingResult.setRecordInseriti(parsingResult.getRecordInseriti() != null ? 
+			          parsingResult.getRecordInseriti() + datiCatastaliInseriti : datiCatastaliInseriti);
 			
 		}
 		

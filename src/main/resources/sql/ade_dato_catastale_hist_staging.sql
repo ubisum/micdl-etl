@@ -12,5 +12,6 @@ CREATE TEMPORARY TABLE ADE_DATO_CATASTALE_HIST_STAGING
   denominatore int,
   subalterno varchar(4),
   edificialita varchar(1),
-  hash varchar(64)
+  hash varchar(64),
+  batch_id bigint
 );
