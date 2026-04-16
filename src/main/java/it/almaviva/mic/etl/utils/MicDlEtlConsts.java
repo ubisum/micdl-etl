@@ -17,5 +17,6 @@ public class MicDlEtlConsts
 	
 	/* stored procedure */
 	public static final String ADE_UNITA_IMM_SP = "sp_unita_imm_scd2_load"; 
+	public static final String ADE_DATO_CASTALE_SP = "sp_dato_catastale_scd2_load"; 
 	
 }

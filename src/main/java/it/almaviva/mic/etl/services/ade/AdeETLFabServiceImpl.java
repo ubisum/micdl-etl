@@ -82,6 +82,13 @@ public class AdeETLFabServiceImpl implements MicDllEtlService
 			parsingResult.setRecordInseriti(parsingResult.getRecordInseriti() != null ? 
 			          parsingResult.getRecordInseriti() + datiCatastaliInseriti : datiCatastaliInseriti);
 			
+			logger.info("Inseriti {} record sulla tabella di staging", datiCatastaliInseriti);
+			
+			logger.info("Esecuzione stored procedure per tabella dati catastali...");
+			genericDAO.eseguiStoredProcedure(MicDlEtlConsts.ADE_DATO_CASTALE_SP);
+			logger.info("Esecuzione stored procedure {} terminata", MicDlEtlConsts.ADE_DATO_CASTALE_SP);
+			
+			
 		}
 		
 		catch(MicdlETLException mee)

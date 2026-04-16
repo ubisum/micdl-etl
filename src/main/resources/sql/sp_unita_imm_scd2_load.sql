@@ -20,7 +20,7 @@ BEGIN
        AND tgt.sezione COLLATE utf8mb4_unicode_ci = src.sezione COLLATE utf8mb4_unicode_ci
        AND tgt.id_imm_catasto COLLATE utf8mb4_unicode_ci = src.id_imm_catasto COLLATE utf8mb4_unicode_ci
        AND tgt.tipo_catasto COLLATE utf8mb4_unicode_ci = src.tipo_catasto COLLATE utf8mb4_unicode_ci
-       AND tgt.progressivo COLLATE utf8mb4_unicode_ci = src.progressivo COLLATE utf8mb4_unicode_ci
+       --AND tgt.progressivo COLLATE utf8mb4_unicode_ci = src.progressivo COLLATE utf8mb4_unicode_ci
        AND tgt.tipo_record COLLATE utf8mb4_unicode_ci = src.tipo_record COLLATE utf8mb4_unicode_ci
     SET 
         tgt.is_current = 0,
@@ -75,7 +75,7 @@ BEGIN
 			AND tgt.sezione COLLATE utf8mb4_unicode_ci = src.sezione COLLATE utf8mb4_unicode_ci
 			AND tgt.id_imm_catasto COLLATE utf8mb4_unicode_ci = src.id_imm_catasto COLLATE utf8mb4_unicode_ci
 			AND tgt.tipo_catasto COLLATE utf8mb4_unicode_ci = src.tipo_catasto COLLATE utf8mb4_unicode_ci  
-			AND tgt.progressivo COLLATE utf8mb4_unicode_ci = src.progressivo COLLATE utf8mb4_unicode_ci
+			--AND tgt.progressivo COLLATE utf8mb4_unicode_ci = src.progressivo COLLATE utf8mb4_unicode_ci
 			AND tgt.tipo_record COLLATE utf8mb4_unicode_ci = src.tipo_record COLLATE utf8mb4_unicode_ci
 			AND tgt.is_current = 1
 			AND tgt.hash COLLATE utf8mb4_unicode_ci = src.hash COLLATE utf8mb4_unicode_ci
@@ -92,7 +92,7 @@ BEGIN
 		AND old_imm.sezione = new_imm.sezione
 		AND old_imm.id_imm_catasto = new_imm.id_imm_catasto
 		AND old_imm.tipo_catasto = new_imm.tipo_catasto
-		AND old_imm.progressivo = new_imm.progressivo
+		--AND old_imm.progressivo = new_imm.progressivo
 		AND old_imm.tipo_record = new_imm.tipo_record
     SET dc.id_imm_hist = new_imm.id_imm_hist
     WHERE old_imm.is_current = 0
@@ -129,8 +129,8 @@ BEGIN
 		old_imm.id_imm_catasto = new_imm.id_imm_catasto
        AND 
 		old_imm.tipo_catasto = new_imm.tipo_catasto
-       AND 
-		old_imm.progressivo = new_imm.progressivo
+       --AND 
+		--old_imm.progressivo = new_imm.progressivo
        AND 
 		old_imm.tipo_record = new_imm.tipo_record
        AND 
@@ -149,8 +149,8 @@ BEGIN
 		test_imm.id_imm_catasto = new_imm.id_imm_catasto
        AND 
 		test_imm.tipo_catasto = new_imm.tipo_catasto
-       AND 
-		test_imm.progressivo = new_imm.progressivo
+       --AND 
+		--test_imm.progressivo = new_imm.progressivo
        AND 
 		test_imm.tipo_record = new_imm.tipo_record
 	);
@@ -166,7 +166,7 @@ BEGIN
 		AND old_imm.sezione = new_imm.sezione
 		AND old_imm.id_imm_catasto = new_imm.id_imm_catasto
 		AND old_imm.tipo_catasto = new_imm.tipo_catasto
-		AND old_imm.progressivo = new_imm.progressivo
+		--AND old_imm.progressivo = new_imm.progressivo
 		AND old_imm.tipo_record = new_imm.tipo_record
     SET 
 		aui.id_imm_hist = new_imm.id_imm_hist,
