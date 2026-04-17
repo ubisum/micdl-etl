@@ -108,7 +108,7 @@ BEGIN
 		FROM
 			ade_dato_catastale test
 		where
-			test.id_dc_hist = test.id_dc_hist
+			hist.id_dc_hist = test.id_dc_hist
 	);
 	
 

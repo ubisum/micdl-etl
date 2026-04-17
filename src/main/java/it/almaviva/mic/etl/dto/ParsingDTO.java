@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 import it.almaviva.mic.etl.dto.ade.fabbricati.FabbricatoTipoRecord1Dto;
 import it.almaviva.mic.etl.dto.ade.fabbricati.FabbricatoTipoRecord2Dto;
@@ -19,7 +20,10 @@ public class ParsingDTO extends EsitoDTO
 {
 	/* campi comuni */
 	private Integer recordLetti;
+	
+	@JsonInclude(JsonInclude.Include.NON_EMPTY)
 	private Map<Integer, List<String>> reportRecord;
+	
 	private Integer recordNonInseriti;
 	private Integer recordInseriti;	
 	
