@@ -18,7 +18,6 @@ import it.almaviva.mic.etl.dao.GenericDAO;
 import it.almaviva.mic.etl.dao.ade.AdeFabDAO;
 import it.almaviva.mic.etl.dto.ParsingDTO;
 import it.almaviva.mic.etl.entities.ade.AdeUnitaImmHist;
-import it.almaviva.mic.etl.enums.AdeEsitoBatchJob;
 import it.almaviva.mic.etl.exceptions.MicdlETLException;
 import it.almaviva.mic.etl.parsers.ParserInterface;
 import it.almaviva.mic.etl.services.MicDllEtlService;
@@ -88,7 +87,10 @@ public class AdeETLFabServiceImpl implements MicDllEtlService
 			genericDAO.eseguiStoredProcedure(MicDlEtlConsts.ADE_DATO_CASTALE_SP);
 			logger.info("Esecuzione stored procedure {} terminata", MicDlEtlConsts.ADE_DATO_CASTALE_SP);
 			
-			
+			logger.info("Salvataggio degli indirizzi sulla tabella di staging...");
+			Integer indirizziInseriti = fabDAO.insertIndirizzi(parsingResult.getIndirizzi(), idBatch);
+			parsingResult.setRecordInseriti(parsingResult.getRecordInseriti() != null ? 
+			          parsingResult.getRecordInseriti() + indirizziInseriti : indirizziInseriti);
 		}
 		
 		catch(MicdlETLException mee)

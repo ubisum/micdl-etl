@@ -19,7 +19,10 @@ import org.springframework.stereotype.Component;
 import it.almaviva.mic.etl.converters.ade.AdeConverter;
 import it.almaviva.mic.etl.dto.ade.fabbricati.DatoCatastaleDto;
 import it.almaviva.mic.etl.dto.ade.fabbricati.FabbricatoTipoRecord2Dto;
+import it.almaviva.mic.etl.dto.ade.fabbricati.FabbricatoTipoRecord3Dto;
+import it.almaviva.mic.etl.dto.ade.fabbricati.IndirizzoDto;
 import it.almaviva.mic.etl.entities.ade.AdeDatoCatastaleHist;
+import it.almaviva.mic.etl.entities.ade.AdeIndirizzoHist;
 import it.almaviva.mic.etl.entities.ade.AdeUnitaImmHist;
 import it.almaviva.mic.etl.exceptions.MicdlETLException;
 import it.almaviva.mic.etl.utils.MicDlEtlConsts;
@@ -37,6 +40,111 @@ public class AdeFabDAOImpl implements AdeFabDAO
 	 private String batchSize;
 	
 	private static final Logger logger = LoggerFactory.getLogger(AdeFabDAOImpl.class);
+	
+	@Override
+	public Integer insertIndirizzi(List<FabbricatoTipoRecord3Dto> indirizzi, BigDecimal idBatch) 
+	{
+		logger.info("Richiesta di inserimento degli indirizzi nella tabella di staging...");
+		
+		if(CollectionUtils.isEmpty(indirizzi))
+		{
+			logger.info("Nessun indirizzo fornito, nessun inserimento verra' effettuato");
+			return 0;
+		}
+		
+		/* grandezza batch */
+		Integer maxNumRecords = null;
+		if(StringUtils.isBlank(batchSize))
+		{
+			logger.info("Nessuna property indicante la misura del batch trovata. Si imposta la grandezza massima di default a 1000");
+			maxNumRecords = Integer.valueOf(1000);
+		}
+		
+		else
+			maxNumRecords = Integer.valueOf(batchSize);
+		
+		try
+		{
+			logger.info("Sono presenti {} indirizzi da inserire nella tabella di staging",
+				        indirizzi.stream().mapToInt(ind -> ind.getArray_id_indirizzi().size()).sum());
+			
+			logger.info("Creazione connessione verso il DB...");
+			Session session = entityManager.unwrap(Session.class);
+			Connection conn = session.doReturningWork(c -> c);
+			
+			logger.info("Lettura del codice SQL per la creazione della tabella temporanea...");
+			String sqlTabellaTemporanea = MicdlEtlUtils.readContentFromFile(MicDlEtlConsts.ADE_INDIRIZZO_CREATE_STAGING);
+			if(StringUtils.isEmpty(sqlTabellaTemporanea))
+			{
+				logger.info("Impossibile leggere il codice per la creazione della tabella di staging");
+				throw new MicdlETLException("Impossibile leggere codice per la creazione della tabella di staging", 
+						                    HttpStatus.INTERNAL_SERVER_ERROR);
+			}
+			
+			logger.info("Rimozione della tabella temporanea (se presente)...");
+			Statement createStagingStmt = conn.createStatement();
+			createStagingStmt.execute("DROP TEMPORARY TABLE IF EXISTS ADE_INDIRIZZO_HIST_STAGING");
+			
+			logger.info("Creazione tabella temporanea...");
+			createStagingStmt.executeUpdate(sqlTabellaTemporanea);
+			
+			logger.info("Lettura codice SQL per l'inserimento degli indirizzi nella tabella di staging...");
+			String sqlInserimentoIndirizzi = MicdlEtlUtils.readContentFromFile(MicDlEtlConsts.ADE_INDIRIZZO_CREATE_STAGING_INSERT);
+			if(StringUtils.isEmpty(sqlInserimentoIndirizzi))
+			{
+				logger.info("Impossibile leggere il codice per l'inserimento degli indirizzi nella tabella di staging");
+				throw new MicdlETLException("Impossibile leggere il codice per l'inserimento degli indirizzi nella tabella di staging", 
+						                    HttpStatus.INTERNAL_SERVER_ERROR);
+			}
+			
+			/* creazione del prepared statement */
+			PreparedStatement inserimentoStagingPs = conn.prepareStatement(sqlInserimentoIndirizzi);
+			
+			/* contatore dei record */
+			int counter = 0;
+			
+			for(FabbricatoTipoRecord3Dto dto : indirizzi)
+			{
+				/* riempimento dei parametri per l'i-simo record */
+				popolamentoIndirizzi(inserimentoStagingPs, dto, idBatch);
+				
+				/* aggiunta al batch */
+				inserimentoStagingPs.addBatch();
+				
+				/* controllo del raggiungimento del numero massimo di elementi per batch */
+				if(++counter % Integer.valueOf(batchSize) == 0)
+					inserimentoStagingPs.executeBatch();
+			}
+			
+			/* esecuzione del batch, se non avvenuto nel ciclo */
+			inserimentoStagingPs.executeBatch();
+			
+			logger.info("Inserimento terminato");
+			
+			/* verifica del numero dei record effettivamente scritti */
+			logger.info("Verifica dei record effettivamente scritti sulla tabella temporanea...");
+			
+			String sqlCountRecords = "SELECT COUNT(*) FROM ADE_INDIRIZZO_HIST_STAGING";
+			Statement countRecords = conn.createStatement();
+			
+			ResultSet result = countRecords.executeQuery(sqlCountRecords);
+			Integer numeroRecordScritti = result.next() ? result.getInt(1) : 0;
+			
+			logger.info("Indirizzi effettivamente inseriti sulla tabella di staging: {}", numeroRecordScritti);
+			
+			logger.info("Terminato inserimento indirizzi in tabella di staging");
+			
+			return numeroRecordScritti;
+		}
+		
+		catch(Throwable ex)
+		{
+			logger.info("Si e' verificato un errore durante l'inserimento degli indirizzi", ex);
+			throw new MicdlETLException("Si e' verificato un errore durante l'inserimento degli indirizzi", 
+					                    HttpStatus.INTERNAL_SERVER_ERROR);   
+		}
+		
+	}
 	
 	@Override
 	public Integer insertDatiCatastali(List<FabbricatoTipoRecord2Dto> datiCatastali, BigDecimal idBatch) 
@@ -250,6 +358,46 @@ public class AdeFabDAOImpl implements AdeFabDAO
 		
 	}
 	
+	/* metodo di popolamento della insert degli indirizzi */
+	private void popolamentoIndirizzi(PreparedStatement ps, FabbricatoTipoRecord3Dto dto, BigDecimal idBatch) throws Exception
+	{
+		/* iterazione sugli indirizzi del fabbricato corrente */
+		int contatoreIndirizzi = 1;
+		for(IndirizzoDto indirizzo : dto.getArray_id_indirizzi())
+		{
+			int indice = 1;
+			
+			/* conversione */
+			AdeIndirizzoHist indirizzoConvertito = AdeConverter.convertiIndirizzoFromDto(indirizzo);
+			
+			/* inserimento parametri */
+		    ps.setString(indice++, dto.getCodComune());
+		    ps.setString(indice++, dto.getSezione());
+		    ps.setString(indice++, dto.getIdImmCatasto());
+		    ps.setString(indice++, dto.getTipoCatasto());
+		    ps.setString(indice++, dto.getProgressivo());
+		    ps.setString(indice++, dto.getTipoRecord());
+		    
+		    ps.setInt(indice++, contatoreIndirizzi++);
+		    ps.setString(indice++, indirizzoConvertito.getToponimo());
+		    ps.setString(indice++, indirizzoConvertito.getIndirizzo());
+		    ps.setString(indice++, indirizzoConvertito.getCivico1());
+		    ps.setString(indice++, indirizzoConvertito.getCivico2());
+		    ps.setString(indice++, indirizzoConvertito.getCivico3());
+		    ps.setString(indice++, indirizzoConvertito.getCodStrada());
+		    ps.setString(indice++, indirizzoConvertito.getHash());
+		    
+		    ps.setBigDecimal(indice++, idBatch);
+		    
+		    /* safety check */
+		    if (indice != 16) 
+		    {
+		    	logger.info("Numero parametri errato per indirizzo: {}", contatoreIndirizzi);
+		        throw new MicdlETLException("Numero parametri errato per dato catastale:" + contatoreIndirizzi, HttpStatus.INTERNAL_SERVER_ERROR);
+		    }
+		}
+	}
+	
 	/* metodo di popolamento della insert dei dati catastali nella tabella di staging */
 	private void popolamentoDatiCatastali(PreparedStatement ps, FabbricatoTipoRecord2Dto dto, BigDecimal idBatch) throws Exception
 	{
@@ -260,6 +408,7 @@ public class AdeFabDAOImpl implements AdeFabDAO
 			int indice = 1;
 			
 			/* conversione */
+			int contatoreDati = 1;
 			AdeDatoCatastaleHist datoConvertito = AdeConverter.convertDatoCatastaleFromDto(dato);
 			
 			/* inserimento parametri */
@@ -288,8 +437,8 @@ public class AdeFabDAOImpl implements AdeFabDAO
 		    /* safety check */
 		    if (indice != 15) 
 		    {
-		    	logger.info("Numero parametri errato per dato catastale: {}", indice - 1);
-		        throw new MicdlETLException("Numero parametri errato per dato catastale:" + (indice - 1), HttpStatus.INTERNAL_SERVER_ERROR);
+		    	logger.info("Numero parametri errato per dato catastale: {}", contatoreDati);
+		        throw new MicdlETLException("Numero parametri errato per dato catastale:" + contatoreDati, HttpStatus.INTERNAL_SERVER_ERROR);
 		    }
 		    
 		    
@@ -375,6 +524,8 @@ public class AdeFabDAOImpl implements AdeFabDAO
 	        throw new MicdlETLException("Numero parametri errato: " + (indice - 1), HttpStatus.INTERNAL_SERVER_ERROR);
 	    }
 	}
+
+	
 
 	
 

@@ -14,6 +14,8 @@ public class MicDlEtlConsts
 	public static final String ADE_UNITA_IMM_CREATE_STAGING_INSERT = "sql/ade_unita_imm_hist_staging_insert.sql";
 	public static final String ADE_DATO_CATASTALE_CREATE_STAGING = "sql/ade_dato_catastale_hist_staging.sql";
 	public static final String ADE_DATO_CATASTALE_CREATE_STAGING_INSERT = "sql/ade_dato_catastale_hist_staging_insert.sql";
+	public static final String ADE_INDIRIZZO_CREATE_STAGING = "sql/ade_indirizzo_hist_staging.sql";
+	public static final String ADE_INDIRIZZO_CREATE_STAGING_INSERT = "sql/ade_indirizzo_hist_staging_insert.sql";
 	
 	/* stored procedure */
 	public static final String ADE_UNITA_IMM_SP = "sp_unita_imm_scd2_load"; 

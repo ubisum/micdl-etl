@@ -58,6 +58,12 @@ public class CaricamentoDatiController
 	@PostMapping("/uploadFile")
 	public ResponseEntity<EsitoDTO> uploadFile(@RequestParam("file") MultipartFile file) 
 	{
+		/* ordine di caricamento dei flussi:
+		   FAB
+		   SOG
+		   TIT
+		 */
+		
 		logger.info("Invocato servizio di caricamento file...");
 		
 		logger.info("Estrazione del nome file...");

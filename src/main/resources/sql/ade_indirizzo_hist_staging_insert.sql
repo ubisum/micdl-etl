@@ -1,0 +1,24 @@
+INSERT INTO ADE_INDIRIZZO_HIST_STAGING
+(
+	cod_comune,
+	sezione,
+	id_imm_catasto,
+	tipo_catasto,
+	progressivo,
+	tipo_record,
+	seq,
+	toponimo,
+	indirizzo,
+	civico1,
+	civico2,
+	civico3,
+	cod_strada,
+	hash,
+	batch_id
+)
+VALUES
+(
+	?,?,?,?,?,?,?,?,?,?,
+	?,?,?,?,?
+)
+;
