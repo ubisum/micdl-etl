@@ -91,6 +91,12 @@ public class AdeETLFabServiceImpl implements MicDllEtlService
 			Integer indirizziInseriti = fabDAO.insertIndirizzi(parsingResult.getIndirizzi(), idBatch);
 			parsingResult.setRecordInseriti(parsingResult.getRecordInseriti() != null ? 
 			          parsingResult.getRecordInseriti() + indirizziInseriti : indirizziInseriti);
+			
+			logger.info("Inseriti {} record sulla tabella di staging", indirizziInseriti);
+			
+			logger.info("Esecuzione stored procedure per tabella indirizzi...");
+			genericDAO.eseguiStoredProcedure(MicDlEtlConsts.ADE_INDIRIZZO_SP);
+			logger.info("Esecuzione stored procedure {} terminata", MicDlEtlConsts.ADE_INDIRIZZO_SP);
 		}
 		
 		catch(MicdlETLException mee)
