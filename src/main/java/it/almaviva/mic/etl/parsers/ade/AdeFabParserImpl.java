@@ -54,7 +54,9 @@ public class AdeFabParserImpl implements ParserInterface {
 		 Map<Integer, List<String>> erroriRecord = new HashMap<>();
 		 List<FabbricatoTipoRecord1Dto> listaFabbricati = new ArrayList<>();
 		 List<FabbricatoTipoRecord2Dto> listaDatiCatastali = new ArrayList<>();
+		 List<FabbricatoTipoRecord2Dto> listaDatiCatastaliSupplementari = new ArrayList<>();
 		 List<FabbricatoTipoRecord3Dto> listaIndirizzi = new ArrayList<>();
+		 List<FabbricatoTipoRecord3Dto> listaIndirizziSupplementari = new ArrayList<>();
 		 
 		 /* output */
 		 ParsingDTO output = new ParsingDTO();
@@ -65,6 +67,9 @@ public class AdeFabParserImpl implements ParserInterface {
 			 int rowCounter = 1;
 			 
 			logger.info("Inizio analisi file...");
+			
+			/* ultimo tipo record rilevato */
+			AdeTipoRecordEnum ultimoTipoRecord = null;
 			
 			while ((line = br.readLine()) != null) 
 			{
@@ -136,6 +141,7 @@ public class AdeFabParserImpl implements ParserInterface {
 						
 						rowCounter++;
 						listaFabbricati.add(fabbricato1);
+						ultimoTipoRecord = AdeTipoRecordEnum.ADE_TIPO_RECORD_1;
 						
 						break;
 						
@@ -209,7 +215,13 @@ public class AdeFabParserImpl implements ParserInterface {
 						}
 						
 						rowCounter++;
-						listaDatiCatastali.add(fabbricato2);
+						if(ultimoTipoRecord != null && ultimoTipoRecord == AdeTipoRecordEnum.ADE_TIPO_RECORD_2)
+							listaDatiCatastaliSupplementari.add(fabbricato2);
+						
+						else	
+							listaDatiCatastali.add(fabbricato2);
+						
+						ultimoTipoRecord = AdeTipoRecordEnum.ADE_TIPO_RECORD_2;
 						
 						break;
 					case ADE_TIPO_RECORD_3:
@@ -280,18 +292,25 @@ public class AdeFabParserImpl implements ParserInterface {
 						}
 						
 						rowCounter++;
-						listaIndirizzi.add(fabbricato3);
+						
+						if(ultimoTipoRecord != null && ultimoTipoRecord == AdeTipoRecordEnum.ADE_TIPO_RECORD_3)
+							listaIndirizziSupplementari.add(fabbricato3);
+						
+						else
+							listaIndirizzi.add(fabbricato3);
+						
+						ultimoTipoRecord = AdeTipoRecordEnum.ADE_TIPO_RECORD_3;
 						
 						break;
 					case ADE_TIPO_RECORD_4:
 						/* da implementare in futuro */
-						
+						ultimoTipoRecord = AdeTipoRecordEnum.ADE_TIPO_RECORD_4;
 						rowCounter++;
 						break;
 						
 					case ADE_TIPO_RECORD_5:
 						/* da implementare in futuro */
-						
+						ultimoTipoRecord = AdeTipoRecordEnum.ADE_TIPO_RECORD_5;
 						rowCounter++;
 						
 						break;
@@ -306,14 +325,16 @@ public class AdeFabParserImpl implements ParserInterface {
 			output.setUnitaImmobiliari(listaFabbricati);
 			output.setDatiCatastali(listaDatiCatastali);
 			output.setIndirizzi(listaIndirizzi);
+			output.setDatiCatastaliSupplementari(listaDatiCatastaliSupplementari);
+			output.setIndirizziSupplementari(listaIndirizziSupplementari);
 			output.setRecordLetti(rowCounter - 1);
 			output.setReportRecord(erroriRecord);
 			
 			logger.info("Effettuata la lettura di {} record", rowCounter - 1);
 			logger.info("Dati derivati dalla lettura dei record validi: {} unita' immobiliari, {} dati catastali, {} indirizzi", 
 					    listaFabbricati.size(),
-					    listaDatiCatastali.size(),
-					    listaIndirizzi.size());
+					    listaDatiCatastali.size() + listaDatiCatastaliSupplementari.size(),
+					    listaIndirizzi.size() + listaIndirizziSupplementari.size());
 			logger.info("Record interessati da errori di validazione: {}", erroriRecord.size());
 			logger.info("Totale record validi: {}", rowCounter - 1 - erroriRecord.size());
 		} 

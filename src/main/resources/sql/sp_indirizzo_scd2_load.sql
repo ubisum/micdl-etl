@@ -43,7 +43,7 @@ BEGIN
 	);
 	
 	-- ----------------------------------------------------------
-	-- 3. INSERIMENTO DEI NUOVI RECORD DEI DATI CATASTALI
+	-- 3. INSERIMENTO DEI NUOVI RECORD DEGLI INDIRIZZI 
 	-- ----------------------------------------------------------	
 	INSERT INTO ade_indirizzo_hist
 	(

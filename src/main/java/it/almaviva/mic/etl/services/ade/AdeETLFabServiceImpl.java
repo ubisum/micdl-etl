@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,23 +59,30 @@ public class AdeETLFabServiceImpl implements MicDllEtlService
 					                           .map(unita -> AdeConverter.convertFABRec1FromDto(unita))
 					                           .collect(Collectors.toList());
 			
-			/*
+			
 			logger.info("Categorie: {}", listaUnita.stream().map(m -> m.getCategoria()).distinct().toList());
 			logger.info("Conc. flag. classamento: {}", listaUnita.stream().map(m -> m.getConcFlagClassamento()).distinct().toList());
 			logger.info("Zone censuarie: {}", listaUnita.stream().map(m -> m.getZonaCensuaria()).distinct().toList());
+			logger.info("Tipo nota: {}", listaUnita.stream().map(m -> m.getRegTipoNota()).distinct().toList());
 			logger.info("Conc.tipo nota: {}", listaUnita.stream().map(m -> m.getConcTipoNota()).distinct().toList());
-			*/
-						
-			logger.info("Salvataggio su tabella di staging delle unita' immobiliari...");
-			Integer numeroRecordInseriti = fabDAO.insertUnitaImm(listaUnita, idBatch);
-			parsingResult.setRecordInseriti(parsingResult.getRecordInseriti() != null ? 
-			          parsingResult.getRecordInseriti() + numeroRecordInseriti : numeroRecordInseriti);
 			
-			logger.info("Inseriti {} record sulla tabella di staging", numeroRecordInseriti);
-		
-			logger.info("Esecuzione stored procedure per tabella unita' immobiliari...");
-			genericDAO.eseguiStoredProcedure(MicDlEtlConsts.ADE_UNITA_IMM_SP);
-			logger.info("Esecuzione stored procedure {} terminata", MicDlEtlConsts.ADE_UNITA_IMM_SP);
+			if(CollectionUtils.isNotEmpty(listaUnita))
+			{
+				logger.info("Salvataggio su tabella di staging delle unita' immobiliari...");
+				Integer numeroRecordInseriti = fabDAO.insertUnitaImm(listaUnita, idBatch);
+				parsingResult.setRecordInseriti(parsingResult.getRecordInseriti() != null ? 
+				          parsingResult.getRecordInseriti() + numeroRecordInseriti : numeroRecordInseriti);
+				
+				logger.info("Inseriti {} record sulla tabella di staging", numeroRecordInseriti);
+			
+				logger.info("Esecuzione stored procedure per tabella unita' immobiliari...");
+				genericDAO.eseguiStoredProcedure(MicDlEtlConsts.ADE_UNITA_IMM_SP);
+				logger.info("Esecuzione stored procedure {} terminata", MicDlEtlConsts.ADE_UNITA_IMM_SP);
+			}
+			
+			else
+				logger.info("Nessuna unita' immobiliare rilevata nel file analizzato");
+						
 			
 			logger.info("Salvataggio dei dati catastali sulla tabella di staging...");
 			Integer datiCatastaliInseriti = fabDAO.insertDatiCatastali(parsingResult.getDatiCatastali(), idBatch);
@@ -83,9 +91,25 @@ public class AdeETLFabServiceImpl implements MicDllEtlService
 			
 			logger.info("Inseriti {} record sulla tabella di staging", datiCatastaliInseriti);
 			
-			logger.info("Esecuzione stored procedure per tabella dati catastali...");
-			genericDAO.eseguiStoredProcedure(MicDlEtlConsts.ADE_DATO_CASTALE_SP);
-			logger.info("Esecuzione stored procedure {} terminata", MicDlEtlConsts.ADE_DATO_CASTALE_SP);
+			if(datiCatastaliInseriti != 0)
+			{
+				logger.info("Esecuzione stored procedure per tabella dati catastali...");
+				genericDAO.eseguiStoredProcedure(MicDlEtlConsts.ADE_DATO_CASTALE_SP);
+				logger.info("Esecuzione stored procedure {} terminata", MicDlEtlConsts.ADE_DATO_CASTALE_SP);
+			}
+			
+			if(CollectionUtils.isNotEmpty(parsingResult.getDatiCatastaliSupplementari()))
+			{
+				logger.info("Inserimento dei dati catastali supplementari sulla tabella di staging...");
+				Integer datiSupplementari = fabDAO.insertDatiCatastali(parsingResult.getDatiCatastaliSupplementari(), idBatch);
+				if(datiSupplementari > 0)
+				{
+					logger.info("Salvataggio dei dati catastali supplementari...");
+					genericDAO.eseguiStoredProcedure(MicDlEtlConsts.ADE_DATO_CASTALE_SIMPLE_SP);
+				}
+				
+				logger.info("Inseriti {} record supplementari sulla tabella di staging", datiSupplementari);
+			}
 			
 			logger.info("Salvataggio degli indirizzi sulla tabella di staging...");
 			Integer indirizziInseriti = fabDAO.insertIndirizzi(parsingResult.getIndirizzi(), idBatch);
@@ -94,9 +118,26 @@ public class AdeETLFabServiceImpl implements MicDllEtlService
 			
 			logger.info("Inseriti {} record sulla tabella di staging", indirizziInseriti);
 			
-			logger.info("Esecuzione stored procedure per tabella indirizzi...");
-			genericDAO.eseguiStoredProcedure(MicDlEtlConsts.ADE_INDIRIZZO_SP);
-			logger.info("Esecuzione stored procedure {} terminata", MicDlEtlConsts.ADE_INDIRIZZO_SP);
+			if(indirizziInseriti != 0)
+			{
+				logger.info("Esecuzione stored procedure per tabella indirizzi...");
+				genericDAO.eseguiStoredProcedure(MicDlEtlConsts.ADE_INDIRIZZO_SP);
+				logger.info("Esecuzione stored procedure {} terminata", MicDlEtlConsts.ADE_INDIRIZZO_SP);
+			}
+			
+			if(CollectionUtils.isNotEmpty(parsingResult.getIndirizziSupplementari()))
+			{
+				logger.info("Inserimento degli indirizzi supplementari sulla tabella di staging...");
+				Integer indirizziSupplementari = fabDAO.insertIndirizzi(parsingResult.getIndirizziSupplementari(), idBatch);
+				if(indirizziSupplementari > 0)
+				{
+					logger.info("Salvataggio degli indirizzi supplementari...");
+					genericDAO.eseguiStoredProcedure(MicDlEtlConsts.ADE_INDIRIZZO_SIMPLE_SP);
+				}
+				
+				logger.info("Inseriti {} record supplementari sulla tabella di staging", indirizziSupplementari);
+			}
+			
 		}
 		
 		catch(MicdlETLException mee)

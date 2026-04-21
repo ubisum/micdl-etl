@@ -24,6 +24,7 @@ import it.almaviva.mic.etl.exceptions.MicdlETLException;
 import it.almaviva.mic.etl.services.BatchJobService;
 import it.almaviva.mic.etl.services.MicDllEtlService;
 import it.almaviva.mic.etl.services.ServiceFactory;
+import it.almaviva.mic.etl.utils.MicdlEtlUtils;
 
 
 @RestController
@@ -94,6 +95,9 @@ public class CaricamentoDatiController
 		
 		try 
 		{
+			/* inizio calcolo tempo di computazione */
+			long start = System.nanoTime();
+			
 			logger.info("Preparazione alla lettura del file...");
 			Reader reader = new BufferedReader(new InputStreamReader(file.getInputStream()));
 			
@@ -102,6 +106,11 @@ public class CaricamentoDatiController
 			
 			logger.info("Inizio parsing del file...");
 			ParsingDTO result = service.parseAndStore(reader, filename, idBatch);
+			
+			/* termine calcolo di computazione */
+			long end = System.nanoTime();
+			
+			logger.info("Terminato parsing del file e salvataggio dati nel tempo {}", MicdlEtlUtils.misurazioneTempoEsecuzione(start, end));
 			
 			/* preparazione dell'aggiornamento del batch job */
 			esitoJob = AdeEsitoBatchJob.ESITO_OK;

@@ -41,4 +41,24 @@ public class MicdlEtlUtils
 					                     HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
+	
+	public static String misurazioneTempoEsecuzione(long start, long end)
+	{
+		/* calcolo della durata in nanosecondi */
+		long durationNs = end - start;
+		
+		/* conversione in millesecondi */
+		long durationMs = durationNs / 1_000_000;
+
+		/* calcolo di minuti, secondi e millisecondi rimanenti */
+		long minutes = durationMs / 60000;
+		long seconds = (durationMs % 60000) / 1000;
+		long millis  = durationMs % 1000;
+
+		/* formattazione */
+		String formatted = String.format("%02d:%02d:%03d", minutes, seconds, millis);
+
+		return formatted;
+
+	}
 }

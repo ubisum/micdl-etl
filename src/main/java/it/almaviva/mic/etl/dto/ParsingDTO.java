@@ -27,7 +27,7 @@ public class ParsingDTO extends EsitoDTO
 	private Integer recordNonInseriti;
 	private Integer recordInseriti;	
 	
-	/* flusso FAB */
+	/* ************************************* FLUSSO FAB ******************************************** */
 	@JsonIgnore
 	private List<FabbricatoTipoRecord1Dto> unitaImmobiliari;
 	
@@ -36,4 +36,10 @@ public class ParsingDTO extends EsitoDTO
 	
 	@JsonIgnore
 	private List<FabbricatoTipoRecord3Dto> indirizzi;
+	
+	@JsonIgnore
+	private List<FabbricatoTipoRecord2Dto> datiCatastaliSupplementari;
+	
+	@JsonIgnore
+	private List<FabbricatoTipoRecord3Dto> indirizziSupplementari;
 }
