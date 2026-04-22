@@ -158,6 +158,8 @@ public class CaricamentoDatiController
 			{
 				logger.info("Aggiornamento batch job...");
 				batchService.updateBatchJob(idBatch, esitoJob);
+				
+				batchService.inserisciDettagliBatchJob(result.getReportRecord(), idBatch, filename);
 			}
 			
 			catch(Throwable ex)

@@ -49,4 +49,7 @@ public class BatchJob
 	
 	@OneToMany(mappedBy = "batchJob", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<AdeIndirizzoHist> indirizzi;
+	
+	@OneToMany(mappedBy = "batchJob", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<BatchJobDettaglio> batchJobDettaglio;
 }

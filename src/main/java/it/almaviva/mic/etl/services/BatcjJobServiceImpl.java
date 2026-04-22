@@ -1,6 +1,8 @@
 package it.almaviva.mic.etl.services;
 
 import java.math.BigDecimal;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -53,6 +55,25 @@ public class BatcjJobServiceImpl implements BatchJobService
 		catch(Throwable ex)
 		{
 			logger.info("Si e' verificata un'eccezione durante l'aggiornamento del batch job", ex);
+			throw new MicdlETLException(StringUtils.isNoneBlank(ex.getMessage()) ? ex.getMessage() : 
+				                        "Si e' verificato un errore interno", HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		
+	}
+
+	@Override
+	@Transactional
+	public void inserisciDettagliBatchJob(Map<Integer, List<String>> errori, BigDecimal idJob, String filename) 
+	{
+		logger.info("Accesso alla funzione service per l'inserimento dei dettagli del batch job...");
+		try
+		{
+			genericDAO.inserisciDettagliBatchJob(errori, idJob, filename);
+		}
+		
+		catch(Throwable ex)
+		{
+			logger.info("Si e' verificata un'eccezione durante l'inserimento dei dettagli del batch job", ex);
 			throw new MicdlETLException(StringUtils.isNoneBlank(ex.getMessage()) ? ex.getMessage() : 
 				                        "Si e' verificato un errore interno", HttpStatus.INTERNAL_SERVER_ERROR);
 		}
