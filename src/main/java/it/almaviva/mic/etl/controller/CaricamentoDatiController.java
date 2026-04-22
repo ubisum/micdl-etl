@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,7 +78,10 @@ public class CaricamentoDatiController
 		BigDecimal idBatch = null;
 		
 		/* esito elaborazione */
-		EsitoDTO esito = new EsitoDTO();
+		ParsingDTO result = new ParsingDTO();
+		
+		/* istante di inizio */
+		LocalDateTime startTime = LocalDateTime.now();
 		
 		logger.info("Rilevato file con nome {}...", filename);
 		
@@ -105,7 +109,7 @@ public class CaricamentoDatiController
 			idBatch = batchService.insertBatchJob(filename, filename.substring(filename.length() - 3).toUpperCase());
 			
 			logger.info("Inizio parsing del file...");
-			ParsingDTO result = service.parseAndStore(reader, filename, idBatch);
+			result = service.parseAndStore(reader, filename, idBatch);
 			
 			/* termine calcolo di computazione */
 			long end = System.nanoTime();
@@ -125,13 +129,13 @@ public class CaricamentoDatiController
 		{
 			logger.info("Si e' verificata un'eccezione", micex);
 			
-			esito.setCodice(micex.getStatus().value());
-			esito.setMessaggio(micex.getMessage());
+			result.setCodice(micex.getStatus().value());
+			result.setMessaggio(micex.getMessage());
 			
 			/* esito job negativo */
 			esitoJob = AdeEsitoBatchJob.ESITO_KO;
 			
-			return ResponseEntity.status(micex.getStatus()).body(esito);
+			return ResponseEntity.status(micex.getStatus()).body(result);
 			
 		}
 		
@@ -139,13 +143,13 @@ public class CaricamentoDatiController
 		{
 			logger.info("Si e' verificata un'eccezione interna", ex);
 			
-			esito.setCodice(HttpStatus.INTERNAL_SERVER_ERROR.value());
-			esito.setMessaggio("Si e' verificata un'eccezione interna");
+			result.setCodice(HttpStatus.INTERNAL_SERVER_ERROR.value());
+			result.setMessaggio("Si e' verificata un'eccezione interna");
 			
 			/* esito negativo */
 			esitoJob = AdeEsitoBatchJob.ESITO_KO;
 			
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(esito);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(result);
 		}
 		
 		finally
@@ -159,10 +163,15 @@ public class CaricamentoDatiController
 			catch(Throwable ex)
 			{
 				logger.info("Si e' verificata un'eccezione durante l'aggiornamento del batch job", ex);
-				esito.setCodice(HttpStatus.INTERNAL_SERVER_ERROR.value());
-				esito.setMessaggio("Si e' verificata un'eccezione interna");
+				result.setCodice(HttpStatus.INTERNAL_SERVER_ERROR.value());
+				result.setMessaggio("Si e' verificata un'eccezione interna");
 				
 			}
+			
+			result.setNomeFileRicevuto(filename);
+			result.setTipoFlusso(filename.substring(filename.length() - 3).toUpperCase());
+			result.setInizioScansioneFile(MicdlEtlUtils.formatDateTime(startTime));
+			result.setFineScansioneFile(MicdlEtlUtils.formatDateTime(LocalDateTime.now()));
 		}
 		
 	}

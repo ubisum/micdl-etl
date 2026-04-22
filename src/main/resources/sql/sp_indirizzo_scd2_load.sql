@@ -2,9 +2,10 @@ DROP PROCEDURE IF EXISTS sp_indirizzo_scd2_load;
 
 DELIMITER $$
 
-CREATE PROCEDURE sp_indirizzo_scd2_load()
+CREATE PROCEDURE sp_indirizzo_scd2_load(OUT totale_inseriti INT)
 BEGIN
 	DECLARE v_oggi_dt DATETIME;
+	DECLARE v_count INT DEFAULT 0;
 	SET v_oggi_dt = NOW();
 	
 	-- ----------------------------------------------------------
@@ -87,6 +88,8 @@ BEGIN
 	WHERE
 		imm.is_current = 1;
 	
+	SET v_count = v_count + ROW_COUNT();
+	
 	-- ----------------------------------------------------------
 	-- 3. INSERIMENTO DEI NUOVI RECORD NON STORICIZZATI
 	-- ----------------------------------------------------------	
@@ -110,6 +113,8 @@ BEGIN
 		WHERE
 			hist.id_ind_hist = test.id_ind_hist
 	);
+	
+	SET totale_inseriti = v_count;
 	
 END$$
 

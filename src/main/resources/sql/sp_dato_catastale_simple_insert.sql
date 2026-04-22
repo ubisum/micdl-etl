@@ -1,9 +1,10 @@
 DROP PROCEDURE IF EXISTS sp_dato_catastale_simple_insert;
 
 DELIMITER $$
-CREATE PROCEDURE sp_dato_catastale_simple_insert()
+CREATE PROCEDURE sp_dato_catastale_simple_insert(OUT totale_inseriti INT)
 BEGIN
 	DECLARE v_oggi_dt DATETIME;
+	DECLARE v_count INT DEFAULT 0;
 	SET v_oggi_dt = NOW();
 
 	INSERT INTO ade_dato_catastale_hist
@@ -46,6 +47,8 @@ BEGIN
 	WHERE
 		imm.is_current = 1;
 		
+	SET v_count = v_count + ROW_COUNT();
+		
 	-- ----------------------------------------------------------
 	-- INSERIMENTO DEI NUOVI RECORD NON STORICIZZATI
 	-- ----------------------------------------------------------	
@@ -69,6 +72,8 @@ BEGIN
 		where
 			hist.id_dc_hist = test.id_dc_hist
 	);
+	
+	SET totale_inseriti = v_count;
 
 END$$
 

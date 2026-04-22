@@ -66,6 +66,9 @@ public class AdeFabParserImpl implements ParserInterface {
 			 /* contatore delle righe */
 			 int rowCounter = 1;
 			 
+			 /* contatore record non validi */
+			 int recordNonValidi = 0;
+			 
 			logger.info("Inizio analisi file...");
 			
 			/* ultimo tipo record rilevato */
@@ -306,12 +309,14 @@ public class AdeFabParserImpl implements ParserInterface {
 						/* da implementare in futuro */
 						ultimoTipoRecord = AdeTipoRecordEnum.ADE_TIPO_RECORD_4;
 						rowCounter++;
+						recordNonValidi++;
 						break;
 						
 					case ADE_TIPO_RECORD_5:
 						/* da implementare in futuro */
 						ultimoTipoRecord = AdeTipoRecordEnum.ADE_TIPO_RECORD_5;
 						rowCounter++;
+						recordNonValidi++;
 						
 						break;
 					default:
@@ -329,6 +334,7 @@ public class AdeFabParserImpl implements ParserInterface {
 			output.setIndirizziSupplementari(listaIndirizziSupplementari);
 			output.setRecordLetti(rowCounter - 1);
 			output.setReportRecord(erroriRecord);
+			output.setRecordNonValidi(recordNonValidi);
 			
 			logger.info("Effettuata la lettura di {} record", rowCounter - 1);
 			logger.info("Dati derivati dalla lettura dei record validi: {} unita' immobiliari, {} dati catastali, {} indirizzi", 

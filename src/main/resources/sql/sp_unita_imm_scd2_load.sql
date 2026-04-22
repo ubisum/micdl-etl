@@ -2,11 +2,12 @@ DROP PROCEDURE IF EXISTS sp_unita_imm_scd2_load;
 
 DELIMITER $$
 
-CREATE PROCEDURE sp_unita_imm_scd2_load()
+CREATE PROCEDURE sp_unita_imm_scd2_load(OUT totale_inseriti INT)
 BEGIN
 
 	DECLARE v_oggi_dt DATETIME;
     DECLARE v_oggi DATE;
+	DECLARE v_count INT DEFAULT 0;
 	
 	SET v_oggi_dt = NOW();
 	SET v_oggi = DATE(v_oggi_dt);
@@ -81,6 +82,7 @@ BEGIN
 			AND tgt.hash COLLATE utf8mb4_unicode_ci = src.hash COLLATE utf8mb4_unicode_ci
     );
 
+	SET v_count = v_count + ROW_COUNT();
     -- ---------------------------------------
     -- 3. UPDATE FK SU TABELLA DATI CATASTALI
     -- ---------------------------------------
@@ -192,6 +194,8 @@ BEGIN
 	WHERE old_imm.is_current = 0
       AND new_imm.is_current = 1
       AND ind_hist.id_imm_hist <> new_imm.id_imm_hist;
+	  
+	SET totale_inseriti = v_count;
 
 END$$
 

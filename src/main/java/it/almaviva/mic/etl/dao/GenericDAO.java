@@ -7,6 +7,7 @@ import it.almaviva.mic.etl.enums.AdeEsitoBatchJob;
 public interface GenericDAO 
 {
 	public void eseguiStoredProcedure(String procedure);
+	public Integer eseguiStoreProcedureContaRecord(String procedure);
 	public BigDecimal insertBatchJob(String fonte, String tipoCarico);
 	public void updateBatchJob(BigDecimal idJob, AdeEsitoBatchJob esito);
 }

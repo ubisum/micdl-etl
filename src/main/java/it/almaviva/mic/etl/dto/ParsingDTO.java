@@ -18,14 +18,33 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode(callSuper = false)
 public class ParsingDTO extends EsitoDTO
 {
-	/* campi comuni */
+	/* ******************************* CAMPI COMUNI *********************************************** */
+	@JsonInclude(JsonInclude.Include.NON_NULL)
+	private String nomeFileRicevuto;
+	
+	@JsonInclude(JsonInclude.Include.NON_NULL)
+	private String tipoFlusso;
+	
+	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private Integer recordLetti;
+	
+	@JsonInclude(JsonInclude.Include.NON_NULL)
+	private Integer recordInseritiInStaging;
+	
+	@JsonInclude(JsonInclude.Include.NON_NULL)
+	private Integer recordInseriti;	
+	
+	@JsonInclude(JsonInclude.Include.NON_NULL)
+	private Integer recordNonValidi; 
 	
 	@JsonInclude(JsonInclude.Include.NON_EMPTY)
 	private Map<Integer, List<String>> reportRecord;
 	
-	private Integer recordNonInseriti;
-	private Integer recordInseriti;	
+	@JsonInclude(JsonInclude.Include.NON_NULL)
+	private String inizioScansioneFile;
+	
+	@JsonInclude(JsonInclude.Include.NON_NULL)
+	private String fineScansioneFile;
 	
 	/* ************************************* FLUSSO FAB ******************************************** */
 	@JsonIgnore

@@ -2,6 +2,8 @@ package it.almaviva.mic.etl.utils;
 
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,5 +62,14 @@ public class MicdlEtlUtils
 
 		return formatted;
 
+	}
+	
+	public static String formatDateTime(LocalDateTime ldt)
+	{
+		/* definizione del pattern */
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+		
+		/* conversione */
+		return ldt.format(formatter);
 	}
 }

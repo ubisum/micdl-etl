@@ -16,7 +16,9 @@ import it.almaviva.mic.etl.enums.AdeEsitoBatchJob;
 import it.almaviva.mic.etl.exceptions.MicdlETLException;
 import it.almaviva.mic.etl.repositories.BatchJobRepository;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.ParameterMode;
 import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.StoredProcedureQuery;
 
 
 @Component
@@ -29,6 +31,42 @@ public class GenericdDAOImpl implements GenericDAO
 	BatchJobRepository batchRepository;
 	
 	private static final Logger logger = LoggerFactory.getLogger(GenericdDAOImpl.class);
+	
+	@Override
+	public Integer eseguiStoreProcedureContaRecord(String procedure) 
+	{
+		logger.info("Accesso alla funzione di esecuzione delle stored procedure");
+		if(StringUtils.isBlank(procedure))
+		{
+			logger.info("Nome della storeed procedure fornita e' pari a NULL");
+			throw new MicdlETLException("Si e' verificato un errore interno", HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		
+		logger.info("Richiesta esecuzione stored procedure {}", procedure);
+		
+		try
+		{
+			/* creazione stored procedure */
+			StoredProcedureQuery query = entityManager.createStoredProcedureQuery(procedure);
+			
+			/* registrazione del parametro di output */
+			query.registerStoredProcedureParameter(1, Integer.class, ParameterMode.OUT);
+			
+			/* esecuzione */
+			query.execute();
+			
+			/* restituzione numero righe inserite */
+			return (Integer)query.getOutputParameterValue(1);
+
+		}
+		
+		catch(Throwable ex)
+		{
+			logger.info("Si e' verificato un errroe durante l'esecuzione della procedure {}", procedure, ex);
+			throw new MicdlETLException("Si e' verificato un errore interno", HttpStatus.INTERNAL_SERVER_ERROR);
+			
+		}
+	}
 	
 	@Override
 	public void eseguiStoredProcedure(String procedure) 

@@ -2,9 +2,10 @@ DROP PROCEDURE IF EXISTS sp_indirizzo_simple_insert;
 
 DELIMITER $$
 
-CREATE PROCEDURE sp_indirizzo_simple_insert()
+CREATE PROCEDURE sp_indirizzo_simple_insert(OUT totale_inseriti INT)
 BEGIN
 	DECLARE v_oggi_dt DATETIME;
+	DECLARE v_count INT DEFAULT 0;
 	SET v_oggi_dt = NOW();
 
 	INSERT INTO ade_indirizzo_hist
@@ -49,6 +50,8 @@ BEGIN
 	WHERE
 		imm.is_current = 1;
 		
+	SET v_count = v_count + ROW_COUNT();
+		
 	-- ----------------------------------------------------------
 	-- INSERIMENTO DEI NUOVI RECORD NON STORICIZZATI
 	-- ----------------------------------------------------------	
@@ -72,6 +75,9 @@ BEGIN
 		WHERE
 			hist.id_ind_hist = test.id_ind_hist
 	);
+	
+	SET totale_inseriti = v_count;
+	
 END$$
 
 DELIMITER ;
