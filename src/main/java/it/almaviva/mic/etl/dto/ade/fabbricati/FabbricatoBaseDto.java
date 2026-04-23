@@ -13,10 +13,12 @@ import lombok.NoArgsConstructor;
 public class FabbricatoBaseDto 
 {
 	@NotNull(message = "Il codice comune non puo' essere nullo")
+	@Pattern(regexp = "[A-Z]{1}[0-9]{3}", message = "Formato del codice comune non corretto")
 	@CsvPosition(0)
 	private String codComune;
 	
 	@CsvPosition(1)
+	@Pattern(regexp = "[A-Za-z0-9 ]{1}", message = "Formato della sezione non valido")
 	private String sezione;
 	
 	@CsvPosition(2)

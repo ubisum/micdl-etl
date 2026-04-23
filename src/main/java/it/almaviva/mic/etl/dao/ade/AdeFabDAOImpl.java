@@ -171,7 +171,13 @@ public class AdeFabDAOImpl implements AdeFabDAO
 		try
 		{
 			logger.info("Sono presenti {} dati catastali da inserire nella tabella di staging",
-					    datiCatastali.stream().mapToInt(dc -> dc.getArray_id_dato_catastale().size()).sum());
+					    datiCatastali.stream().mapToInt(dc -> {
+					        return dc.getArray_id_dato_catastale() != null 
+					                ? dc.getArray_id_dato_catastale().size() 
+					                : 0;
+					        }).sum());
+
+
 			
 			logger.info("Creazione connessione verso il DB...");
 			Session session = entityManager.unwrap(Session.class);
@@ -210,15 +216,19 @@ public class AdeFabDAOImpl implements AdeFabDAO
 			
 			for(FabbricatoTipoRecord2Dto dto : datiCatastali)
 			{
-				/* riempimento dei parametri per l'i-simo record */
-				popolamentoDatiCatastali(inserimentoStagingPs, dto, idBatch);
+				if(CollectionUtils.isNotEmpty(dto.getArray_id_dato_catastale()))
+				{
+					/* riempimento dei parametri per l'i-simo record */
+					popolamentoDatiCatastali(inserimentoStagingPs, dto, idBatch);
+					
+					/* aggiunta al batch */
+					inserimentoStagingPs.addBatch();
+					
+					/* controllo del raggiungimento del numero massimo di elementi per batch */
+					if(++counter % Integer.valueOf(batchSize) == 0)
+						inserimentoStagingPs.executeBatch();
+				}
 				
-				/* aggiunta al batch */
-				inserimentoStagingPs.addBatch();
-				
-				/* controllo del raggiungimento del numero massimo di elementi per batch */
-				if(++counter % Integer.valueOf(batchSize) == 0)
-					inserimentoStagingPs.executeBatch();
 			}
 			
 			/* esecuzione del batch, se non avvenuto nel ciclo */

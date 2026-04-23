@@ -19,6 +19,7 @@ public class FabbricatoTipoRecord1Dto extends FabbricatoBaseDto
 	private String categoria;
 	
 	@CsvPosition(8)
+	@Pattern(regexp = "[A-Za-z0-9]{1,2}", message = "Formato della classe non valido")
 	private String classe;
 	
 	@CsvPosition(9)
