@@ -17,10 +17,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.stereotype.Component;
 
+import it.almaviva.mic.etl.converters.ade.AdeConverter;
+import it.almaviva.mic.etl.dto.BatchJobDTO;
 import it.almaviva.mic.etl.entities.ade.BatchJob;
 import it.almaviva.mic.etl.enums.AdeEsitoBatchJob;
 import it.almaviva.mic.etl.exceptions.MicdlETLException;
 import it.almaviva.mic.etl.repositories.BatchJobRepository;
+import it.almaviva.mic.etl.utils.MicdlEtlUtils;
+
 import javax.sql.DataSource;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.ParameterMode;
@@ -41,6 +45,27 @@ public class GenericdDAOImpl implements GenericDAO
 	BatchJobRepository batchRepository;
 	
 	private static final Logger logger = LoggerFactory.getLogger(GenericdDAOImpl.class);
+	
+	@Override
+	public BatchJobDTO findUltimoBatchJobAttivo() 
+	{
+		logger.info("Ricerca dell'ultimo batch attivo...");
+		
+		Optional<BatchJob> ultimoBatchAttivo = batchRepository.findTopByOrderByAvvioTsDesc();
+		if(ultimoBatchAttivo.isEmpty())
+		{
+			logger.info("Nessun batch trovato");
+			return null;
+		}
+		
+		logger.info("Trovato batch job con identificativo {} nello stato {}, iniziato con timestamp {}. Timestamp di terminazione: {}",
+				    ultimoBatchAttivo.get().getBatchId(),
+				    ultimoBatchAttivo.get().getEsito() != null ? ultimoBatchAttivo.get().getEsito() : "Non terminato",
+				    MicdlEtlUtils.formatDateTime(ultimoBatchAttivo.get().getAvvioTs()),
+				    ultimoBatchAttivo.get().getFineTs() != null ? MicdlEtlUtils.formatDateTime(ultimoBatchAttivo.get().getFineTs()) : "");
+		
+		return AdeConverter.convertBatchJobFromEntity(ultimoBatchAttivo.get());
+	}
 	
 	@Override
 	public void inserisciDettagliBatchJob(Map<Integer, List<String>> errori, BigDecimal idJob, String filename) 
@@ -251,5 +276,4 @@ public class GenericdDAOImpl implements GenericDAO
 			
 		}
 	}
-
 }

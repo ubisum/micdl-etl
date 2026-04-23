@@ -2,13 +2,16 @@ package it.almaviva.mic.etl.converters.ade;
 
 import org.modelmapper.ModelMapper;
 
+import it.almaviva.mic.etl.converters.LocalDateTimeToStringConverter;
 import it.almaviva.mic.etl.converters.StringToIntegerConverter;
+import it.almaviva.mic.etl.dto.BatchJobDTO;
 import it.almaviva.mic.etl.dto.ade.fabbricati.DatoCatastaleDto;
 import it.almaviva.mic.etl.dto.ade.fabbricati.FabbricatoTipoRecord1Dto;
 import it.almaviva.mic.etl.dto.ade.fabbricati.IndirizzoDto;
 import it.almaviva.mic.etl.entities.ade.AdeDatoCatastaleHist;
 import it.almaviva.mic.etl.entities.ade.AdeIndirizzoHist;
 import it.almaviva.mic.etl.entities.ade.AdeUnitaImmHist;
+import it.almaviva.mic.etl.entities.ade.BatchJob;
 import it.almaviva.mic.etl.utils.HashingUtils;
 
 public class AdeConverter 
@@ -62,5 +65,17 @@ public class AdeConverter
 		destination.setHash(HashingUtils.getHashingForAnnotatedCols(-1, indirizzo));
 		
 		return destination;
+	}
+	
+	public static BatchJobDTO convertBatchJobFromEntity(BatchJob job)
+	{
+		/* creazione del mapper */
+		ModelMapper modelMapper = new ModelMapper();
+		
+		/* aggiunta dei convertitori necessari */
+		modelMapper.addConverter(new LocalDateTimeToStringConverter());
+		
+		/* conversione */
+		return modelMapper.map(job, BatchJobDTO.class);
 	}
 }

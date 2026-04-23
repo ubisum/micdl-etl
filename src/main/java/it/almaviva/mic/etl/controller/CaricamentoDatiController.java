@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import it.almaviva.mic.etl.dto.BatchJobDTO;
 import it.almaviva.mic.etl.dto.EsitoDTO;
 import it.almaviva.mic.etl.dto.ParsingDTO;
 import it.almaviva.mic.etl.enums.AdeEsitoBatchJob;
@@ -129,13 +130,13 @@ public class CaricamentoDatiController
 		{
 			logger.info("Si e' verificata un'eccezione", micex);
 			
-			result.setCodice(micex.getStatus().value());
-			result.setMessaggio(micex.getMessage());
+			result.setCodice(micex.getStatus() != null ? micex.getStatus().value() : HttpStatus.INTERNAL_SERVER_ERROR.value());
+			result.setMessaggio(micex.getMessage() != null ? micex.getMessage() : "Si e' verificata un'ececzione interna");
 			
 			/* esito job negativo */
 			esitoJob = AdeEsitoBatchJob.ESITO_KO;
 			
-			return ResponseEntity.status(micex.getStatus()).body(result);
+			return ResponseEntity.status(micex.getStatus()!= null ? micex.getStatus() : HttpStatus.INTERNAL_SERVER_ERROR).body(result);
 			
 		}
 		
@@ -176,6 +177,41 @@ public class CaricamentoDatiController
 			result.setFineScansioneFile(MicdlEtlUtils.formatDateTime(LocalDateTime.now()));
 		}
 		
+	}
+	
+	@GetMapping("/activeBatch")
+	public ResponseEntity<EsitoDTO> ultimoBatchAttivo()
+	{
+		logger.info("Invocato servizio per ricerca ultimo batch attivo...");
+		
+		/* esito eleborazione */
+		EsitoDTO esito = new EsitoDTO();
+		
+		try
+		{
+			BatchJobDTO batch = batchService.findUltimoBatchJobAttivo();
+			esito.setCodice(HttpStatus.OK.value());
+			esito.setContent(batch);
+			
+			return ResponseEntity.status(HttpStatus.OK).body(esito);
+		}
+		
+		catch(MicdlETLException mee)
+		{
+			logger.info("Si e' verificata un'eccezione", mee);
+			esito.setCodice(mee.getStatus() != null ? mee.getStatus().value() : HttpStatus.INTERNAL_SERVER_ERROR.value());
+			esito.setMessaggio(mee.getMessage() != null ? mee.getMessage() : "Si e' verificata un'eccezione interna");
+			
+			return ResponseEntity.status(mee.getStatus() != null ? mee.getStatus() : HttpStatus.INTERNAL_SERVER_ERROR).body(esito);
+		}
+		
+		catch(Throwable ex)
+		{
+			logger.info("Si e' verificata un'eccezione interna", ex);
+			esito.setCodice(HttpStatus.INTERNAL_SERVER_ERROR.value());
+			
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(esito);
+		}
 	}
 	
 }

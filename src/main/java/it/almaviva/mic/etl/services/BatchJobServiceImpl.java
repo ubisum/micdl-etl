@@ -12,17 +12,18 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import it.almaviva.mic.etl.dao.GenericDAO;
+import it.almaviva.mic.etl.dto.BatchJobDTO;
 import it.almaviva.mic.etl.enums.AdeEsitoBatchJob;
 import it.almaviva.mic.etl.exceptions.MicdlETLException;
 import jakarta.transaction.Transactional;
 
 @Service
-public class BatcjJobServiceImpl implements BatchJobService 
+public class BatchJobServiceImpl implements BatchJobService 
 {
 	@Autowired
 	private GenericDAO genericDAO;
 	
-	private static final Logger logger = LoggerFactory.getLogger(BatcjJobServiceImpl.class);
+	private static final Logger logger = LoggerFactory.getLogger(BatchJobServiceImpl.class);
 	
 	@Override
 	@Transactional
@@ -78,6 +79,12 @@ public class BatcjJobServiceImpl implements BatchJobService
 				                        "Si e' verificato un errore interno", HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		
+	}
+
+	@Override
+	public BatchJobDTO findUltimoBatchJobAttivo() 
+	{
+		return genericDAO.findUltimoBatchJobAttivo();
 	}
 
 }
