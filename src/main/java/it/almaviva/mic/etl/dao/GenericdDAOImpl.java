@@ -239,7 +239,7 @@ public class GenericdDAOImpl implements GenericDAO
 		for(Integer row : validationErrors.keySet())
 		{
 			/* elenco violazioni */
-			String violations = String.join(",", validationErrors.get(row));
+			String violations = String.join(" - ", validationErrors.get(row));
 			
 			/* riempimento */
 			ps.setBigDecimal(1, idBatch);
