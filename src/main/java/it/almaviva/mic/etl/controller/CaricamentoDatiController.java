@@ -10,24 +10,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.media.SchemaProperty;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import io.swagger.v3.oas.models.media.MediaType;
 import it.almaviva.mic.etl.dto.BatchJobDTO;
 import it.almaviva.mic.etl.dto.EsitoDTO;
 import it.almaviva.mic.etl.dto.ParsingDTO;
@@ -76,17 +71,17 @@ public class CaricamentoDatiController
 		return ResponseEntity.ok().body(esito);
 	}
 	
-	@PostMapping(value = "/uploadFile")
+	@PostMapping(value = "/uploadFile", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	@Operation(
-	        summary = "ETL per flussi esterni",
-	        description = "Servizio per il caricamento dei file relativi ai flussi ammessi"
-	    )
-	    @ApiResponses(value = {
-	    	@ApiResponse(responseCode = "200", description = "Ricerca conclusa con successo"),
-	        @ApiResponse(responseCode = "403", description = "Errore relativo ai dati ricevuti"),
-	        @ApiResponse(responseCode = "500", description = "Errore interno")
-	    })
-	public ResponseEntity<EsitoDTO> uploadFile(@Parameter(description = "File relativo ad uno dei flussi ammessi", required = true) @RequestParam("file") MultipartFile file) 
+	    summary = "Caricamento file",
+	    description = "Servizio per il caricamento dei file relativi ai vari flussi"
+	)
+	@ApiResponses({
+	    @ApiResponse(responseCode = "200", description = "OK"),
+	    @ApiResponse(responseCode = "403", description = "KO dati"),
+	    @ApiResponse(responseCode = "500", description = "Errore interno")
+	})
+	public ResponseEntity<EsitoDTO> uploadFile(@ModelAttribute UploadFileRequest request) 
 	{
 		/* ordine di caricamento dei flussi:
 		   FAB
@@ -97,6 +92,7 @@ public class CaricamentoDatiController
 		logger.info("Invocato servizio di caricamento file...");
 		
 		logger.info("Estrazione del nome file...");
+		MultipartFile file = request.getFile();
 		String filename = file.getOriginalFilename();
 		
 		/* esito job */
