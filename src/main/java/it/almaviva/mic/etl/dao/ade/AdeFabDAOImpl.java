@@ -105,15 +105,18 @@ public class AdeFabDAOImpl implements AdeFabDAO
 			
 			for(FabbricatoTipoRecord3Dto dto : indirizzi)
 			{
-				/* riempimento dei parametri per l'i-simo record */
-				popolamentoIndirizzi(inserimentoStagingPs, dto, idBatch);
-				
-				/* aggiunta al batch */
-				inserimentoStagingPs.addBatch();
-				
-				/* controllo del raggiungimento del numero massimo di elementi per batch */
-				if(++counter % Integer.valueOf(batchSize) == 0)
-					inserimentoStagingPs.executeBatch();
+				if(CollectionUtils.isNotEmpty(dto.getArray_id_indirizzi()))
+				{
+					/* riempimento dei parametri per l'i-simo record */
+					popolamentoIndirizzi(inserimentoStagingPs, dto, idBatch);
+					
+					/* aggiunta al batch */
+					inserimentoStagingPs.addBatch();
+					
+					/* controllo del raggiungimento del numero massimo di elementi per batch */
+					if(++counter % Integer.valueOf(batchSize) == 0)
+						inserimentoStagingPs.executeBatch();
+				}
 			}
 			
 			/* esecuzione del batch, se non avvenuto nel ciclo */
