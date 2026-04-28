@@ -1,0 +1,23 @@
+INSERT INTO PROPRIETARIO_HIST_STAGING
+(
+	cod_comune,
+	sezione,
+	id_soggetto,
+	tipo_record,
+	cod_fiscale,
+	cognome,
+	nome,
+	sesso,
+	data_nascita,
+	luogo_nascita,
+	altre_info,
+	denominazione,
+	sede,
+	hash,
+	batch_id
+)
+VALUES
+(
+	?,?,?,?,?,?,?,?,?,?,
+	?,?,?,?,?
+);

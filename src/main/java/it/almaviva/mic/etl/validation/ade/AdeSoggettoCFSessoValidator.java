@@ -4,15 +4,15 @@ import java.util.Arrays;
 
 import org.apache.commons.lang3.StringUtils;
 
-import it.almaviva.mic.etl.dto.ade.soggetti.SoggettoDTO;
+import it.almaviva.mic.etl.dto.ade.soggetti.ProprietarioDTO;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
-public class AdeSoggettoCFSessoValidator implements ConstraintValidator<AdeSoggettoCFSesso, SoggettoDTO> 
+public class AdeSoggettoCFSessoValidator implements ConstraintValidator<AdeSoggettoCFSesso, ProprietarioDTO> 
 {
 
 	@Override
-	public boolean isValid(SoggettoDTO value, ConstraintValidatorContext context) 
+	public boolean isValid(ProprietarioDTO value, ConstraintValidatorContext context) 
 	{	
 		/* --------------------------- CASISTICHE --------------------------------------------------------------------- */
 		

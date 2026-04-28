@@ -2,6 +2,7 @@ package it.almaviva.mic.etl.dto.ade.soggetti;
 
 import it.almaviva.mic.etl.parsers.CsvPosition;
 import it.almaviva.mic.etl.validation.ade.AdeSoggettoCFSesso;
+import it.almaviva.mic.etl.validation.ade.DataValida;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -11,9 +12,10 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AdeSoggettoCFSesso
-public class SoggettoDTO 
+public class ProprietarioDTO 
 {
 	@CsvPosition(0)
+	@NotBlank(message = "Il campo codice amministrativo non puo' essere assente")
 	@Size(max = 4, message = "Il campo codice amministrativo non puo' superare i 4 caratteri")
 	private String codAmm;
 	
@@ -35,7 +37,7 @@ public class SoggettoDTO
 	private String cognomeORDenominazione;
 	
 	@CsvPosition(5)
-	@Size(max = 150, message = "Il campo nome/sede non puo' superare i 50 caratteri")
+	@Size(max = 50, message = "Il campo nome/sede non puo' superare i 50 caratteri")
 	private String nomeORSede;
 	
 	@CsvPosition(6)
@@ -43,6 +45,7 @@ public class SoggettoDTO
 	private String sessoORCodiceFiscale;
 	
 	@CsvPosition(7)
+	@DataValida(message = "La data di nascita potrebbe essere nel giusto fomato ma essere non valida")
 	@Pattern(regexp = "^(0[1-9]|[12][0-9]|3[01])(0[1-9]|1[0-2])([0-9]{4})$", message = "La data di nascita dev'essere nel formato GGMMAAAA")
 	private String dataNascita;
 	

@@ -16,7 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import it.almaviva.mic.etl.dto.ParsingDTO;
-import it.almaviva.mic.etl.dto.ade.soggetti.SoggettoDTO;
+import it.almaviva.mic.etl.dto.ade.soggetti.ProprietarioDTO;
 import it.almaviva.mic.etl.exceptions.MicdlETLException;
 import it.almaviva.mic.etl.parsers.CsvMapper;
 import it.almaviva.mic.etl.parsers.ParserInterface;
@@ -48,7 +48,7 @@ public class AdeSogParserImpl implements ParserInterface
 		
 		 /* strutture di appoggio */
 		 Map<Integer, List<String>> erroriRecord = new HashMap<>();
-		 List<SoggettoDTO> listaSoggetti = new ArrayList<>();
+		 List<ProprietarioDTO> listaSoggetti = new ArrayList<>();
 		
 		 /* output */
 		 ParsingDTO output = new ParsingDTO();
@@ -79,10 +79,10 @@ public class AdeSogParserImpl implements ParserInterface
 				}
 				
 				/* conversione della riga in oggetto */
-				SoggettoDTO soggetto = CsvMapper.associaCampi(elementiRiga, SoggettoDTO.class);
+				ProprietarioDTO soggetto = CsvMapper.associaCampi(elementiRiga, ProprietarioDTO.class);
 				
 				/* validazione */
-				Set<ConstraintViolation<SoggettoDTO>> violations = null;
+				Set<ConstraintViolation<ProprietarioDTO>> violations = null;
 				violations = validator.validate(soggetto);
 				
 				/* controllo del risultato della validazione */

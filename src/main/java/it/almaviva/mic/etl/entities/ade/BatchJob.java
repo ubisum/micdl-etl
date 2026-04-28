@@ -52,4 +52,7 @@ public class BatchJob
 	
 	@OneToMany(mappedBy = "batchJob", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<BatchJobDettaglio> batchJobDettaglio;
+	
+	@OneToMany(mappedBy = "batchJob", cascade = CascadeType.ALL, orphanRemoval = true)
+	List<ProprietarioHist> listaProprietari;
 }

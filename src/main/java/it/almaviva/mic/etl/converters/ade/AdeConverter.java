@@ -1,5 +1,11 @@
 package it.almaviva.mic.etl.converters.ade;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
+
+import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.ModelMapper;
 
 import it.almaviva.mic.etl.converters.LocalDateTimeToStringConverter;
@@ -8,10 +14,12 @@ import it.almaviva.mic.etl.dto.BatchJobDTO;
 import it.almaviva.mic.etl.dto.ade.fabbricati.DatoCatastaleDto;
 import it.almaviva.mic.etl.dto.ade.fabbricati.FabbricatoTipoRecord1Dto;
 import it.almaviva.mic.etl.dto.ade.fabbricati.IndirizzoDto;
+import it.almaviva.mic.etl.dto.ade.soggetti.ProprietarioDTO;
 import it.almaviva.mic.etl.entities.ade.AdeDatoCatastaleHist;
 import it.almaviva.mic.etl.entities.ade.AdeIndirizzoHist;
 import it.almaviva.mic.etl.entities.ade.AdeUnitaImmHist;
 import it.almaviva.mic.etl.entities.ade.BatchJob;
+import it.almaviva.mic.etl.entities.ade.ProprietarioHist;
 import it.almaviva.mic.etl.utils.HashingUtils;
 
 public class AdeConverter 
@@ -77,5 +85,52 @@ public class AdeConverter
 		
 		/* conversione */
 		return modelMapper.map(job, BatchJobDTO.class);
+	}
+	
+	public static ProprietarioHist convertProprietarioFromDTO(ProprietarioDTO dto)
+	{
+		/* vista la particolare natura del flusso, non e' possibile usare 
+		 * il ModelMapper come di consueto, quindi si procede manualmente */
+		
+		/* creazione di un'entita' vuota */
+		ProprietarioHist proprietario = new ProprietarioHist();
+		
+		/* convertitore di date */
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy");
+		
+		
+		/* inserimento dei campi ordinari */
+		proprietario.setCodiceComune(dto.getCodAmm());
+		proprietario.setSezione(dto.getSezione());
+		proprietario.setIdSoggetto(dto.getIdSoggetto());
+		proprietario.setTipoRecord(dto.getIdTipoSoggetto());
+		
+		/* caso persona fisica */
+		if(StringUtils.isNotBlank(dto.getIdTipoSoggetto()) && dto.getIdTipoSoggetto().toUpperCase().equals("P"))
+		{
+			proprietario.setCognome(dto.getCognomeORDenominazione());
+			proprietario.setNome(dto.getNomeORSede());
+			proprietario.setSesso(dto.getSessoORCodiceFiscale());
+			
+			if(StringUtils.isNotBlank(dto.getDataNascita()))
+				proprietario.setDataNascita(LocalDate.parse(dto.getDataNascita(), formatter));
+			
+			proprietario.setLuogoNascita(dto.getLuogoNascita());
+			proprietario.setCodiceFiscale(dto.getCodiceFiscale());
+			proprietario.setAltreInfo(dto.getAltreInfo());
+		}
+		
+		/* caso persona giuridica */
+		else if(StringUtils.isNotBlank(dto.getIdTipoSoggetto()) && dto.getIdTipoSoggetto().toUpperCase().equals("G"))
+		{
+			proprietario.setDenominazione(dto.getCognomeORDenominazione());
+			proprietario.setSede(dto.getNomeORSede());
+			proprietario.setCodiceFiscale(dto.getSessoORCodiceFiscale());
+		}
+		
+		/* hashing */
+		proprietario.setHash(HashingUtils.getHashingForAnnotatedCols(3, dto));
+		
+		return proprietario;
 	}
 }
