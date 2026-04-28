@@ -44,7 +44,7 @@ public class AdeETLFabServiceImpl implements MicDllEtlService
 	@Transactional
 	public ParsingDTO parseAndStore(Reader csvReader, String filename, BigDecimal idBatch) 
 	{
-		logger.info("Ingresso nel servizio di scansione e salvataggio dei file Ade");
+		logger.info("Ingresso nel servizio di scansione e salvataggio dei file Ade FAB");
 		
 		/* result */
 		ParsingDTO parsingResult = new ParsingDTO();

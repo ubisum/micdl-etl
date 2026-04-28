@@ -1,5 +1,6 @@
 package it.almaviva.mic.etl.dto;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -9,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import it.almaviva.mic.etl.dto.ade.fabbricati.FabbricatoTipoRecord1Dto;
 import it.almaviva.mic.etl.dto.ade.fabbricati.FabbricatoTipoRecord2Dto;
 import it.almaviva.mic.etl.dto.ade.fabbricati.FabbricatoTipoRecord3Dto;
+import it.almaviva.mic.etl.dto.ade.soggetti.SoggettoDTO;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -61,4 +63,8 @@ public class ParsingDTO extends EsitoDTO
 	
 	@JsonIgnore
 	private List<FabbricatoTipoRecord3Dto> indirizziSupplementari;
+	
+	/* ************************************* FLUSSO SOG ******************************************** */
+	@JsonIgnore
+	List<SoggettoDTO> listaSoggetti = new ArrayList<>();
 }

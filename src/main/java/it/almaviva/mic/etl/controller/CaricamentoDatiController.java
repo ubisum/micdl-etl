@@ -109,20 +109,22 @@ public class CaricamentoDatiController
 		
 		logger.info("Rilevato file con nome {}...", filename);
 		
-		if(!filename.matches("^[a-zA-Z0-9]+\\.[a-zA-Z]{3}$"))
-		{
-			logger.info("Il nome del file ricevuto non rispetta lo standard previsto");
-			throw new MicdlETLException("Il nome del file ricevuto non rispetta lo standard previsto", HttpStatus.BAD_REQUEST);
-		}
 		
-		logger.info("Ricerca del service associat...");
-		MicDllEtlService service = serviceFactory.getService(filename.substring(filename.indexOf(".") + 1));
-		
-		if(service == null)
-			throw new MicdlETLException("Nessun service associato al tipo di file fornito", HttpStatus.BAD_REQUEST);
 		
 		try 
 		{
+			if(!filename.matches("^[a-zA-Z0-9]+\\.[a-zA-Z]{3}$"))
+			{
+				logger.info("Il nome del file ricevuto non rispetta lo standard previsto");
+				throw new MicdlETLException("Il nome del file ricevuto non rispetta lo standard previsto", HttpStatus.BAD_REQUEST);
+			}
+			
+			logger.info("Ricerca del service associato...");
+			MicDllEtlService service = serviceFactory.getService(filename.substring(filename.indexOf(".") + 1));
+			
+			if(service == null)
+				throw new MicdlETLException("Nessun service associato al tipo di file fornito", HttpStatus.BAD_REQUEST);
+			
 			/* inizio calcolo tempo di computazione */
 			long start = System.nanoTime();
 			
@@ -181,9 +183,16 @@ public class CaricamentoDatiController
 			try
 			{
 				logger.info("Aggiornamento batch job...");
-				batchService.updateBatchJob(idBatch, esitoJob);
+				if(idBatch != null && esitoJob != null)
+				{
+					/* si eseguono gli aggiornamenti che riguardano il job solo se 
+					 * i primi controlli sul nome del file sono stati passati ed e' 
+					 * stato effettivamente aperto un job sul DB
+					 * */
+					batchService.updateBatchJob(idBatch, esitoJob);
+					batchService.inserisciDettagliBatchJob(result.getReportRecord(), idBatch, filename);
+				}
 				
-				batchService.inserisciDettagliBatchJob(result.getReportRecord(), idBatch, filename);
 			}
 			
 			catch(Throwable ex)

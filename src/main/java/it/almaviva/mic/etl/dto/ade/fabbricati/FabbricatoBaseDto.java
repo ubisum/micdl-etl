@@ -33,6 +33,7 @@ public class FabbricatoBaseDto
 	private String progressivo;
 	
 	@Pattern(regexp = "1|2|3|4|5", message = "Il valore del tipo record dev'essere compreso tra 1 e 5")
+	@NotNull(message = "Il tipo record non puo' essere nullo")
 	@CsvPosition(5)
 	private String tipoRecord;
 }
