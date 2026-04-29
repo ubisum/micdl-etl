@@ -3,6 +3,7 @@ package it.almaviva.mic.etl.dao.ade;
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
@@ -14,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Component;
 
 import it.almaviva.mic.etl.converters.ade.AdeConverter;
 import it.almaviva.mic.etl.dto.ade.soggetti.ProprietarioDTO;
@@ -24,6 +26,7 @@ import it.almaviva.mic.etl.utils.MicdlEtlUtils;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 
+@Component
 public class AdeSogDAOImpl implements AdeSogDAO 
 {
 	@PersistenceContext
@@ -94,6 +97,44 @@ public class AdeSogDAOImpl implements AdeSogDAO
 			
 			/* contatore dei record */
 			int counter = 0;
+			
+			/* iterazione sui record */
+			for(ProprietarioDTO ph : proprietari)
+			{
+				/* conversione */
+				ProprietarioHist entity = AdeConverter.convertProprietarioFromDTO(ph);
+				
+				/* rimepimento coi parametri */
+				popolamentoProprietari(inserimentoStagingPs, ph, idBatch);
+				
+				/* aggiunta al batch */
+				inserimentoStagingPs.addBatch();
+				
+				/* controllo del raggiungimento del numero massimo di elementi per batch */
+				if(++counter % Integer.valueOf(batchSize) == 0)
+					inserimentoStagingPs.executeBatch();
+			}
+			
+			/* esecuzione del batch, se non avvenuto nel ciclo */
+			inserimentoStagingPs.executeBatch();
+			
+			logger.info("Inserimento terminato");
+			
+			/* verifica del numero dei record effettivamente scritti */
+			logger.info("Verifica dei record effettivamente scritti sulla tabella temporanea...");
+			
+			String sqlCountRecords = "SELECT COUNT(*) FROM PROPRIETARIO_HIST_STAGING";
+			Statement countRecords = conn.createStatement();
+			
+			ResultSet result = countRecords.executeQuery(sqlCountRecords);
+			Integer numeroRecordScritti = result.next() ? result.getInt(1) : 0;
+			
+			logger.info("Indirizzi effettivamente inseriti sulla tabella di staging: {}", numeroRecordScritti);
+			
+			logger.info("Terminato inserimento indirizzi in tabella di staging");
+			
+			return numeroRecordScritti;
+
 		}
 		
 		catch(Throwable ex)
@@ -103,7 +144,6 @@ public class AdeSogDAOImpl implements AdeSogDAO
 					                    HttpStatus.INTERNAL_SERVER_ERROR);   
 		}
 		
-		return null;
 	}
 
 	/* preparazione inserimento dei proprietari */

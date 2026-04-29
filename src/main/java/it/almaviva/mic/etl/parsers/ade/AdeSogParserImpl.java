@@ -102,6 +102,7 @@ public class AdeSogParserImpl implements ParserInterface
 			 
 			output.setRecordLetti(rowCounter - 1);
 			output.setReportRecord(erroriRecord);
+			output.setListaSoggetti(listaSoggetti);
 			
 			logger.info("Effettuata la lettura di {} record", rowCounter - 1);
 			logger.info("Record interessati da errori di validazione: {}", erroriRecord.size());

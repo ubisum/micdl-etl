@@ -11,10 +11,12 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import it.almaviva.mic.etl.dao.ade.AdeSogDAO;
 import it.almaviva.mic.etl.dto.ParsingDTO;
 import it.almaviva.mic.etl.exceptions.MicdlETLException;
 import it.almaviva.mic.etl.parsers.ParserInterface;
 import it.almaviva.mic.etl.services.MicDllEtlService;
+import jakarta.transaction.Transactional;
 
 @Service
 public class AdeETLSogServiceImpl implements MicDllEtlService 
@@ -23,9 +25,13 @@ public class AdeETLSogServiceImpl implements MicDllEtlService
 	@Qualifier("adeSogParserImpl")
 	private ParserInterface parser;
 	
+	@Autowired
+	private AdeSogDAO sogDAO;
+	
 	private static final Logger logger = LoggerFactory.getLogger(AdeETLSogServiceImpl.class);
 	
 	@Override
+	@Transactional
 	public ParsingDTO parseAndStore(Reader csvReader, String filename, BigDecimal idBatch) 
 	{
 		logger.info("Ingresso nel servizio di scansione e salvataggio dei file Ade SOG");
@@ -39,6 +45,7 @@ public class AdeETLSogServiceImpl implements MicDllEtlService
 			parsingResult = parser.parseFile(csvReader);
 			
 			logger.info("Salvataggio dei soggetti sulla tabella di staging...");
+			sogDAO.inserisciProprietari(parsingResult.getListaSoggetti(), idBatch);
 		}
 		
 		catch(MicdlETLException mee)

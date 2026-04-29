@@ -11,7 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 
 public class DataValidaValidator implements ConstraintValidator<DataValida, String> {
 
-    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy").withResolverStyle(ResolverStyle.STRICT);
+    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMuuuu").withResolverStyle(ResolverStyle.STRICT);
 
     @Override
     public boolean isValid(String value, ConstraintValidatorContext context) 
