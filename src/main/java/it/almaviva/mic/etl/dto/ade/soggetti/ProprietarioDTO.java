@@ -33,7 +33,7 @@ public class ProprietarioDTO
 	private String idTipoSoggetto;
 	
 	@CsvPosition(4)
-	@Size(max = 50, message = "Il campo cognome/denominazione non puo' superare i 50 caratteri")
+	@Size(max = 150, message = "Il campo cognome/denominazione non puo' superare i 150 caratteri")
 	private String cognomeORDenominazione;
 	
 	@CsvPosition(5)
