@@ -13,6 +13,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.stereotype.Component;
@@ -43,6 +44,9 @@ public class GenericdDAOImpl implements GenericDAO
 	
 	@Autowired
 	BatchJobRepository batchRepository;
+	
+	@Value("${spring.jpa.properties.hibernate.jdbc.batch_size}")
+	private String batchSize;
 	
 	private static final Logger logger = LoggerFactory.getLogger(GenericdDAOImpl.class);
 	
@@ -99,7 +103,7 @@ public class GenericdDAOImpl implements GenericDAO
 			
 			/* popolamento */
 			popolamentoDettagli(ps, errori, idJob, LocalDateTime.now(), filename);
-			ps.addBatch();
+			//ps.addBatch();
 			
 			/* esecuzione */
 			ps.executeBatch();
@@ -260,7 +264,19 @@ public class GenericdDAOImpl implements GenericDAO
 	/* metodo di popolamento della insert degli indirizzi */
 	private void popolamentoDettagli(PreparedStatement ps, Map<Integer, List<String>> validationErrors, BigDecimal idBatch, LocalDateTime ldt, String filename) throws SQLException
 	{
+		/* grandezza batch */
+		Integer maxNumRecords = null;
+		if(StringUtils.isBlank(batchSize))
+		{
+			logger.info("Nessuna property indicante la misura del batch trovata. Si imposta la grandezza massima di default a 1000");
+			maxNumRecords = Integer.valueOf(1000);
+		}
+		
+		else
+			maxNumRecords = Integer.valueOf(batchSize);
+		
 		/* iterazione sugli errori */
+		int counter = 0;
 		for(Integer row : validationErrors.keySet())
 		{
 			/* elenco violazioni */
@@ -273,6 +289,12 @@ public class GenericdDAOImpl implements GenericDAO
 			ps.setString(4, "KO");
 			ps.setString(5, violations);
 			ps.setObject(6, ldt);
+			
+			ps.addBatch();
+			
+			/* controllo del raggiungimento del numero massimo di elementi per batch */
+			if(++counter % Integer.valueOf(maxNumRecords) == 0)
+				ps.executeBatch();
 			
 		}
 	}

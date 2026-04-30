@@ -91,12 +91,11 @@ public class AdeSogParserImpl implements ParserInterface
 					logger.info("Errore sul record {}", rowCounter);
 					logger.error(MicDlEtlConsts.ERR_VALIDATION);
 					aggiungiErrore(erroriRecord, rowCounter, estraiDescrizioniErrori(violations));
-					
-					rowCounter++;
-					break;
 				}
 				
-				listaSoggetti.add(soggetto);
+				else
+					listaSoggetti.add(soggetto);
+				
 				rowCounter++;
 			}
 			 
