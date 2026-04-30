@@ -11,11 +11,13 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import it.almaviva.mic.etl.dao.GenericDAO;
 import it.almaviva.mic.etl.dao.ade.AdeSogDAO;
 import it.almaviva.mic.etl.dto.ParsingDTO;
 import it.almaviva.mic.etl.exceptions.MicdlETLException;
 import it.almaviva.mic.etl.parsers.ParserInterface;
 import it.almaviva.mic.etl.services.MicDllEtlService;
+import it.almaviva.mic.etl.utils.MicDlEtlConsts;
 import jakarta.transaction.Transactional;
 
 @Service
@@ -27,6 +29,9 @@ public class AdeETLSogServiceImpl implements MicDllEtlService
 	
 	@Autowired
 	private AdeSogDAO sogDAO;
+	
+	@Autowired
+	private GenericDAO genericDAO;
 	
 	private static final Logger logger = LoggerFactory.getLogger(AdeETLSogServiceImpl.class);
 	
@@ -45,7 +50,16 @@ public class AdeETLSogServiceImpl implements MicDllEtlService
 			parsingResult = parser.parseFile(csvReader);
 			
 			logger.info("Salvataggio dei soggetti sulla tabella di staging...");
-			sogDAO.inserisciProprietari(parsingResult.getListaSoggetti(), idBatch);
+			Integer recordInStaging = sogDAO.inserisciProprietari(parsingResult.getListaSoggetti(), idBatch);
+			parsingResult.setRecordInseritiInStaging(recordInStaging);
+			
+			logger.info("Esecuzione della stored procedure di inserimento dei dati...");
+			Integer recordInseriti = genericDAO.eseguiStoreProcedureContaRecord(MicDlEtlConsts.PROPRIETARIO_SP);
+			
+			logger.info("Numero record inseriti: {}", recordInseriti);
+			parsingResult.setRecordInseriti(recordInseriti);
+			
+			logger.info("Fine servizio di scansione e salvataggio");
 		}
 		
 		catch(MicdlETLException mee)

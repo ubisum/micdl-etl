@@ -25,5 +25,6 @@ public class MicDlEtlConsts
 	public static final String ADE_DATO_CASTALE_SIMPLE_SP = "sp_dato_catastale_simple_insert"; 
 	public static final String ADE_INDIRIZZO_SP = "sp_indirizzo_scd2_load"; 
 	public static final String ADE_INDIRIZZO_SIMPLE_SP = "sp_indirizzo_simple_insert"; 
+	public static final String PROPRIETARIO_SP = "sp_proprietario_scd2_load";
 	
 }
