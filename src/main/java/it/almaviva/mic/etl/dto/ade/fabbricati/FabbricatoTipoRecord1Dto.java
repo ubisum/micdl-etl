@@ -2,6 +2,7 @@ package it.almaviva.mic.etl.dto.ade.fabbricati;
 
 import it.almaviva.mic.etl.parsers.CsvPosition;
 import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -13,68 +14,68 @@ public class FabbricatoTipoRecord1Dto extends FabbricatoBaseDto
 {
 	/* ---------------------------- classe dell'unita' immobiliare ---------------------------------- */
 	@CsvPosition(6)
-	@Pattern(regexp = "[A-Za-z0-9]{1,3}", message = "Formato della zona censuaria non valido")
+	@Size(max = 3, message = "Formato della zona censuaria non valido")
 	private String zonaCensuaria;
 	
 	@CsvPosition(7)
-	@Pattern(regexp = "[A-Za-z0-9]{1,4}", message = "Formato della categoria non valido")
+	@Size(max = 4, message = "Formato della categoria non valido")
 	private String categoria;
 	
 	@CsvPosition(8)
-	@Pattern(regexp = "[A-Za-z0-9]{1,2}", message = "Formato della classe non valido")
+	@Size(max = 2, message = "Formato della classe non valido")
 	private String classe;
 	
 	@CsvPosition(9)
-	@Pattern(regexp = "[0-9]{1,7}", message = "Formato della consistenza non valido")
+	@Size(max = 7, message = "Formato della consistenza non valido")
 	private String consistenza;
 	
 	@CsvPosition(10)
-	@Pattern(regexp = "[0-9]{1,5}", message = "Formato della superficie non valido")
+	@Pattern(regexp = "^([0-9]{1,5})$", message = "Formato della superficie non valido")
 	private String superficie;
 	
 	@CsvPosition(11)
-	@Pattern(regexp = "[0-9]{1,15}", message = "Formato della rendita in lire non valido")
+	@Pattern(regexp = "^([,0-9]{1,15})$", message = "Formato della rendita in lire non valido")
 	private String renditaLire;
 	
 	@CsvPosition(12)
-	@Pattern(regexp = "[0-9]{1,18}", message = "Formato della rendita in euro non valido")
+	@Pattern(regexp = "^([,0-9]{1,18})$", message = "Formato della rendita in euro non valido")
 	private String renditaEuro;
 	
 	/* ----------------------------- ubicazione immobile ----------------------------------------- */
 	@CsvPosition(13)
-	@Pattern(regexp = "[A-Za-z0-9]{1,2}", message = "Formato del lotto non valido")
+	@Size(max = 2, message = "Formato del lotto non valido")
 	private String lotto;
 	
 	@CsvPosition(14)
-	@Pattern(regexp = "[A-Za-z0-9]{1,2}", message = "Formato dell'edificio non valido")
+	@Size(max = 2, message = "Formato dell'edificio non valido")
 	private String edificio;
 	
 	@CsvPosition(15)
-	@Pattern(regexp = "[A-Za-z0-9]{1,2}", message = "Formato della scale non valido")
+	@Size(max = 2, message = "Formato della scale non valido")
 	private String scala;
 	
 	@CsvPosition(16)
-	@Pattern(regexp = "[A-Za-z0-9]{1,3}", message = "Formato dell'interno 1 non valido")
+	@Size(max = 3, message = "Formato dell'interno 1 non valido")
 	private String interno1;
 	
 	@CsvPosition(17)
-	@Pattern(regexp = "[A-Za-z0-9]{1,3}", message = "Formato dell'interno 2 non valido")
+	@Size(max = 3, message = "Formato dell'interno 2 non valido")
 	private String interno2;
 	
 	@CsvPosition(18)
-	@Pattern(regexp = "[A-Za-z0-9]{1,4}", message = "Formato del piano 1 non valido")
+	@Size(max = 4, message = "Formato del piano 1 non valido")
 	private String piano1;
 	
 	@CsvPosition(19)
-	@Pattern(regexp = "[A-Za-z0-9]{1,4}", message = "Formato del piano 2 non valido")
+	@Size(max = 4, message = "Formato del piano 2 non valido")
 	private String piano2;
 	
 	@CsvPosition(20)
-	@Pattern(regexp = "[A-Za-z0-9]{1,4}", message = "Formato del piano 3 non valido")
+	@Size(max = 4, message = "Formato del piano 3 non valido")
 	private String piano3;
 	
 	@CsvPosition(21)
-	@Pattern(regexp = "[A-Za-z0-9]{1,4}", message = "Formato del piano 4 non valido")
+	@Size(max = 4, message = "Formato del piano 4 non valido")
 	private String piano4;
 	
 	/* -------------------------------- registrazione atto unita' ------------------------------- */
@@ -87,15 +88,15 @@ public class FabbricatoTipoRecord1Dto extends FabbricatoBaseDto
 	private String regDataregAtto;
 	
 	@CsvPosition(24)
-	@Pattern(regexp = "[A-Za-z0-9]{1}", message = "Formato del tipo nota non valido")
+	@Size(max = 1, message = "Formato del tipo nota non valido")
 	private String regTipoNota;
 	
 	@CsvPosition(25)
-	@Pattern(regexp = "[A-Za-z0-9]{1,6}", message = "Formato del numero nota non valido")
+	@Size(max = 6, message = "Formato del numero nota non valido")
 	private String regNumeroNota;
 	
 	@CsvPosition(26)
-	@Pattern(regexp = "[A-Za-z0-9]{1,3}", message = "Formato del progressivo nota non valido")
+	@Size(max = 3, message = "Formato del progressivo nota non valido")
 	private String regProgressivoNota;
 	
 	@Pattern(regexp = "^([0-9]{4})$", message = "L'anno nota dev'essere nel formato AAAA")
@@ -112,15 +113,15 @@ public class FabbricatoTipoRecord1Dto extends FabbricatoBaseDto
 	private String concDataRegAtto;
 	
 	@CsvPosition(30)
-	@Pattern(regexp = "[A-Za-z0-9]{1}", message = "Formato del tipo nota (conclusione) non valido")
+	@Size(max = 1, message = "Formato del tipo nota (conclusione) non valido")
 	private String concTipoNota;
 	
 	@CsvPosition(31)
-	@Pattern(regexp = "[A-Za-z0-9]{1,6}", message = "Formato del numero nota (conclusione) non valido")
+	@Size(max = 6, message = "Formato del numero nota (conclusione) non valido")
 	private String concNumeroNota;
 	
 	@CsvPosition(32)
-	@Pattern(regexp = "[A-Za-z0-9]{1,3}", message = "Formato del progressivo nota (conclusione) non valido")
+	@Size(max = 3, message = "Formato del progressivo nota (conclusione) non valido")
 	private String concProgressivoNota;
 	
 	@Pattern(regexp = "^([0-9]{4})$", message = "L'anno nota (conslusione atto) dev'essere nel formato AAAA")
@@ -128,11 +129,11 @@ public class FabbricatoTipoRecord1Dto extends FabbricatoBaseDto
 	private String concAnnoNota;
 	
 	@CsvPosition(34)
-	@Pattern(regexp = "[A-Za-z0-9]{1,7}", message = "Formato della partita (conclusione) non valido")
+	@Size(max = 7, message = "Formato della partita (conclusione) non valido")
 	private String concPartita;
 	
 	@CsvPosition(35)
-	@Pattern(regexp = "[A-Za-z0-9]{1,200}", message = "Formato dell'annotazione (conclusione) non valido")
+	@Size(max = 200, message = "Formato dell'annotazione (conclusione) non valido")
 	private String concAnnotazione;
 	
 	@CsvPosition(36)
@@ -144,7 +145,7 @@ public class FabbricatoTipoRecord1Dto extends FabbricatoBaseDto
 	private String concIdMutFin;
 	
 	@CsvPosition(38)
-	@Pattern(regexp = "[A-Za-z0-9]{1,18}", message = "Formato del protocollo notifica non valido")
+	@Size(max = 18, message = "Formato del protocollo notifica non valido")
 	private String concProtocolloNotifica;
 	
 	@CsvPosition(39)
@@ -152,19 +153,19 @@ public class FabbricatoTipoRecord1Dto extends FabbricatoBaseDto
 	private String concDataNotifica;
 	
 	@CsvPosition(40)
-	@Pattern(regexp = "[A-Za-z0-9]{1,3}", message = "Formato del codice causale atto generante non valido")
+	@Size(max = 3, message = "Formato del codice causale atto generante non valido")
 	private String concCdAttoGenerante;
 	
 	@CsvPosition(41)
-	@Pattern(regexp = "[A-Za-z0-9]{1,100}", message = "Formato della descrizione dell'atto generante non valido")
+	@Size(max = 100, message = "Formato della descrizione dell'atto generante non valido")
 	private String concDescrAttoGenerante;
 	
 	@CsvPosition(42)
-	@Pattern(regexp = "[A-Za-z0-9]{1,3}", message = "Formato del codice causale atto coclusivo non valido")
+	@Size(max = 3, message = "Formato del codice causale atto coclusivo non valido")
 	private String concCdAttoConclusivo;
 	
 	@CsvPosition(43)
-	@Pattern(regexp = "[A-Za-z0-9]{1,100}", message = "Formato della descrizione dell'atto conclusivo non valido")
+	@Size(max = 100, message = "Formato della descrizione dell'atto conclusivo non valido")
 	private String concDescrAttoConclusivo;
 	
 	@CsvPosition(44)

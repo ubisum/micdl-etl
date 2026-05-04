@@ -65,8 +65,12 @@ public class AdeFabDAOImpl implements AdeFabDAO
 		
 		try
 		{
-			logger.info("Sono presenti {} indirizzi da inserire nella tabella di staging",
-				        indirizzi.stream().mapToInt(ind -> ind.getArray_id_indirizzi().size()).sum());
+			Integer recordPrevisti = indirizzi.stream().mapToInt(ind -> CollectionUtils.isNotEmpty(ind.getArray_id_indirizzi()) ? ind.getArray_id_indirizzi().size() : 0).sum();
+			
+			logger.info("Sono presenti {} indirizzi da inserire nella tabella di staging", recordPrevisti);
+			
+			if(recordPrevisti == 0)
+				return 0;
 			
 			logger.info("Creazione connessione verso il DB...");
 			Session session = entityManager.unwrap(Session.class);
