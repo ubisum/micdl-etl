@@ -16,17 +16,19 @@ BEGIN
 	-- ----------------------------------------------------------
 	UPDATE ade_dato_catastale_hist dc_hist
 	INNER JOIN ade_unita_imm_hist imm on dc_hist.id_imm_hist = imm.id_imm_hist
-	INNER JOIN ADE_DATO_CATASTALE_HIST_STAGING staging
-	ON 
-		imm.cod_comune COLLATE utf8mb4_unicode_ci = staging.cod_comune COLLATE utf8mb4_unicode_ci
-	AND imm.sezione COLLATE utf8mb4_unicode_ci = staging.sezione COLLATE utf8mb4_unicode_ci
-	AND imm.id_imm_catasto COLLATE utf8mb4_unicode_ci = staging.id_imm_catasto COLLATE utf8mb4_unicode_ci
-	AND imm.tipo_catasto COLLATE utf8mb4_unicode_ci = staging.tipo_catasto COLLATE utf8mb4_unicode_ci
+	AND 
+		dc_hist.valid_to IS NULL
+	-- INNER JOIN ADE_DATO_CATASTALE_HIST_STAGING staging
+	-- ON 
+	--	imm.cod_comune COLLATE utf8mb4_unicode_ci = staging.cod_comune COLLATE utf8mb4_unicode_ci
+	-- AND imm.sezione COLLATE utf8mb4_unicode_ci = staging.sezione COLLATE utf8mb4_unicode_ci
+	-- AND imm.id_imm_catasto COLLATE utf8mb4_unicode_ci = staging.id_imm_catasto COLLATE utf8mb4_unicode_ci
+	-- AND imm.tipo_catasto COLLATE utf8mb4_unicode_ci = staging.tipo_catasto COLLATE utf8mb4_unicode_ci
 	SET
 		dc_hist.valid_to = v_oggi,
 		dc_hist.is_current = 0
 	WHERE
-		imm.is_current = 1;
+		imm.is_current = 0;
 		
 	-- ----------------------------------------------------------
 	-- 2. ELIMINAZIONE DEI RIFERIMENTI NON STORICIZZATI

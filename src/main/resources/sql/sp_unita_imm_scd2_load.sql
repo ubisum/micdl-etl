@@ -86,20 +86,20 @@ BEGIN
     -- ---------------------------------------
     -- 3. UPDATE FK SU TABELLA DATI CATASTALI
     -- ---------------------------------------
-    UPDATE ade_dato_catastale_hist dc
-    INNER JOIN ade_unita_imm_hist old_imm
-        ON dc.id_imm_hist = old_imm.id_imm_hist
-    INNER JOIN ade_unita_imm_hist new_imm
-		ON old_imm.cod_comune = new_imm.cod_comune
-		AND old_imm.sezione = new_imm.sezione
-		AND old_imm.id_imm_catasto = new_imm.id_imm_catasto
-		AND old_imm.tipo_catasto = new_imm.tipo_catasto
+    -- UPDATE ade_dato_catastale_hist dc
+    -- INNER JOIN ade_unita_imm_hist old_imm
+    --    ON dc.id_imm_hist = old_imm.id_imm_hist
+    -- INNER JOIN ade_unita_imm_hist new_imm
+	--	ON old_imm.cod_comune = new_imm.cod_comune
+	--	AND old_imm.sezione = new_imm.sezione
+	--	AND old_imm.id_imm_catasto = new_imm.id_imm_catasto
+	--	AND old_imm.tipo_catasto = new_imm.tipo_catasto
 		-- AND old_imm.progressivo = new_imm.progressivo
-		AND old_imm.tipo_record = new_imm.tipo_record
-    SET dc.id_imm_hist = new_imm.id_imm_hist
-    WHERE old_imm.is_current = 0
-      AND new_imm.is_current = 1
-      AND dc.id_imm_hist <> new_imm.id_imm_hist;
+	--	AND old_imm.tipo_record = new_imm.tipo_record
+    -- SET dc.id_imm_hist = new_imm.id_imm_hist
+    -- WHERE old_imm.is_current = 0
+    --  AND new_imm.is_current = 1
+     -- AND dc.id_imm_hist <> new_imm.id_imm_hist;
 	
 	-- -----------------------------------------------------------------------
     -- 4. INSERT FK SU TABELLA DATI UNITA' IMMOBILIARI NON STORICIZZATI
@@ -180,7 +180,7 @@ BEGIN
 	-- ---------------------------------------
     -- 6. UPDATE FK SU TABELLA INDIRIZZI
     -- ---------------------------------------
-	UPDATE ade_indirizzo_hist ind_hist
+	/* UPDATE ade_indirizzo_hist ind_hist
 	INNER JOIN ade_unita_imm_hist old_imm
         ON ind_hist.id_imm_hist = old_imm.id_imm_hist
 	INNER JOIN ade_unita_imm_hist new_imm
@@ -193,7 +193,7 @@ BEGIN
 		ind_hist.id_imm_hist = new_imm.id_imm_hist
 	WHERE old_imm.is_current = 0
       AND new_imm.is_current = 1
-      AND ind_hist.id_imm_hist <> new_imm.id_imm_hist;
+      AND ind_hist.id_imm_hist <> new_imm.id_imm_hist; */
 	  
 	SET totale_inseriti = v_count;
 

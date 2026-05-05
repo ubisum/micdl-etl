@@ -15,7 +15,9 @@ BEGIN
 	-- ----------------------------------------------------------
 	UPDATE ade_indirizzo_hist ind_hist
 	INNER JOIN ade_unita_imm_hist imm on ind_hist.id_imm_hist = imm.id_imm_hist
-	INNER JOIN ADE_INDIRIZZO_HIST_STAGING staging
+	AND
+		ind_hist.valid_to IS NULL
+	/* INNER JOIN ADE_INDIRIZZO_HIST_STAGING staging
 	ON 
 		imm.cod_comune COLLATE utf8mb4_unicode_ci = staging.cod_comune COLLATE utf8mb4_unicode_ci
 	AND 
@@ -23,12 +25,12 @@ BEGIN
 	AND 
 		imm.id_imm_catasto COLLATE utf8mb4_unicode_ci = staging.id_imm_catasto COLLATE utf8mb4_unicode_ci
 	AND 
-		imm.tipo_catasto COLLATE utf8mb4_unicode_ci = staging.tipo_catasto COLLATE utf8mb4_unicode_ci
+		imm.tipo_catasto COLLATE utf8mb4_unicode_ci = staging.tipo_catasto COLLATE utf8mb4_unicode_ci */
 	SET
 		ind_hist.valid_to = v_oggi,
 		ind_hist.is_current = 0
 	WHERE
-		imm.is_current = 1;
+		imm.is_current = 0;
 		
 	-- ----------------------------------------------------------
 	-- 2. ELIMINAZIONE DEI RIFERIMENTI NON STORICIZZATI
