@@ -6,7 +6,9 @@ CREATE PROCEDURE sp_indirizzo_scd2_load(OUT totale_inseriti INT)
 BEGIN
 	DECLARE v_oggi_dt DATETIME;
 	DECLARE v_count INT DEFAULT 0;
+	DECLARE v_oggi DATE;
 	SET v_oggi_dt = NOW();
+	SET v_oggi = DATE(v_oggi_dt);
 	
 	-- ----------------------------------------------------------
 	-- 1. CHIUSURA RECORD RELATIVI A INDIRIZZI PRESENTI
@@ -23,7 +25,7 @@ BEGIN
 	AND 
 		imm.tipo_catasto COLLATE utf8mb4_unicode_ci = staging.tipo_catasto COLLATE utf8mb4_unicode_ci
 	SET
-		ind_hist.valid_to = v_oggi_dt,
+		ind_hist.valid_to = v_oggi,
 		ind_hist.is_current = 0
 	WHERE
 		imm.is_current = 1;
@@ -72,7 +74,7 @@ BEGIN
 		staging.civico3,
 		staging.cod_strada,
 		staging.hash,
-		v_oggi_dt,
+		v_oggi,
 		NULL,
 		1,
 		staging.batch_id

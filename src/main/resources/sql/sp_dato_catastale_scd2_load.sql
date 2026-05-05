@@ -23,7 +23,7 @@ BEGIN
 	AND imm.id_imm_catasto COLLATE utf8mb4_unicode_ci = staging.id_imm_catasto COLLATE utf8mb4_unicode_ci
 	AND imm.tipo_catasto COLLATE utf8mb4_unicode_ci = staging.tipo_catasto COLLATE utf8mb4_unicode_ci
 	SET
-		dc_hist.valid_to = v_oggi_dt,
+		dc_hist.valid_to = v_oggi,
 		dc_hist.is_current = 0
 	WHERE
 		imm.is_current = 1;
@@ -71,7 +71,7 @@ BEGIN
 		staging.subalterno,
 		staging.edificialita,
 		staging.hash,
-		v_oggi_dt,
+		v_oggi,
 		NULL,
 		1,
 		staging.batch_id

@@ -4,8 +4,10 @@ DELIMITER $$
 CREATE PROCEDURE sp_dato_catastale_simple_insert(OUT totale_inseriti INT)
 BEGIN
 	DECLARE v_oggi_dt DATETIME;
+	DECLARE v_oggi DATE;
 	DECLARE v_count INT DEFAULT 0;
 	SET v_oggi_dt = NOW();
+	SET v_oggi = DATE(v_oggi_dt);
 
 	INSERT INTO ade_dato_catastale_hist
 	(
@@ -31,7 +33,7 @@ BEGIN
 		staging.subalterno,
 		staging.edificialita,
 		staging.hash,
-		v_oggi_dt,
+		v_oggi,
 		NULL,
 		1,
 		staging.batch_id
