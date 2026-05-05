@@ -125,6 +125,11 @@ public class AdeETLFabServiceImpl implements MicDllEtlService
 							                        numDati);
 				}
 				
+				parsingResult.setRecordInseritiInStaging(parsingResult.getRecordInseritiInStaging() != null ? 
+				          parsingResult.getRecordInseritiInStaging() + datiSupplementari : datiSupplementari);
+				
+				
+				
 				logger.info("Inseriti {} record supplementari sulla tabella di staging", datiSupplementari);
 			}
 			
@@ -159,6 +164,9 @@ public class AdeETLFabServiceImpl implements MicDllEtlService
                             						parsingResult.getRecordInseriti() + indSupplSP :
                     								indSupplSP);
 				}
+				
+				parsingResult.setRecordInseritiInStaging(parsingResult.getRecordInseritiInStaging() != null ? 
+				          parsingResult.getRecordInseritiInStaging() + indirizziSupplementari : indirizziSupplementari);
 				
 				logger.info("Inseriti {} record supplementari sulla tabella di staging", indirizziSupplementari);
 			}
