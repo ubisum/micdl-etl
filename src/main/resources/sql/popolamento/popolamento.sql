@@ -214,3 +214,19 @@ VALUES('R', 'Tipo R');
 INSERT INTO lkp_tipo_nota
 (codice, descrizione)
 VALUES('V', 'Tipo V');
+
+-- --------------------------------------------------------
+-- ------------------ REGIMI ---------------------------
+-- --------------------------------------------------------
+INSERT INTO lkp_regimi
+(codice, descrizione)
+VALUES('C', 'Comunione');
+INSERT INTO lkp_regimi
+(codice, descrizione)
+VALUES('P', 'Bene personale');
+INSERT INTO lkp_regimi
+(codice, descrizione)
+VALUES('S', 'In separazione');
+INSERT INTO lkp_regimi
+(codice, descrizione)
+VALUES('D', 'In comunione de residuo');

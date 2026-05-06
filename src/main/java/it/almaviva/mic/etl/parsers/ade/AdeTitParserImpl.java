@@ -16,7 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import it.almaviva.mic.etl.dto.ParsingDTO;
-import it.almaviva.mic.etl.dto.ade.soggetti.ProprietarioDTO;
+import it.almaviva.mic.etl.dto.ade.titolarita.TitolaritaDTO;
 import it.almaviva.mic.etl.exceptions.MicdlETLException;
 import it.almaviva.mic.etl.parsers.CsvMapper;
 import it.almaviva.mic.etl.parsers.ParserInterface;
@@ -25,20 +25,20 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
 
 @Component
-public class AdeSogParserImpl implements ParserInterface 
+public class AdeTitParserImpl implements ParserInterface 
 {
-	private static final Logger logger = LoggerFactory.getLogger(AdeSogParserImpl.class);
+	private static final Logger logger = LoggerFactory.getLogger(AdeTitParserImpl.class);
 	private final Validator validator;
 	
-	public AdeSogParserImpl(Validator validator) 
-	{
+	public AdeTitParserImpl(Validator validator) {
+		super();
 		this.validator = validator;
 	}
 
 	@Override
 	public ParsingDTO parseFile(Reader reader) 
 	{
-		logger.info("Inizio parsing del file SOG...");
+		logger.info("Inizio parsing del file TIT...");
 		
 		/* preparazione alla lettura */
 		 BufferedReader br = new BufferedReader(reader);
@@ -46,7 +46,7 @@ public class AdeSogParserImpl implements ParserInterface
 		
 		 /* strutture di appoggio */
 		 Map<Integer, List<String>> erroriRecord = new HashMap<>();
-		 List<ProprietarioDTO> listaSoggetti = new ArrayList<>();
+		 List<TitolaritaDTO> listaTitolarita = new ArrayList<>();
 		
 		 /* output */
 		 ParsingDTO output = new ParsingDTO();
@@ -58,8 +58,8 @@ public class AdeSogParserImpl implements ParserInterface
 			 
 			 logger.info("Inizio analisi file...");
 			 
-			 while ((line = br.readLine()) != null) 
-			{
+			 while ((line = br.readLine()) != null)
+			 {
 				 /* controllo della presenza del carattere | finale */
 				if(line.endsWith("|"))
 					line = line.substring(0, line.length() - 1);
@@ -77,11 +77,12 @@ public class AdeSogParserImpl implements ParserInterface
 				}
 				
 				/* conversione della riga in oggetto */
-				ProprietarioDTO soggetto = CsvMapper.associaCampi(elementiRiga, ProprietarioDTO.class);
+				TitolaritaDTO titolarita = CsvMapper.associaCampi(elementiRiga, TitolaritaDTO.class);
 				
+
 				/* validazione */
-				Set<ConstraintViolation<ProprietarioDTO>> violations = null;
-				violations = validator.validate(soggetto);
+				Set<ConstraintViolation<TitolaritaDTO>> violations = null;
+				violations = validator.validate(titolarita);
 				
 				/* controllo del risultato della validazione */
 				if(CollectionUtils.isNotEmpty(violations))
@@ -92,27 +93,27 @@ public class AdeSogParserImpl implements ParserInterface
 				}
 				
 				else
-					listaSoggetti.add(soggetto);
+					listaTitolarita.add(titolarita);
 				
 				rowCounter++;
-			}
+			 }
 			 
-			output.setRecordLetti(rowCounter - 1);
-			output.setReportRecord(erroriRecord);
-			output.setListaSoggetti(listaSoggetti);
-			
-			logger.info("Effettuata la lettura di {} record", rowCounter - 1);
-			logger.info("Record interessati da errori di validazione: {}", erroriRecord.size());
+			 output.setRecordLetti(rowCounter - 1);
+			 output.setReportRecord(erroriRecord);
+			 output.setTitolarita(listaTitolarita);
 		 }
-		
+		 
 		 catch (Throwable e) 
 		 {
 			 logger.info("Si e' verificata un'eccezione durante il parsing del file", e);
 			 throw new MicdlETLException("Si e' verificato un errore durante il parsing del file", HttpStatus.INTERNAL_SERVER_ERROR);
 		 }
-		
+		 
+		 
+		 
+		 
+		// TODO Auto-generated method stub
 		return output;
-		
 	}
 
 }

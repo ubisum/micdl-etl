@@ -33,6 +33,8 @@ public class CsvMapper
 
                 /* valore estratto dall'array */
                 String rawValue = values[index];
+                if(rawValue != null)
+                	rawValue = rawValue.trim();
 
                 /* conversione della stringa nel valore/tipo richiesto dal field 
                  * della classe target */

@@ -11,6 +11,7 @@ import it.almaviva.mic.etl.dto.ade.fabbricati.FabbricatoTipoRecord1Dto;
 import it.almaviva.mic.etl.dto.ade.fabbricati.FabbricatoTipoRecord2Dto;
 import it.almaviva.mic.etl.dto.ade.fabbricati.FabbricatoTipoRecord3Dto;
 import it.almaviva.mic.etl.dto.ade.soggetti.ProprietarioDTO;
+import it.almaviva.mic.etl.dto.ade.titolarita.TitolaritaDTO;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -67,4 +68,8 @@ public class ParsingDTO extends EsitoDTO
 	/* ************************************* FLUSSO SOG ******************************************** */
 	@JsonIgnore
 	List<ProprietarioDTO> listaSoggetti = new ArrayList<>();
+	
+	/* ************************************* FLUSSO TIT ******************************************** */
+	@JsonIgnore
+	List<TitolaritaDTO> titolarita;
 }

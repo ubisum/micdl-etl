@@ -29,6 +29,9 @@ public class ServiceFactory
 			case "SOG":
 				return services.get("adeETLSogServiceImpl");
 				
+			case "TIT":
+				return services.get("adeETLTitServiceImpl");
+				
 			default:
 				return null;
 		}
