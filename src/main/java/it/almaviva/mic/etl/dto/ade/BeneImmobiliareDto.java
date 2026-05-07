@@ -1,4 +1,4 @@
-package it.almaviva.mic.etl.dto.ade.fabbricati;
+package it.almaviva.mic.etl.dto.ade;
 
 import it.almaviva.mic.etl.parsers.CsvPosition;
 import jakarta.validation.constraints.NotNull;
@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class FabbricatoBaseDto 
+public class BeneImmobiliareDto 
 {
 	@NotNull(message = "Il codice comune non puo' essere nullo")
 	@Pattern(regexp = "[A-Z]{1}[0-9]{3}", message = "Formato del codice comune non corretto")

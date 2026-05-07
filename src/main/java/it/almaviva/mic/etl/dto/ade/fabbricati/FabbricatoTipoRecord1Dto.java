@@ -1,5 +1,6 @@
 package it.almaviva.mic.etl.dto.ade.fabbricati;
 
+import it.almaviva.mic.etl.dto.ade.BeneImmobiliareDto;
 import it.almaviva.mic.etl.parsers.CsvPosition;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -10,7 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class FabbricatoTipoRecord1Dto extends FabbricatoBaseDto 
+public class FabbricatoTipoRecord1Dto extends BeneImmobiliareDto 
 {
 	/* ---------------------------- classe dell'unita' immobiliare ---------------------------------- */
 	@CsvPosition(6)
