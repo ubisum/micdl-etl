@@ -2,6 +2,7 @@ package it.almaviva.mic.etl.dto.ade.terreni;
 
 import it.almaviva.mic.etl.dto.ade.BeneImmobiliareDto;
 import it.almaviva.mic.etl.parsers.CsvPosition;
+import it.almaviva.mic.etl.validation.ade.AdeEdificialitaTerreni;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
@@ -11,6 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 @EqualsAndHashCode(callSuper = false)
+@AdeEdificialitaTerreni
 public class TerrenoTipoRecord1Dto extends BeneImmobiliareDto 
 {
 	@CsvPosition(6)
