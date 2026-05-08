@@ -74,11 +74,11 @@ public class TerrenoTipoRecord1Dto extends BeneImmobiliareDto
 	private String redditoAgrarioLire;
 	
 	@CsvPosition(21)
-	@Pattern(regexp = "^([0-9]{1,12})$", message = "Formato del reddito dominicale (euro) non valido")
-	private String redditodominicaleEuro;
+	@Pattern(regexp = "^([,0-9]{1,12})$", message = "Formato del reddito dominicale (euro) non valido")
+	private String redditoDominicaleEuro;
 	
 	@CsvPosition(22)
-	@Pattern(regexp = "^([0-9]{1,11})$", message = "Formato del reddito agrario (euro) non valido")
+	@Pattern(regexp = "^([,0-9]{1,11})$", message = "Formato del reddito agrario (euro) non valido")
 	private String redditoAgrarioEuro;
 	
 	@CsvPosition(23)
@@ -102,7 +102,7 @@ public class TerrenoTipoRecord1Dto extends BeneImmobiliareDto
 	private String progressivoNotaReg;
 	
 	@CsvPosition(28)
-	@Pattern(regexp = "^([0-9]{1,4})$", message = "Formato dell'anno nota (registrazione) non valido")
+	@Pattern(regexp = "^([0-9]{4})$", message = "Formato dell'anno nota (registrazione) non valido")
 	private String annoNotaReg;
 	
 	@CsvPosition(29)
@@ -126,7 +126,7 @@ public class TerrenoTipoRecord1Dto extends BeneImmobiliareDto
 	private String progressivoNotaConcl;
 	
 	@CsvPosition(34)
-	@Pattern(regexp = "^([0-9]{1,4})$", message = "Formato dell'anno nota (conclusione) non valido")
+	@Pattern(regexp = "^([0-9]{4})$", message = "Formato dell'anno nota (conclusione) non valido")
 	private String annoNotaConcl;
 	
 	@CsvPosition(35)
@@ -150,7 +150,7 @@ public class TerrenoTipoRecord1Dto extends BeneImmobiliareDto
 	private String cdCausaleAttoGenerante;
 	
 	@CsvPosition(40)
-	@Size(max = 100, message = "La lunghezza del campo codice descrizione atto generante non puo' superare i 100 caratteri")
+	@Size(max = 100, message = "La lunghezza del campo descrizione atto generante non puo' superare i 100 caratteri")
 	private String descrizioneAttoGenerante;
 	
 	@CsvPosition(41)
@@ -158,6 +158,6 @@ public class TerrenoTipoRecord1Dto extends BeneImmobiliareDto
 	private String cdcausaleAttoConclusivo;
 	
 	@CsvPosition(42)
-	@Size(max = 100, message = "La lunghezza del campo codice descrizione atto conclusivo non puo' superare i 100 caratteri")
+	@Size(max = 100, message = "La lunghezza del campo descrizione atto conclusivo non puo' superare i 100 caratteri")
 	private String descrizioneAttoConclusivo;
 }
