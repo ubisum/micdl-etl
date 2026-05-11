@@ -78,7 +78,7 @@ public class AdeETLFabServiceImpl implements MicDllEtlService
 				if(numeroRecordInseriti > 0)
 				{
 					logger.info("Esecuzione stored procedure per tabella unita' immobiliari...");
-					Integer unitaInserite = genericDAO.eseguiStoreProcedureContaRecord(MicDlEtlConsts.ADE_UNITA_IMM_SP);
+					Integer unitaInserite = genericDAO.eseguiStoredProcedureContaRecord(MicDlEtlConsts.ADE_UNITA_IMM_SP);
 					parsingResult.setRecordInseriti(parsingResult.getRecordInseriti() != null ? 
 							                        parsingResult.getRecordInseriti() + unitaInserite : 
 							                        unitaInserite);
@@ -103,7 +103,7 @@ public class AdeETLFabServiceImpl implements MicDllEtlService
 			if(datiCatastaliInseriti != 0)
 			{
 				logger.info("Esecuzione stored procedure per tabella dati catastali...");
-				Integer datiSP = genericDAO.eseguiStoreProcedureContaRecord(MicDlEtlConsts.ADE_DATO_CASTALE_SP);
+				Integer datiSP = genericDAO.eseguiStoredProcedureContaRecord(MicDlEtlConsts.ADE_DATO_CASTALE_SP);
 				parsingResult.setRecordInseriti(parsingResult.getRecordInseriti() != null ?
 						                        parsingResult.getRecordInseriti() + datiSP :
 						                        datiSP);
@@ -119,7 +119,7 @@ public class AdeETLFabServiceImpl implements MicDllEtlService
 				if(datiSupplementari > 0)
 				{
 					logger.info("Salvataggio dei dati catastali supplementari...");
-					Integer numDati = genericDAO.eseguiStoreProcedureContaRecord(MicDlEtlConsts.ADE_DATO_CASTALE_SIMPLE_SP);
+					Integer numDati = genericDAO.eseguiStoredProcedureContaRecord(MicDlEtlConsts.ADE_DATO_CASTALE_SIMPLE_SP);
 					parsingResult.setRecordInseriti(parsingResult.getRecordInseriti() != null ?
 							                        parsingResult.getRecordInseriti() + numDati :
 							                        numDati);
@@ -143,7 +143,7 @@ public class AdeETLFabServiceImpl implements MicDllEtlService
 			if(indirizziInseriti != 0)
 			{
 				logger.info("Esecuzione stored procedure per tabella indirizzi...");
-				Integer indirizziSP = genericDAO.eseguiStoreProcedureContaRecord(MicDlEtlConsts.ADE_INDIRIZZO_SP);
+				Integer indirizziSP = genericDAO.eseguiStoredProcedureContaRecord(MicDlEtlConsts.ADE_INDIRIZZO_SP);
 				parsingResult.setRecordInseriti(parsingResult.getRecordInseriti() != null ?
 						                                 parsingResult.getRecordInseriti() + indirizziSP :
 						                                 indirizziSP);
@@ -159,7 +159,7 @@ public class AdeETLFabServiceImpl implements MicDllEtlService
 				if(indirizziSupplementari > 0)
 				{
 					logger.info("Salvataggio degli indirizzi supplementari...");
-					Integer indSupplSP = genericDAO.eseguiStoreProcedureContaRecord(MicDlEtlConsts.ADE_INDIRIZZO_SIMPLE_SP);
+					Integer indSupplSP = genericDAO.eseguiStoredProcedureContaRecord(MicDlEtlConsts.ADE_INDIRIZZO_SIMPLE_SP);
 					parsingResult.setRecordInseriti(parsingResult.getRecordInseriti() != null ?
                             						parsingResult.getRecordInseriti() + indSupplSP :
                     								indSupplSP);

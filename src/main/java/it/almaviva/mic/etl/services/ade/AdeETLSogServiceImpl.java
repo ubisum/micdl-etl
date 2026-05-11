@@ -54,7 +54,7 @@ public class AdeETLSogServiceImpl implements MicDllEtlService
 			parsingResult.setRecordInseritiInStaging(recordInStaging);
 			
 			logger.info("Esecuzione della stored procedure di inserimento dei dati...");
-			Integer recordInseriti = genericDAO.eseguiStoreProcedureContaRecord(MicDlEtlConsts.PROPRIETARIO_SP);
+			Integer recordInseriti = genericDAO.eseguiStoredProcedureContaRecord(MicDlEtlConsts.PROPRIETARIO_SP);
 			
 			logger.info("Numero record inseriti: {}", recordInseriti);
 			parsingResult.setRecordInseriti(recordInseriti);

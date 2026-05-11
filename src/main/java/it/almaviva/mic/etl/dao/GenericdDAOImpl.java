@@ -125,7 +125,7 @@ public class GenericdDAOImpl implements GenericDAO
 	}
 	
 	@Override
-	public Integer eseguiStoreProcedureContaRecord(String procedure) 
+	public Integer eseguiStoredProcedureContaRecord(String procedure) 
 	{
 		logger.info("Accesso alla funzione di esecuzione delle stored procedure");
 		if(StringUtils.isBlank(procedure))

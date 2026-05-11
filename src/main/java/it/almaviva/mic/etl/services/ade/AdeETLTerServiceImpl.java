@@ -2,7 +2,9 @@ package it.almaviva.mic.etl.services.ade;
 
 import java.io.Reader;
 import java.math.BigDecimal;
+import java.util.stream.Collectors;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,11 +13,13 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import it.almaviva.mic.etl.dao.GenericDAO;
 import it.almaviva.mic.etl.dao.ade.AdeTerDAO;
 import it.almaviva.mic.etl.dto.ParsingDTO;
 import it.almaviva.mic.etl.exceptions.MicdlETLException;
 import it.almaviva.mic.etl.parsers.ParserInterface;
 import it.almaviva.mic.etl.services.MicDllEtlService;
+import it.almaviva.mic.etl.utils.MicDlEtlConsts;
 import jakarta.transaction.Transactional;
 
 @Service
@@ -27,6 +31,9 @@ public class AdeETLTerServiceImpl implements MicDllEtlService
 	
 	@Autowired
 	private AdeTerDAO adeTerDAo;
+	
+	@Autowired
+	private GenericDAO genericDAO;
 	
 	private static final Logger logger = LoggerFactory.getLogger(AdeETLTerServiceImpl.class);
 	
@@ -44,9 +51,31 @@ public class AdeETLTerServiceImpl implements MicDllEtlService
 			logger.info("Scansione del file...");
 			parsingResult = parser.parseFile(csvReader);
 			
-			logger.info("Salvataggio dei dati sulla tabella di staging...");
-			adeTerDAo.insertParticelle(parsingResult.getListaTerreni(), idBatch);
+			if(CollectionUtils.isNotEmpty(parsingResult.getListaTerreni()))
+			{
+				logger.info("Tipi nota REG: {}", parsingResult.getListaTerreni().stream().map(m-> m.getTipoNotaReg()).collect(Collectors.toList()));
+				logger.info("Tipi nota CON: {}", parsingResult.getListaTerreni().stream().map(m-> m.getTipoNotaConcl()).collect(Collectors.toList()));
+				
+				logger.info("Salvataggio dei dati sulla tabella di staging...");
+				Integer numeroRecordInseriti = adeTerDAo.insertParticelle(parsingResult.getListaTerreni(), idBatch);
+				parsingResult.setRecordInseritiInStaging(parsingResult.getRecordInseritiInStaging() != null ? 
+				          parsingResult.getRecordInseritiInStaging() + numeroRecordInseriti : numeroRecordInseriti);
+				
+				logger.info("Inseriti {} record sulla tabella di staging", numeroRecordInseriti);
+				
+				if(numeroRecordInseriti > 0)
+				{	
+					logger.info("Esecuzione stored procedure per tabella unita' immobiliari...");
+					Integer particelleInserite = genericDAO.eseguiStoredProcedureContaRecord(MicDlEtlConsts.ADE_PARTICELLA_SP);
+					parsingResult.setRecordInseriti(parsingResult.getRecordInseriti() != null ? 
+							                        parsingResult.getRecordInseriti() + particelleInserite : 
+							                        	particelleInserite);
+					
+					logger.info("Esecuzione stored procedure {} terminata", MicDlEtlConsts.ADE_PARTICELLA_SP);
+				}
+			}
 		}
+			
 		
 		catch(MicdlETLException mee)
 		{
