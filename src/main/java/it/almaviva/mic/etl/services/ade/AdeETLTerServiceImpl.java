@@ -45,7 +45,7 @@ public class AdeETLTerServiceImpl implements MicDllEtlService
 			parsingResult = parser.parseFile(csvReader);
 			
 			logger.info("Salvataggio dei dati sulla tabella di staging...");
-			adeTerDAo.insertParticelle(parsingResult.getListaTerreni());
+			adeTerDAo.insertParticelle(parsingResult.getListaTerreni(), idBatch);
 		}
 		
 		catch(MicdlETLException mee)
