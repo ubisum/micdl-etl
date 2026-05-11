@@ -16,6 +16,7 @@ public class MicDlEtlConsts
 	public static final String ADE_DATO_CATASTALE_CREATE_STAGING_INSERT = "sql/ade_dato_catastale_hist_staging_insert.sql";
 	public static final String ADE_INDIRIZZO_CREATE_STAGING = "sql/ade_indirizzo_hist_staging.sql";
 	public static final String ADE_INDIRIZZO_CREATE_STAGING_INSERT = "sql/ade_indirizzo_hist_staging_insert.sql";
+	public static final String ADE_PARTICELLA_CREATE_STAGING = "sql/ade_particella_hist_staging.sql";
 	public static final String PROPRIETARIO_HIST_STAGING = "sql/proprietario_hist_staging.sql";
 	public static final String PROPRIETARIO_HIST_STAGING_INSERT = "sql/proprietario_hist_staging_insert.sql";
 	

@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import it.almaviva.mic.etl.dao.ade.AdeTerDAO;
 import it.almaviva.mic.etl.dto.ParsingDTO;
 import it.almaviva.mic.etl.exceptions.MicdlETLException;
 import it.almaviva.mic.etl.parsers.ParserInterface;
@@ -23,6 +24,9 @@ public class AdeETLTerServiceImpl implements MicDllEtlService
 	@Autowired
 	@Qualifier("adeTerParserImpl")
 	private ParserInterface parser;
+	
+	@Autowired
+	private AdeTerDAO adeTerDAo;
 	
 	private static final Logger logger = LoggerFactory.getLogger(AdeETLTerServiceImpl.class);
 	
@@ -39,6 +43,9 @@ public class AdeETLTerServiceImpl implements MicDllEtlService
 		{
 			logger.info("Scansione del file...");
 			parsingResult = parser.parseFile(csvReader);
+			
+			logger.info("Salvataggio dei dati sulla tabella di staging...");
+			adeTerDAo.insertParticelle(parsingResult.getListaTerreni());
 		}
 		
 		catch(MicdlETLException mee)

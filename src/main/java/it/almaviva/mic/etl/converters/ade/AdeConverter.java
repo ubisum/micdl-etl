@@ -1,9 +1,7 @@
 package it.almaviva.mic.etl.converters.ade;
 
 import java.time.LocalDate;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
 
 import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.ModelMapper;
@@ -15,8 +13,10 @@ import it.almaviva.mic.etl.dto.ade.fabbricati.DatoCatastaleDto;
 import it.almaviva.mic.etl.dto.ade.fabbricati.FabbricatoTipoRecord1Dto;
 import it.almaviva.mic.etl.dto.ade.fabbricati.IndirizzoDto;
 import it.almaviva.mic.etl.dto.ade.soggetti.ProprietarioDTO;
+import it.almaviva.mic.etl.dto.ade.terreni.TerrenoTipoRecord1Dto;
 import it.almaviva.mic.etl.entities.ade.AdeDatoCatastaleHist;
 import it.almaviva.mic.etl.entities.ade.AdeIndirizzoHist;
+import it.almaviva.mic.etl.entities.ade.AdeParticellaHist;
 import it.almaviva.mic.etl.entities.ade.AdeUnitaImmHist;
 import it.almaviva.mic.etl.entities.ade.BatchJob;
 import it.almaviva.mic.etl.entities.ade.ProprietarioHist;
@@ -132,5 +132,22 @@ public class AdeConverter
 		proprietario.setHash(HashingUtils.getHashingForAnnotatedCols(3, dto));
 		
 		return proprietario;
+	}
+	
+	public static AdeParticellaHist convertParticellaFromDTO(TerrenoTipoRecord1Dto source)
+	{
+		/* creazione del mapper */
+		ModelMapper modelMapper = new ModelMapper();
+		
+		/* aggiunta dei convertitori necessari */
+		modelMapper.addConverter(new StringToIntegerConverter());
+		
+		/* creazione dell'entita' con conversione dei campi standard */
+		AdeParticellaHist destination = modelMapper.map(source, AdeParticellaHist.class);
+		
+		/* aggiunta del calcolo dell'hashing */
+		destination.setHash(HashingUtils.getHashingForAnnotatedCols(5, source));
+		
+		return destination;
 	}
 }
