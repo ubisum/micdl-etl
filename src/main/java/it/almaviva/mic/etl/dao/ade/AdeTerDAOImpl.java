@@ -18,7 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import it.almaviva.mic.etl.converters.ade.AdeConverter;
-import it.almaviva.mic.etl.dto.ade.terreni.TerrenoTipoRecord1Dto;
+import it.almaviva.mic.etl.dto.ade.terreni.TerrenoTipoRecord1DTO;
 import it.almaviva.mic.etl.entities.ade.AdeParticellaHist;
 import it.almaviva.mic.etl.exceptions.MicdlETLException;
 import it.almaviva.mic.etl.utils.MicDlEtlConsts;
@@ -38,7 +38,7 @@ public class AdeTerDAOImpl implements AdeTerDAO
 	private static final Logger logger = LoggerFactory.getLogger(AdeTerDAOImpl.class);
 	
 	@Override
-	public Integer insertParticelle(List<TerrenoTipoRecord1Dto> listaTerreni, BigDecimal idBatch) 
+	public Integer insertParticelle(List<TerrenoTipoRecord1DTO> listaTerreni, BigDecimal idBatch) 
 	{
 		logger.info("Richiesta di inserimento delle particelle nella tabella di staging...");
 		
@@ -98,7 +98,7 @@ public class AdeTerDAOImpl implements AdeTerDAO
 			/* contatore dei record */
 			int counter = 0;
 			
-			for(TerrenoTipoRecord1Dto terreno : listaTerreni)
+			for(TerrenoTipoRecord1DTO terreno : listaTerreni)
 			{
 				/* conversione DTO -> entita' */
 				AdeParticellaHist particella = AdeConverter.convertParticellaFromDTO(terreno);

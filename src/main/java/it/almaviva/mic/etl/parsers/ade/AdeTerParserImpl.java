@@ -17,7 +17,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import it.almaviva.mic.etl.dto.ParsingDTO;
-import it.almaviva.mic.etl.dto.ade.terreni.TerrenoTipoRecord1Dto;
+import it.almaviva.mic.etl.dto.ade.terreni.DeduzioneParticellaDTO;
+import it.almaviva.mic.etl.dto.ade.terreni.TerrenoTipoRecord1DTO;
+import it.almaviva.mic.etl.dto.ade.terreni.TerrenoTipoRecord2DTO;
 import it.almaviva.mic.etl.enums.AdeTipoRecordEnum;
 import it.almaviva.mic.etl.exceptions.MicdlETLException;
 import it.almaviva.mic.etl.parsers.CsvMapper;
@@ -49,7 +51,9 @@ public class AdeTerParserImpl implements ParserInterface
 		
 		 /* strutture di appoggio */
 		 Map<Integer, List<String>> erroriRecord = new HashMap<>();
-		 List<TerrenoTipoRecord1Dto> listaTerreni = new ArrayList<>();
+		 List<TerrenoTipoRecord1DTO> listaTerreni = new ArrayList<>();
+		 List<TerrenoTipoRecord2DTO> listaDeduzioni = new ArrayList<>();
+		 TerrenoTipoRecord2DTO deduzioneTemp = null;
 		 
 		 /* output */
 		 ParsingDTO output = new ParsingDTO();
@@ -117,8 +121,8 @@ public class AdeTerParserImpl implements ParserInterface
 				{
 					case ADE_TIPO_RECORD_1:
 						/* costruzione del record di tipo 1 */
-						TerrenoTipoRecord1Dto terreno1 = CsvMapper.associaCampi(elementiRiga, TerrenoTipoRecord1Dto.class);
-						Set<ConstraintViolation<TerrenoTipoRecord1Dto>> violations1 = validator.validate(terreno1);
+						TerrenoTipoRecord1DTO terreno1 = CsvMapper.associaCampi(elementiRiga, TerrenoTipoRecord1DTO.class);
+						Set<ConstraintViolation<TerrenoTipoRecord1DTO>> violations1 = validator.validate(terreno1);
 						
 						/* incremento dell'indice di riga */
 						rowCounter++;
@@ -137,6 +141,49 @@ public class AdeTerParserImpl implements ParserInterface
 						
 						break;
 					case ADE_TIPO_RECORD_2:
+						if(elementiRiga.length == 6)
+						{
+							/* dati delle dedudzioni delle particelle non presenti */
+							aggiungiErrore(erroriRecord, rowCounter, Arrays.asList(MicDlEtlConsts.ERR_DED_MISSING_ELEMS));
+							break;
+						}
+						
+						/* creazione nuova deduzione */
+						List<DeduzioneParticellaDTO> deduzioni = new ArrayList<>();
+						
+						for(int index = 6; index < elementiRiga.length; index++)
+						{
+							/* validazione della deduzione corrente */
+							DeduzioneParticellaDTO ded = new DeduzioneParticellaDTO(elementiRiga[index]);
+							Set<ConstraintViolation<DeduzioneParticellaDTO>> violations2 = validator.validate(ded);
+							
+							/* se una sola deduzione e' sbagliata, si elimina l'intero record */
+							if(violations2.size() != 0)
+							{
+								aggiungiErrore(erroriRecord, rowCounter, estraiDescrizioniErrori(violations2));
+								break;
+							}
+							
+							deduzioni.add(ded);
+						}
+						
+						/* record multipli */
+						if(ultimoTipoRecord == AdeTipoRecordEnum.ADE_TIPO_RECORD_2)
+						{
+							deduzioneTemp.getListaDeduzione().addAll(deduzioni);
+						}
+						
+						else
+						{
+							/* record singolo o primo di una sequenza */
+							if(deduzioneTemp != null)
+								listaDeduzioni.add(deduzioneTemp);
+							
+							deduzioneTemp = new TerrenoTipoRecord2DTO(deduzioni);
+						}
+						
+						ultimoTipoRecord = AdeTipoRecordEnum.ADE_TIPO_RECORD_2;
+							
 						break;
 					case ADE_TIPO_RECORD_3:
 						break;

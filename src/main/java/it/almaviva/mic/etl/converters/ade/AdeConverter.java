@@ -13,7 +13,7 @@ import it.almaviva.mic.etl.dto.ade.fabbricati.DatoCatastaleDto;
 import it.almaviva.mic.etl.dto.ade.fabbricati.FabbricatoTipoRecord1Dto;
 import it.almaviva.mic.etl.dto.ade.fabbricati.IndirizzoDto;
 import it.almaviva.mic.etl.dto.ade.soggetti.ProprietarioDTO;
-import it.almaviva.mic.etl.dto.ade.terreni.TerrenoTipoRecord1Dto;
+import it.almaviva.mic.etl.dto.ade.terreni.TerrenoTipoRecord1DTO;
 import it.almaviva.mic.etl.entities.ade.AdeDatoCatastaleHist;
 import it.almaviva.mic.etl.entities.ade.AdeIndirizzoHist;
 import it.almaviva.mic.etl.entities.ade.AdeParticellaHist;
@@ -134,7 +134,7 @@ public class AdeConverter
 		return proprietario;
 	}
 	
-	public static AdeParticellaHist convertParticellaFromDTO(TerrenoTipoRecord1Dto source)
+	public static AdeParticellaHist convertParticellaFromDTO(TerrenoTipoRecord1DTO source)
 	{
 		/* creazione del mapper */
 		ModelMapper modelMapper = new ModelMapper();

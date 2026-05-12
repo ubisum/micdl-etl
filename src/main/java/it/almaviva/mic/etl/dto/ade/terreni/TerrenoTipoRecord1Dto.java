@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @AdeEdificialitaTerreni
-public class TerrenoTipoRecord1Dto extends BeneImmobiliareDto 
+public class TerrenoTipoRecord1DTO extends BeneImmobiliareDto 
 {
 	@CsvPosition(6)
 	@Pattern(regexp = "^([0-9]{1,5})$", message = "Formato del foglio non valido")

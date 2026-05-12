@@ -8,6 +8,7 @@ public class MicDlEtlConsts
 	public static final String ERR_VALIDATION = "Uno o piu' vincoli violati sul record";
 	public static final String ERR_ESTATE_REG_NUM = "Numero dei campi dei dati catastali non corretto";
 	public static final String ERR_ADDR_NUM = "Numero dei campi degli indirizzi non corretto";
+	public static final String ERR_DED_MISSING_ELEMS = "Dati delle deduzioni non presenti";
 	
 	/* file SQL per operazioni CRUD */
 	public static final String ADE_UNITA_IMM_CREATE_STAGING = "sql/ade_unita_imm_hist_staging.sql";
