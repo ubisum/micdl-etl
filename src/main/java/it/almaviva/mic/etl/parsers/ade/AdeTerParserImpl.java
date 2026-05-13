@@ -17,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import it.almaviva.mic.etl.dto.ParsingDTO;
+import it.almaviva.mic.etl.dto.ade.fabbricati.FabbricatoTipoRecord2Dto;
 import it.almaviva.mic.etl.dto.ade.terreni.DeduzioneParticellaDTO;
 import it.almaviva.mic.etl.dto.ade.terreni.TerrenoTipoRecord1DTO;
 import it.almaviva.mic.etl.dto.ade.terreni.TerrenoTipoRecord2DTO;
@@ -145,6 +146,23 @@ public class AdeTerParserImpl implements ParserInterface
 						{
 							/* dati delle dedudzioni delle particelle non presenti */
 							aggiungiErrore(erroriRecord, rowCounter, Arrays.asList(MicDlEtlConsts.ERR_DED_MISSING_ELEMS));
+							rowCounter++;
+							break;
+						}
+						
+						/* validazione campi comuni */
+						TerrenoTipoRecord2DTO nuovoTerreno = CsvMapper.associaCampi(Arrays.copyOfRange(elementiRiga, 0, 6), TerrenoTipoRecord2DTO.class);
+						Set<ConstraintViolation<TerrenoTipoRecord2DTO>> violations_terr = null;
+						violations_terr = validator.validate(nuovoTerreno);
+						
+						/* controllo del risultato della validazione */
+						if(CollectionUtils.isNotEmpty(violations_terr))
+						{
+							logger.info("Errore sul record {}", rowCounter);
+							logger.error(MicDlEtlConsts.ERR_VALIDATION);
+							aggiungiErrore(erroriRecord, rowCounter, estraiDescrizioniErrori(violations_terr));
+							
+							rowCounter++;
 							break;
 						}
 						
@@ -161,6 +179,7 @@ public class AdeTerParserImpl implements ParserInterface
 							if(violations2.size() != 0)
 							{
 								aggiungiErrore(erroriRecord, rowCounter, estraiDescrizioniErrori(violations2));
+								rowCounter++;
 								break;
 							}
 							
@@ -179,10 +198,12 @@ public class AdeTerParserImpl implements ParserInterface
 							if(deduzioneTemp != null)
 								listaDeduzioni.add(deduzioneTemp);
 							
-							deduzioneTemp = new TerrenoTipoRecord2DTO(deduzioni);
+							nuovoTerreno.setListaDeduzione(deduzioni);
+							deduzioneTemp = nuovoTerreno;
 						}
 						
 						ultimoTipoRecord = AdeTipoRecordEnum.ADE_TIPO_RECORD_2;
+						rowCounter++;
 							
 						break;
 					case ADE_TIPO_RECORD_3:
@@ -197,7 +218,12 @@ public class AdeTerParserImpl implements ParserInterface
 				}
 			}
 			
+			/* termine gestione record multipli */
+			if(deduzioneTemp != null)
+				listaDeduzioni.add(deduzioneTemp);
+			
 			output.setListaTerreni(listaTerreni);
+			output.setListaDeduzioni(listaDeduzioni);
 			output.setReportRecord(erroriRecord);
 		 }
 		 

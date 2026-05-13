@@ -18,7 +18,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import it.almaviva.mic.etl.converters.ade.AdeConverter;
+import it.almaviva.mic.etl.dto.ade.terreni.DeduzioneParticellaDTO;
 import it.almaviva.mic.etl.dto.ade.terreni.TerrenoTipoRecord1DTO;
+import it.almaviva.mic.etl.dto.ade.terreni.TerrenoTipoRecord2DTO;
+import it.almaviva.mic.etl.entities.ade.AdeDeduzioneTerHist;
 import it.almaviva.mic.etl.entities.ade.AdeParticellaHist;
 import it.almaviva.mic.etl.exceptions.MicdlETLException;
 import it.almaviva.mic.etl.utils.MicDlEtlConsts;
@@ -36,6 +39,121 @@ public class AdeTerDAOImpl implements AdeTerDAO
 	private String batchSize;
 	
 	private static final Logger logger = LoggerFactory.getLogger(AdeTerDAOImpl.class);
+	
+	@Override
+	public Integer insertDeduzioni(List<TerrenoTipoRecord2DTO> listaDeduzioni, BigDecimal idBatch) 
+	{
+		logger.info("Richiesta di inserimento delle deduzioni nella tabella di staging...");
+		
+		if(CollectionUtils.isEmpty(listaDeduzioni))
+		{
+			logger.info("Nessuna deduzione fornita, nessun inserimento verra' effettuato");
+			return 0;
+		}
+		
+		/* grandezza batch */
+		Integer maxNumRecords = null;
+		if(StringUtils.isBlank(batchSize))
+		{
+			logger.info("Nessuna property indicante la misura del batch trovata. Si imposta la grandezza massima di default a 1000");
+			maxNumRecords = Integer.valueOf(1000);
+		}
+		
+		else
+			maxNumRecords = Integer.valueOf(batchSize);
+		
+		try
+		{
+			logger.info("Sono presenti {} deduzioni da inserire", listaDeduzioni.size());
+			
+			logger.info("Creazione connessione verso il DB...");
+			Session session = entityManager.unwrap(Session.class);
+			Connection conn = session.doReturningWork(c -> c);
+			
+			logger.info("Lettura del codice SQL per la creazione della tabella temporanea...");
+			String sqlTabellaTemporanea = MicdlEtlUtils.readContentFromFile(MicDlEtlConsts.ADE_DEDUZIONE_TER_STAGING);
+			if(StringUtils.isEmpty(sqlTabellaTemporanea))
+			{
+				logger.info("Impossibile leggere il codice per la creazione della tabella di staging");
+				throw new MicdlETLException("Impossibile leggere codice per la creazione della tabella di staging", 
+						                    HttpStatus.INTERNAL_SERVER_ERROR);
+			}
+			
+			logger.info("Rimozione della tabella temporanea (se presente)...");
+			Statement createStagingStmt = conn.createStatement();
+			createStagingStmt.execute("DROP TEMPORARY TABLE IF EXISTS ADE_DEDUZIONE_TER_STAGING");
+			
+			logger.info("Creazione tabella temporanea...");
+			createStagingStmt.executeUpdate(sqlTabellaTemporanea);
+			
+			logger.info("Lettura codice SQL per l'inserimento dei dati nella tabella di staging...");
+			String sqlInserimentoParticelle = MicdlEtlUtils.readContentFromFile(MicDlEtlConsts.ADE_DEDUZIONE_TER_STAGING_INSERT);
+			if(StringUtils.isEmpty(sqlInserimentoParticelle))
+			{
+				logger.info("Impossibile leggere il codice per l'inserimento dei dati nella tabella di staging");
+				throw new MicdlETLException("Impossibile leggere il codice per l'inserimento dei dati nella tabella di staging", 
+						                    HttpStatus.INTERNAL_SERVER_ERROR);
+			}
+			
+			/* creazione del prepared statement */
+			PreparedStatement inserimentoStagingPs = conn.prepareStatement(sqlInserimentoParticelle);
+			
+			/* contatore dei record */
+			int counter = 0;
+			
+			for(TerrenoTipoRecord2DTO terreno : listaDeduzioni)
+			{
+				if(CollectionUtils.isEmpty(terreno.getListaDeduzione()))
+					continue;
+				
+				/* incremento sequenza */
+				int sequenza = 1;
+				
+				for(DeduzioneParticellaDTO deduzione : terreno.getListaDeduzione())
+				{
+
+					/* riempimento dei parametri per l'i-simo record */
+					prepareInsertDeduzioni(inserimentoStagingPs, deduzione, terreno.getCodComune(), terreno.getSezione(), terreno.getIdImmCatasto(), 
+							               terreno.getTipoCatasto(), terreno.getTipoRecord(), sequenza, idBatch);
+					
+					/* aggiunta al batch */
+					inserimentoStagingPs.addBatch();
+					
+					/* controllo del raggiungimento del numero massimo di elementi per batch */
+					if(++counter % Integer.valueOf(batchSize) == 0)
+						inserimentoStagingPs.executeBatch();
+				}
+			}
+			
+			/* esecuzione del batch, se non avvenuto nel ciclo */
+			inserimentoStagingPs.executeBatch();
+			
+			logger.info("Inserimento terminato");
+			
+			/* verifica del numero dei record effettivamente scritti */
+			logger.info("Verifica dei record effettivamente scritti sulla tabella temporanea...");
+			
+			String sqlCountRecords = "SELECT COUNT(*) FROM ADE_DEDUZIONE_TER_STAGING";
+			Statement countRecords = conn.createStatement();
+			
+			ResultSet result = countRecords.executeQuery(sqlCountRecords);
+			Integer numeroRecordScritti = result.next() ? result.getInt(1) : 0;
+			
+			logger.info("Deduzione effettivamente inserite sulla tabella di staging: {}", numeroRecordScritti);
+			
+			logger.info("Terminato inserimento deduzioni in tabella di staging");
+			
+			return numeroRecordScritti;
+		}
+		
+		catch(Throwable ex)
+		{
+			logger.info("Si e' verificato un errore durante l'inserimento delle deduzioni", ex);
+			throw new MicdlETLException("Si e' verificato un errore durante l'inserimento delle deduzioni", 
+					                    HttpStatus.INTERNAL_SERVER_ERROR);   
+		}
+		
+	}
 	
 	@Override
 	public Integer insertParticelle(List<TerrenoTipoRecord1DTO> listaTerreni, BigDecimal idBatch) 
@@ -146,6 +264,43 @@ public class AdeTerDAOImpl implements AdeTerDAO
 	
 	/* -------------------------------- FUNZIONI DI UTILITA' ------------------------------------------------ */
 	
+	/* metodo per il popolamento della tabella di staging delle deduzioni */
+	private void prepareInsertDeduzioni(PreparedStatement ps, 
+			                            DeduzioneParticellaDTO deduzione,
+										String codiceComune,
+			                            String sezione,
+			                            String idImmCatasto,
+			                            String tipoCatasto,
+			                            String tipoRecord,
+			                            Integer sequenza,
+			                            BigDecimal idBatch) throws SQLException
+	{
+		/* indice di puntamento */
+	    int indice = 1;
+	    
+	    /* conversione DTO -> entita' */
+	    AdeDeduzioneTerHist entita = AdeConverter.convertDeduzioneFromDTO(deduzione);
+	    
+	    /* inserimento parametri */
+	    ps.setString(indice++, codiceComune);
+	    ps.setString(indice++, sezione);
+	    ps.setString(indice++, idImmCatasto);
+	    ps.setString(indice++, tipoCatasto);
+	    ps.setString(indice++, tipoRecord);
+	    ps.setString(indice++, entita.getSimboloDeduzione());
+	    
+	    ps.setInt(indice++, sequenza);
+	    
+	    ps.setBigDecimal(indice++, idBatch);
+	    
+	    /* safety check */
+	    if (indice != 9) 
+	    {
+	    	logger.info("Numero parametri errato per deduzione: {}", sequenza);
+	        throw new MicdlETLException("Numero parametri errato per deduzione:" + sequenza, HttpStatus.INTERNAL_SERVER_ERROR);
+	    }
+	}
+	
 	/* metodo di popolamento delle particelle nella tabella di staging */
 	private void prepareInsertParticelle(PreparedStatement ps, AdeParticellaHist particella, BigDecimal idBatch) throws SQLException
 	{
@@ -219,5 +374,6 @@ public class AdeTerDAOImpl implements AdeTerDAO
 	    ps.setBigDecimal(indice++, idBatch);
 	    
 	}
+
 
 }

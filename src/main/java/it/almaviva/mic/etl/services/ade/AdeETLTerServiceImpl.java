@@ -56,16 +56,16 @@ public class AdeETLTerServiceImpl implements MicDllEtlService
 				logger.info("Tipi nota REG: {}", parsingResult.getListaTerreni().stream().map(m-> m.getTipoNotaReg()).collect(Collectors.toList()));
 				logger.info("Tipi nota CON: {}", parsingResult.getListaTerreni().stream().map(m-> m.getTipoNotaConcl()).collect(Collectors.toList()));
 				
-				logger.info("Salvataggio dei dati sulla tabella di staging...");
+				logger.info("Salvataggio delle particelle sulla tabella di staging...");
 				Integer numeroRecordInseriti = adeTerDAo.insertParticelle(parsingResult.getListaTerreni(), idBatch);
 				parsingResult.setRecordInseritiInStaging(parsingResult.getRecordInseritiInStaging() != null ? 
 				          parsingResult.getRecordInseritiInStaging() + numeroRecordInseriti : numeroRecordInseriti);
 				
-				logger.info("Inseriti {} record sulla tabella di staging", numeroRecordInseriti);
+				logger.info("Inserite {} particelle sulla tabella di staging", numeroRecordInseriti);
 				
 				if(numeroRecordInseriti > 0)
 				{	
-					logger.info("Esecuzione stored procedure per tabella unita' immobiliari...");
+					logger.info("Esecuzione stored procedure per particelle...");
 					Integer particelleInserite = genericDAO.eseguiStoredProcedureContaRecord(MicDlEtlConsts.ADE_PARTICELLA_SP);
 					parsingResult.setRecordInseriti(parsingResult.getRecordInseriti() != null ? 
 							                        parsingResult.getRecordInseriti() + particelleInserite : 
@@ -73,6 +73,16 @@ public class AdeETLTerServiceImpl implements MicDllEtlService
 					
 					logger.info("Esecuzione stored procedure {} terminata", MicDlEtlConsts.ADE_PARTICELLA_SP);
 				}
+			}
+			
+			if(CollectionUtils.isNotEmpty(parsingResult.getListaDeduzioni()))
+			{
+				logger.info("Salvataggio delle deduzioni sulla tabella di staging...");
+				Integer numeroRecordInseriti = adeTerDAo.insertDeduzioni(parsingResult.getListaDeduzioni(), idBatch);
+				parsingResult.setRecordInseritiInStaging(parsingResult.getRecordInseritiInStaging() != null ? 
+				          parsingResult.getRecordInseritiInStaging() + numeroRecordInseriti : numeroRecordInseriti);
+				
+				logger.info("Inserite {} deduzioni sulla tabella di staging", numeroRecordInseriti);
 			}
 		}
 			

@@ -58,4 +58,7 @@ public class BatchJob
 	
 	@OneToMany(mappedBy = "batchJob", cascade = CascadeType.ALL, orphanRemoval = true)
 	List<AdeParticellaHist> listaParticelle ;
+	
+	@OneToMany(mappedBy = "batchJob", cascade = CascadeType.ALL, orphanRemoval = true)
+	List<AdeDeduzioneTerHist> listaDeduzioni;
 }

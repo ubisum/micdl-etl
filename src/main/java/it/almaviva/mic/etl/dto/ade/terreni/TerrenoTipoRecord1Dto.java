@@ -1,6 +1,6 @@
 package it.almaviva.mic.etl.dto.ade.terreni;
 
-import it.almaviva.mic.etl.dto.ade.BeneImmobiliareDto;
+import it.almaviva.mic.etl.dto.ade.BeneImmobiliareDTO;
 import it.almaviva.mic.etl.parsers.CsvPosition;
 import it.almaviva.mic.etl.validation.ade.AdeEdificialitaTerreni;
 import jakarta.validation.constraints.Pattern;
@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @AdeEdificialitaTerreni
-public class TerrenoTipoRecord1DTO extends BeneImmobiliareDto 
+public class TerrenoTipoRecord1DTO extends BeneImmobiliareDTO 
 {
 	@CsvPosition(6)
 	@Pattern(regexp = "^([0-9]{1,5})$", message = "Formato del foglio non valido")
