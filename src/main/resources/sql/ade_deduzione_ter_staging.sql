@@ -7,5 +7,6 @@ CREATE TEMPORARY TABLE ADE_DEDUZIONE_TER_STAGING
 	tipo_record varchar(1),
 	simbolo_deduzione varchar(6),
 	seq int,
+	hash varchar(64),
 	batch_id bigint
 );

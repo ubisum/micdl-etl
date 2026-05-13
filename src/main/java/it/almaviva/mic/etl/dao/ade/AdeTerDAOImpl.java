@@ -114,7 +114,7 @@ public class AdeTerDAOImpl implements AdeTerDAO
 
 					/* riempimento dei parametri per l'i-simo record */
 					prepareInsertDeduzioni(inserimentoStagingPs, deduzione, terreno.getCodComune(), terreno.getSezione(), terreno.getIdImmCatasto(), 
-							               terreno.getTipoCatasto(), terreno.getTipoRecord(), sequenza, idBatch);
+							               terreno.getTipoCatasto(), terreno.getTipoRecord(), sequenza++, idBatch);
 					
 					/* aggiunta al batch */
 					inserimentoStagingPs.addBatch();
@@ -291,10 +291,12 @@ public class AdeTerDAOImpl implements AdeTerDAO
 	    
 	    ps.setInt(indice++, sequenza);
 	    
+	    ps.setString(indice++, entita.getHash());
+	    
 	    ps.setBigDecimal(indice++, idBatch);
 	    
 	    /* safety check */
-	    if (indice != 9) 
+	    if (indice != 10) 
 	    {
 	    	logger.info("Numero parametri errato per deduzione: {}", sequenza);
 	        throw new MicdlETLException("Numero parametri errato per deduzione:" + sequenza, HttpStatus.INTERNAL_SERVER_ERROR);
