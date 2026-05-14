@@ -79,7 +79,13 @@ BEGIN
 	-- AND
 		-- staging.tipo_record COLLATE utf8mb4_unicode_ci = part.tipo_record COLLATE utf8mb4_unicode_ci 
 	WHERE
-		part.is_current = 1;
+		part.is_current = 1
+	AND NOT EXISTS
+	(
+		SELECT 1
+		FROM ade_deduzione_ter_hist test
+		where test.id_part_hist = part.id_part_hist
+	);
 		
 	-- CONTEGGIO RECORD INSERITI
 	SET v_count = v_count + ROW_COUNT();
