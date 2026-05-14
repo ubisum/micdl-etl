@@ -7,6 +7,7 @@ import java.util.List;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -41,24 +42,27 @@ public class BatchJob
 	@Column(name = "esito")
 	private String esito;
 	
-	@OneToMany(mappedBy = "batchJob", cascade = CascadeType.ALL, orphanRemoval = true)
+	@OneToMany(mappedBy = "batchJob", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
 	private List<AdeUnitaImmHist> unitaImm;
 	
-	@OneToMany(mappedBy = "batchJob", cascade = CascadeType.ALL, orphanRemoval = true)
+	@OneToMany(mappedBy = "batchJob", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
 	private List<AdeDatoCatastaleHist> datiCatastali;
 	
-	@OneToMany(mappedBy = "batchJob", cascade = CascadeType.ALL, orphanRemoval = true)
+	@OneToMany(mappedBy = "batchJob", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
 	private List<AdeIndirizzoHist> indirizzi;
 	
-	@OneToMany(mappedBy = "batchJob", cascade = CascadeType.ALL, orphanRemoval = true)
+	@OneToMany(mappedBy = "batchJob", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
 	private List<BatchJobDettaglio> batchJobDettaglio;
 	
-	@OneToMany(mappedBy = "batchJob", cascade = CascadeType.ALL, orphanRemoval = true)
-	List<ProprietarioHist> listaProprietari;
+	@OneToMany(mappedBy = "batchJob", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+	private List<ProprietarioHist> listaProprietari;
 	
-	@OneToMany(mappedBy = "batchJob", cascade = CascadeType.ALL, orphanRemoval = true)
-	List<AdeParticellaHist> listaParticelle ;
+	@OneToMany(mappedBy = "batchJob", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+	private List<AdeParticellaHist> listaParticelle ;
 	
-	@OneToMany(mappedBy = "batchJob", cascade = CascadeType.ALL, orphanRemoval = true)
-	List<AdeDeduzioneTerHist> listaDeduzioni;
+	@OneToMany(mappedBy = "batchJob", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+	private List<AdeDeduzioneTerHist> listaDeduzioni;
+	
+	@OneToMany(mappedBy = "batchJob", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+	private List<AdeRiservaTerHist> listaRiserve;
 }

@@ -1,18 +1,18 @@
 package it.almaviva.mic.etl.dto.ade.terreni;
 
-import java.util.List;
-
 import it.almaviva.mic.etl.dto.ade.BeneImmobiliareDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @NoArgsConstructor
 @Data
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-public class TerrenoTipoRecord2DTO extends BeneImmobiliareDTO
+public class TerrenoTipoRecord3DTO extends BeneImmobiliareDTO 
 {
-	private List<DeduzioneParticellaDTO> listaDeduzione;
+	private List<RiservaParticellaDTO> listaRiserve;
 }

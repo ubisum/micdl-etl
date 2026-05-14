@@ -19,10 +19,13 @@ import org.springframework.stereotype.Component;
 
 import it.almaviva.mic.etl.converters.ade.AdeConverter;
 import it.almaviva.mic.etl.dto.ade.terreni.DeduzioneParticellaDTO;
+import it.almaviva.mic.etl.dto.ade.terreni.RiservaParticellaDTO;
 import it.almaviva.mic.etl.dto.ade.terreni.TerrenoTipoRecord1DTO;
 import it.almaviva.mic.etl.dto.ade.terreni.TerrenoTipoRecord2DTO;
+import it.almaviva.mic.etl.dto.ade.terreni.TerrenoTipoRecord3DTO;
 import it.almaviva.mic.etl.entities.ade.AdeDeduzioneTerHist;
 import it.almaviva.mic.etl.entities.ade.AdeParticellaHist;
+import it.almaviva.mic.etl.entities.ade.AdeRiservaTerHist;
 import it.almaviva.mic.etl.exceptions.MicdlETLException;
 import it.almaviva.mic.etl.utils.MicDlEtlConsts;
 import it.almaviva.mic.etl.utils.MicdlEtlUtils;
@@ -39,6 +42,130 @@ public class AdeTerDAOImpl implements AdeTerDAO
 	private String batchSize;
 	
 	private static final Logger logger = LoggerFactory.getLogger(AdeTerDAOImpl.class);
+	
+	@Override
+	public Integer insertRiserve(List<TerrenoTipoRecord3DTO> listaRiserve, BigDecimal idBatch) 
+	{
+		logger.info("Richiesta di inserimento delle riserve nella tabella di staging...");
+		
+		if(CollectionUtils.isEmpty(listaRiserve))
+		{
+			logger.info("Nessuna riserva fornita, nessun inserimento verra' effettuato");
+
+			return 0;
+		}
+		
+		/* grandezza batch */
+		Integer maxNumRecords = null;
+		if(StringUtils.isBlank(batchSize))
+		{
+			logger.info("Nessuna property indicante la misura del batch trovata. Si imposta la grandezza massima di default a 1000");
+			maxNumRecords = Integer.valueOf(1000);
+		}
+		
+		else
+			maxNumRecords = Integer.valueOf(batchSize);
+		
+		try
+		{
+			Integer recordPrevisti = listaRiserve.stream().mapToInt(ind -> CollectionUtils.isNotEmpty(ind.getListaRiserve()) ? 
+					                 ind.getListaRiserve().size() : 0).sum();
+			
+			logger.info("Sono presenti {} riserve da inserire nella tabella di staging", recordPrevisti);
+			
+			if(recordPrevisti == 0)
+				return 0;
+			
+			logger.info("Creazione connessione verso il DB...");
+			Session session = entityManager.unwrap(Session.class);
+			Connection conn = session.doReturningWork(c -> c);
+			
+			logger.info("Lettura del codice SQL per la creazione della tabella temporanea...");
+			String sqlTabellaTemporanea = MicdlEtlUtils.readContentFromFile(MicDlEtlConsts.ADE_RISERVA_TER_STAGING);
+			if(StringUtils.isEmpty(sqlTabellaTemporanea))
+			{
+				logger.info("Impossibile leggere il codice per la creazione della tabella di staging");
+				throw new MicdlETLException("Impossibile leggere codice per la creazione della tabella di staging", 
+						                    HttpStatus.INTERNAL_SERVER_ERROR);
+			}
+			
+			logger.info("Rimozione della tabella temporanea (se presente)...");
+			Statement createStagingStmt = conn.createStatement();
+			createStagingStmt.execute("DROP TEMPORARY TABLE IF EXISTS ADE_RISERVA_TER_STAGING");
+			
+			logger.info("Creazione tabella temporanea...");
+			createStagingStmt.executeUpdate(sqlTabellaTemporanea);
+			
+			logger.info("Lettura codice SQL per l'inserimento dei dati nella tabella di staging...");
+			String sqlInserimentoRiserve = MicdlEtlUtils.readContentFromFile(MicDlEtlConsts.ADE_RISERVA_TER_STAGING_INSERT);
+			if(StringUtils.isEmpty(sqlInserimentoRiserve))
+			{
+				logger.info("Impossibile leggere il codice per l'inserimento dei dati nella tabella di staging");
+				throw new MicdlETLException("Impossibile leggere il codice per l'inserimento dei dati nella tabella di staging", 
+						                    HttpStatus.INTERNAL_SERVER_ERROR);
+			}
+			
+			/* creazione del prepared statement */
+			PreparedStatement inserimentoStagingPs = conn.prepareStatement(sqlInserimentoRiserve);
+			
+			/* contatore dei record */
+			int counter = 0;
+			
+			for(TerrenoTipoRecord3DTO terreno : listaRiserve)
+			{
+				if(CollectionUtils.isEmpty(terreno.getListaRiserve()))
+					continue;
+				
+				/* incremento sequenza */
+				int sequenza = 1;
+				
+				for(RiservaParticellaDTO riserva : terreno.getListaRiserve())
+				{
+
+					/* riempimento dei parametri per l'i-simo record */
+					prepareInsertRiserve(inserimentoStagingPs, riserva, terreno.getCodComune(), terreno.getSezione(), 
+							             terreno.getIdImmCatasto(), terreno.getTipoCatasto(), sequenza++, idBatch);;
+					
+					/* aggiunta al batch */
+					inserimentoStagingPs.addBatch();
+					
+					/* controllo del raggiungimento del numero massimo di elementi per batch */
+					if(++counter % Integer.valueOf(batchSize) == 0)
+						inserimentoStagingPs.executeBatch();
+				}
+			}
+			
+			/* esecuzione del batch, se non avvenuto nel ciclo */
+			inserimentoStagingPs.executeBatch();
+			
+			logger.info("Inserimento terminato");
+			
+			/* verifica del numero dei record effettivamente scritti */
+			logger.info("Verifica dei record effettivamente scritti sulla tabella temporanea...");
+			
+			String sqlCountRecords = "SELECT COUNT(*) FROM ADE_RISERVA_TER_STAGING";
+			Statement countRecords = conn.createStatement();
+			
+			ResultSet result = countRecords.executeQuery(sqlCountRecords);
+			Integer numeroRecordScritti = result.next() ? result.getInt(1) : 0;
+			
+			logger.info("Deduzione effettivamente inserite sulla tabella di staging: {}", numeroRecordScritti);
+			
+			logger.info("Terminato inserimento deduzioni in tabella di staging");
+			
+			return numeroRecordScritti;
+			
+			
+		}
+		
+		catch(Throwable ex)
+		{
+			logger.info("Si e' verificato un errore durante l'inserimento delle riserve", ex);
+			throw new MicdlETLException("Si e' verificato un errore durante l'inserimento delle riserve", 
+					                    HttpStatus.INTERNAL_SERVER_ERROR);   
+		}
+		
+	}
 	
 	@Override
 	public Integer insertDeduzioni(List<TerrenoTipoRecord2DTO> listaDeduzioni, BigDecimal idBatch) 
@@ -264,6 +391,44 @@ public class AdeTerDAOImpl implements AdeTerDAO
 	
 	/* -------------------------------- FUNZIONI DI UTILITA' ------------------------------------------------ */
 	
+	/* metodo per il popolamento della tabella di staging delle riserve */
+	private void prepareInsertRiserve(PreparedStatement ps,
+			                          RiservaParticellaDTO riserva,
+			                          String codiceComune,
+			                          String sezione,
+			                          String idImmCatasto,
+			                          String tipoCatasto,
+			                          Integer sequenza,
+			                          BigDecimal idBatch)throws SQLException
+	{
+		/* indice di puntamento */
+	    int indice = 1;
+	    
+	    /* conversione DTO -> entita' */
+	    AdeRiservaTerHist entita = AdeConverter.convertRiservaFromDTO(riserva);
+	    
+	    /* inserimento parametri */
+	    ps.setString(indice++,codiceComune);
+	    ps.setString(indice++,sezione);
+	    ps.setString(indice++,idImmCatasto);
+	    ps.setString(indice++,tipoCatasto);
+	    ps.setString(indice++,entita.getCodiceRiserva());
+	    ps.setString(indice++,entita.getPartitaIscrizioneRiserva());
+	    
+	    ps.setInt(indice++, sequenza);
+	    
+	    ps.setString(indice++,entita.getHash());
+	    
+	    ps.setBigDecimal(indice++, idBatch);
+	    
+	    /* safety check */
+	    if (indice != 10) 
+	    {
+	    	logger.info("Numero parametri errato per riserva: {}", sequenza);
+	        throw new MicdlETLException("Numero parametri errato per riserva:" + sequenza, HttpStatus.INTERNAL_SERVER_ERROR);
+	    }
+	}
+	
 	/* metodo per il popolamento della tabella di staging delle deduzioni */
 	private void prepareInsertDeduzioni(PreparedStatement ps, 
 			                            DeduzioneParticellaDTO deduzione,
@@ -376,6 +541,8 @@ public class AdeTerDAOImpl implements AdeTerDAO
 	    ps.setBigDecimal(indice++, idBatch);
 	    
 	}
+
+	
 
 
 }

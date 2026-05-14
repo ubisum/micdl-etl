@@ -92,6 +92,16 @@ public class AdeETLTerServiceImpl implements MicDllEtlService
 				
 				logger.info("Esecuzione stored procedure {} terminata", MicDlEtlConsts.ADE_DEDUZIONE_SP);
 			}
+			
+			if(CollectionUtils.isNotEmpty(parsingResult.getListaRiserve()))
+			{
+				logger.info("Salvataggio delle riserve sulla tabella di staging...");
+				Integer numeroRecordInseriti = adeTerDAo.insertRiserve(parsingResult.getListaRiserve(), idBatch);
+				parsingResult.setRecordInseritiInStaging(parsingResult.getRecordInseritiInStaging() != null ? 
+				          parsingResult.getRecordInseritiInStaging() + numeroRecordInseriti : numeroRecordInseriti);
+				
+				logger.info("Inserite {} riserve sulla tabella di staging", numeroRecordInseriti);
+			}
 		}
 			
 		

@@ -17,10 +17,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import it.almaviva.mic.etl.dto.ParsingDTO;
-import it.almaviva.mic.etl.dto.ade.fabbricati.FabbricatoTipoRecord2Dto;
 import it.almaviva.mic.etl.dto.ade.terreni.DeduzioneParticellaDTO;
+import it.almaviva.mic.etl.dto.ade.terreni.RiservaParticellaDTO;
 import it.almaviva.mic.etl.dto.ade.terreni.TerrenoTipoRecord1DTO;
 import it.almaviva.mic.etl.dto.ade.terreni.TerrenoTipoRecord2DTO;
+import it.almaviva.mic.etl.dto.ade.terreni.TerrenoTipoRecord3DTO;
 import it.almaviva.mic.etl.enums.AdeTipoRecordEnum;
 import it.almaviva.mic.etl.exceptions.MicdlETLException;
 import it.almaviva.mic.etl.parsers.CsvMapper;
@@ -54,7 +55,9 @@ public class AdeTerParserImpl implements ParserInterface
 		 Map<Integer, List<String>> erroriRecord = new HashMap<>();
 		 List<TerrenoTipoRecord1DTO> listaTerreni = new ArrayList<>();
 		 List<TerrenoTipoRecord2DTO> listaDeduzioni = new ArrayList<>();
+		 List<TerrenoTipoRecord3DTO> listaRiserve = new ArrayList<>();
 		 TerrenoTipoRecord2DTO deduzioneTemp = null;
+		 TerrenoTipoRecord3DTO riservaTemp = null;
 		 
 		 /* output */
 		 ParsingDTO output = new ParsingDTO();
@@ -118,6 +121,7 @@ public class AdeTerParserImpl implements ParserInterface
 				/* ramificazione per tipo */
 				AdeTipoRecordEnum tipoRecord = AdeTipoRecordEnum.getFromValue(tipoEstratto);
 				
+				switchLabel:
 				switch(tipoRecord)
 				{
 					case ADE_TIPO_RECORD_1:
@@ -207,6 +211,68 @@ public class AdeTerParserImpl implements ParserInterface
 							
 						break;
 					case ADE_TIPO_RECORD_3:
+						if(elementiRiga.length == 6 || (elementiRiga.length - 6) %2 != 0)
+						{
+							/* dati delle riserve delle particelle non presenti */
+							aggiungiErrore(erroriRecord, rowCounter, Arrays.asList(MicDlEtlConsts.ERR_RIS_MISSING_ELEMS));
+							rowCounter++;
+							break;
+						}
+						
+						/* validazione campi comuni */
+						TerrenoTipoRecord3DTO nuovoTerreno3 = CsvMapper.associaCampi(Arrays.copyOfRange(elementiRiga, 0, 6), TerrenoTipoRecord3DTO.class);
+						Set<ConstraintViolation<TerrenoTipoRecord3DTO>> violations_terr3 = null;
+						violations_terr3 = validator.validate(nuovoTerreno3);
+						
+						/* controllo del risultato della validazione */
+						if(CollectionUtils.isNotEmpty(violations_terr3))
+						{
+							logger.info("Errore sul record {}", rowCounter);
+							logger.error(MicDlEtlConsts.ERR_VALIDATION);
+							aggiungiErrore(erroriRecord, rowCounter, estraiDescrizioniErrori(violations_terr3));
+							
+							rowCounter++;
+							break;
+						}
+						
+						/* creazione nuove riserve */
+						List<RiservaParticellaDTO> riserve = new ArrayList<>();
+						
+						for(int index = 6; index < elementiRiga.length; index = index+2)
+						{
+							/* validazione nuova riserva */
+							RiservaParticellaDTO risPar = CsvMapper.associaCampi(Arrays.copyOfRange(elementiRiga, index, index + 2), RiservaParticellaDTO.class);
+							Set<ConstraintViolation<RiservaParticellaDTO>> violations3 = validator.validate(risPar);
+							
+							/* se una sola riserva e' sbagliata, si elimina l'interno record */
+							if(violations3.size() != 0)
+							{
+								aggiungiErrore(erroriRecord, rowCounter, estraiDescrizioniErrori(violations3));
+								rowCounter++;
+								break switchLabel;
+							}
+							
+							riserve.add(risPar);
+						}
+						
+						/* record multipli */
+						if(ultimoTipoRecord == AdeTipoRecordEnum.ADE_TIPO_RECORD_3)
+						{
+							riservaTemp.getListaRiserve().addAll(riserve);
+						}
+						
+						else
+						{
+							/* record singolo o primo di una sequenza */
+							if(riservaTemp != null)
+								listaRiserve.add(riservaTemp);
+							
+							nuovoTerreno3.setListaRiserve(riserve);
+							riservaTemp = nuovoTerreno3; 
+						}
+						
+						ultimoTipoRecord = AdeTipoRecordEnum.ADE_TIPO_RECORD_3;
+						
 						break;
 					case ADE_TIPO_RECORD_4:
 						break;
@@ -222,8 +288,12 @@ public class AdeTerParserImpl implements ParserInterface
 			if(deduzioneTemp != null)
 				listaDeduzioni.add(deduzioneTemp);
 			
+			if(riservaTemp != null)
+				listaRiserve.add(riservaTemp);
+			
 			output.setListaTerreni(listaTerreni);
 			output.setListaDeduzioni(listaDeduzioni);
+			output.setListaRiserve(listaRiserve);
 			output.setReportRecord(erroriRecord);
 		 }
 		 
