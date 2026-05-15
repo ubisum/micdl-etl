@@ -184,7 +184,7 @@ public class AdeTerParserImpl implements ParserInterface
 							{
 								aggiungiErrore(erroriRecord, rowCounter, estraiDescrizioniErrori(violations2));
 								rowCounter++;
-								break;
+								break switchLabel;
 							}
 							
 							deduzioni.add(ded);
