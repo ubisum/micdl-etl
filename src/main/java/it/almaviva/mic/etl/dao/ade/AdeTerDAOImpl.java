@@ -19,12 +19,15 @@ import org.springframework.stereotype.Component;
 
 import it.almaviva.mic.etl.converters.ade.AdeConverter;
 import it.almaviva.mic.etl.dto.ade.terreni.DeduzioneParticellaDTO;
+import it.almaviva.mic.etl.dto.ade.terreni.PorzioneDTO;
 import it.almaviva.mic.etl.dto.ade.terreni.RiservaParticellaDTO;
 import it.almaviva.mic.etl.dto.ade.terreni.TerrenoTipoRecord1DTO;
 import it.almaviva.mic.etl.dto.ade.terreni.TerrenoTipoRecord2DTO;
 import it.almaviva.mic.etl.dto.ade.terreni.TerrenoTipoRecord3DTO;
+import it.almaviva.mic.etl.dto.ade.terreni.TerrenoTipoRecord4DTO;
 import it.almaviva.mic.etl.entities.ade.AdeDeduzioneTerHist;
 import it.almaviva.mic.etl.entities.ade.AdeParticellaHist;
+import it.almaviva.mic.etl.entities.ade.AdePorzioneTerHist;
 import it.almaviva.mic.etl.entities.ade.AdeRiservaTerHist;
 import it.almaviva.mic.etl.exceptions.MicdlETLException;
 import it.almaviva.mic.etl.utils.MicDlEtlConsts;
@@ -42,6 +45,125 @@ public class AdeTerDAOImpl implements AdeTerDAO
 	private String batchSize;
 	
 	private static final Logger logger = LoggerFactory.getLogger(AdeTerDAOImpl.class);
+	
+	@Override
+	public Integer insertPorzioni(List<TerrenoTipoRecord4DTO> listaPorzioni, BigDecimal idBatch) 
+	{
+		logger.info("Richiesta di inserimento delle porzioni nella tabella di staging...");
+		
+		if(CollectionUtils.isEmpty(listaPorzioni))
+		{
+			logger.info("Nessuna porzione fornita, nessun inserimento verra' effettuato");
+
+			return 0;
+		}
+		
+		/* grandezza batch */
+		Integer maxNumRecords = null;
+		if(StringUtils.isBlank(batchSize))
+		{
+			logger.info("Nessuna property indicante la misura del batch trovata. Si imposta la grandezza massima di default a 1000");
+			maxNumRecords = Integer.valueOf(1000);
+		}
+		
+		else
+			maxNumRecords = Integer.valueOf(batchSize);
+		
+		try
+		{
+			Integer recordPrevisti = listaPorzioni.stream().mapToInt(ind -> CollectionUtils.isNotEmpty(ind.getListaPorzioni()) ? 
+	                 ind.getListaPorzioni().size() : 0).sum();
+			
+			logger.info("Sono presenti {} porzioni da inserire nella tabella di staging", recordPrevisti);
+			
+			if(recordPrevisti == 0)
+				return 0;
+			
+			logger.info("Creazione connessione verso il DB...");
+			Session session = entityManager.unwrap(Session.class);
+			Connection conn = session.doReturningWork(c -> c);
+			
+			logger.info("Lettura del codice SQL per la creazione della tabella temporanea...");
+			String sqlTabellaTemporanea = MicdlEtlUtils.readContentFromFile(MicDlEtlConsts.ADE_PORZIONE_TER_STAGING);
+			if(StringUtils.isEmpty(sqlTabellaTemporanea))
+			{
+				logger.info("Impossibile leggere il codice per la creazione della tabella di staging");
+				throw new MicdlETLException("Impossibile leggere codice per la creazione della tabella di staging", 
+						                    HttpStatus.INTERNAL_SERVER_ERROR);
+			}
+			
+			logger.info("Rimozione della tabella temporanea (se presente)...");
+			Statement createStagingStmt = conn.createStatement();
+			createStagingStmt.execute("DROP TEMPORARY TABLE IF EXISTS ADE_PORZIONE_HIST_STAGING");
+			
+			logger.info("Creazione tabella temporanea...");
+			createStagingStmt.executeUpdate(sqlTabellaTemporanea);
+			
+			logger.info("Lettura codice SQL per l'inserimento dei dati nella tabella di staging...");
+			String sqlInserimentoPorzioni = MicdlEtlUtils.readContentFromFile(MicDlEtlConsts.ADE_PORZIONE_TER_STAGING_INSERT);
+			if(StringUtils.isEmpty(sqlInserimentoPorzioni))
+			{
+				logger.info("Impossibile leggere il codice per l'inserimento dei dati nella tabella di staging");
+				throw new MicdlETLException("Impossibile leggere il codice per l'inserimento dei dati nella tabella di staging", 
+						                    HttpStatus.INTERNAL_SERVER_ERROR);
+			}
+			
+			/* creazione del prepared statement */
+			PreparedStatement inserimentoStagingPs = conn.prepareStatement(sqlInserimentoPorzioni);
+			
+			/* contatore dei record */
+			int counter = 0;
+			
+			for(TerrenoTipoRecord4DTO terreno : listaPorzioni)
+			{
+				if(CollectionUtils.isEmpty(terreno.getListaPorzioni()))
+					continue;
+				
+				for(PorzioneDTO porzione : terreno.getListaPorzioni())
+				{
+
+					/* riempimento dei parametri per l'i-simo record */
+					prepareInsertPorzioni(inserimentoStagingPs, terreno.getCodComune(), terreno.getSezione(), 
+							             terreno.getIdImmCatasto(), terreno.getTipoCatasto(), porzione, idBatch);;
+					
+					/* aggiunta al batch */
+					inserimentoStagingPs.addBatch();
+					
+					/* controllo del raggiungimento del numero massimo di elementi per batch */
+					if(++counter % Integer.valueOf(batchSize) == 0)
+						inserimentoStagingPs.executeBatch();
+				}
+			}
+			
+			/* esecuzione del batch, se non avvenuto nel ciclo */
+			inserimentoStagingPs.executeBatch();
+			
+			logger.info("Inserimento terminato");
+			
+			/* verifica del numero dei record effettivamente scritti */
+			logger.info("Verifica dei record effettivamente scritti sulla tabella temporanea...");
+			
+			String sqlCountRecords = "SELECT COUNT(*) FROM ADE_PORZIONE_HIST_STAGING";
+			Statement countRecords = conn.createStatement();
+			
+			ResultSet result = countRecords.executeQuery(sqlCountRecords);
+			Integer numeroRecordScritti = result.next() ? result.getInt(1) : 0;
+			
+			logger.info("Porzioni effettivamente inserite sulla tabella di staging: {}", numeroRecordScritti);
+			
+			logger.info("Terminato inserimento porzioni in tabella di staging");
+			
+			return numeroRecordScritti;
+		}
+		
+		catch(Throwable ex)
+		{
+			logger.info("Si e' verificato un errore durante l'inserimento delle porzioni", ex);
+			throw new MicdlETLException("Si e' verificato un errore durante l'inserimento delle porzioni", 
+					                    HttpStatus.INTERNAL_SERVER_ERROR);   
+		}
+		
+	}
 	
 	@Override
 	public Integer insertRiserve(List<TerrenoTipoRecord3DTO> listaRiserve, BigDecimal idBatch) 
@@ -149,9 +271,9 @@ public class AdeTerDAOImpl implements AdeTerDAO
 			ResultSet result = countRecords.executeQuery(sqlCountRecords);
 			Integer numeroRecordScritti = result.next() ? result.getInt(1) : 0;
 			
-			logger.info("Deduzione effettivamente inserite sulla tabella di staging: {}", numeroRecordScritti);
+			logger.info("Riserve effettivamente inserite sulla tabella di staging: {}", numeroRecordScritti);
 			
-			logger.info("Terminato inserimento deduzioni in tabella di staging");
+			logger.info("Terminato inserimento riserve in tabella di staging");
 			
 			return numeroRecordScritti;
 			
@@ -541,8 +663,43 @@ public class AdeTerDAOImpl implements AdeTerDAO
 	    ps.setBigDecimal(indice++, idBatch);
 	    
 	}
-
 	
-
-
+	/* metodo di popolamento delle particelle nella tabella di staging */
+	private void prepareInsertPorzioni(PreparedStatement ps,  
+									   String codiceComune,
+							           String sezione,
+							           String idImmCatasto,
+							           String tipoCatasto,
+							           PorzioneDTO porzione,
+							           BigDecimal batchId) throws SQLException
+	{
+		/* indice di puntamento */
+	    int indice = 1;
+	    
+	    /* conversione DTO -> entita */
+	    AdePorzioneTerHist entita = AdeConverter.convertPorzioneFromDTO(porzione);
+	    
+	    /* inserimento parametri */
+	    ps.setString(indice++, codiceComune);
+	    ps.setString(indice++, sezione);
+	    ps.setString(indice++, idImmCatasto);
+	    ps.setString(indice++, tipoCatasto);
+	    ps.setString(indice++, entita.getQualita());
+	    ps.setString(indice++, entita.getClasse());
+	    ps.setString(indice++, entita.getEttari());
+	    ps.setString(indice++, entita.getAre());
+	    ps.setString(indice++, entita.getCentiare());
+	    ps.setString(indice++, entita.getRedditoDominicaleEuro());
+	    ps.setString(indice++, entita.getRedditoAgrarioEuro());
+	    ps.setString(indice++, entita.getHash());
+	    
+	    ps.setBigDecimal(indice++, batchId);
+	    
+	    /* safety check */
+	    if (indice != 14) 
+	    {
+	    	logger.info("Numero parametri errato per porzione");
+	        throw new MicdlETLException("Numero parametri errato per porzione", HttpStatus.INTERNAL_SERVER_ERROR);
+	    }
+	}
 }

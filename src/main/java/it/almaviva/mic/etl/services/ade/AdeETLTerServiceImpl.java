@@ -102,13 +102,23 @@ public class AdeETLTerServiceImpl implements MicDllEtlService
 				
 				logger.info("Inserite {} riserve sulla tabella di staging", numeroRecordInseriti);
 				
-				logger.info("Esecuzione stored procedure per particelle...");
-				Integer deduzioniInserite = genericDAO.eseguiStoredProcedureContaRecord(MicDlEtlConsts.ADE_RISERVA_SP);
+				logger.info("Esecuzione stored procedure per riserve...");
+				Integer riserveInserite = genericDAO.eseguiStoredProcedureContaRecord(MicDlEtlConsts.ADE_RISERVA_SP);
 				parsingResult.setRecordInseriti(parsingResult.getRecordInseriti() != null ? 
-						                        parsingResult.getRecordInseriti() + deduzioniInserite : 
-						                        	deduzioniInserite);
+						                        parsingResult.getRecordInseriti() + riserveInserite : 
+						                        	riserveInserite);
 				
 				logger.info("Esecuzione stored procedure {} terminata", MicDlEtlConsts.ADE_RISERVA_SP);
+			}
+			
+			if(CollectionUtils.isNotEmpty(parsingResult.getListaPorzioni()))
+			{
+				logger.info("Salvataggio delle porzioni sulla tabella di staging...");
+				Integer numeroRecordInseriti = adeTerDAo.insertPorzioni(parsingResult.getListaPorzioni(), idBatch);
+				parsingResult.setRecordInseritiInStaging(parsingResult.getRecordInseritiInStaging() != null ? 
+				          parsingResult.getRecordInseritiInStaging() + numeroRecordInseriti : numeroRecordInseriti);
+				
+				logger.info("Inserite {} porzioni sulla tabella di staging", numeroRecordInseriti);
 			}
 		}
 			

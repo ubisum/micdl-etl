@@ -177,4 +177,7 @@ public class AdeParticellaHist
 	
 	@OneToMany(mappedBy = "particella")
 	private List<AdeRiservaTerHist> listaRiserve;
+	
+	@OneToMany(mappedBy = "particella")
+	private List<AdePorzioneTerHist> listaPorzioni;
 }

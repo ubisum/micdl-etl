@@ -65,4 +65,7 @@ public class BatchJob
 	
 	@OneToMany(mappedBy = "batchJob", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
 	private List<AdeRiservaTerHist> listaRiserve;
+	
+	@OneToMany(mappedBy = "batchJob", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+	private List<AdePorzioneTerHist> listaPorzioni;
 }

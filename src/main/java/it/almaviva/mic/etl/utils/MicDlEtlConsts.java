@@ -10,6 +10,7 @@ public class MicDlEtlConsts
 	public static final String ERR_ADDR_NUM = "Numero dei campi degli indirizzi non corretto";
 	public static final String ERR_DED_MISSING_ELEMS = "Dati delle deduzioni non presenti";
 	public static final String ERR_RIS_MISSING_ELEMS = "Dati delle riserve non presenti";
+	public static final String ERR_POR_MISSING_ELEMS = "Dati delle porzioni non presenti";
 	
 	/* file SQL per operazioni CRUD */
 	public static final String ADE_UNITA_IMM_CREATE_STAGING = "sql/ade_unita_imm_hist_staging.sql";
@@ -24,6 +25,8 @@ public class MicDlEtlConsts
 	public static final String ADE_DEDUZIONE_TER_STAGING_INSERT = "sql/ade_deduzione_ter_staging_insert.sql";
 	public static final String ADE_RISERVA_TER_STAGING = "sql/ade_riserva_ter_staging.sql";
 	public static final String ADE_RISERVA_TER_STAGING_INSERT = "sql/ade_riserva_ter_staging_insert.sql";
+	public static final String ADE_PORZIONE_TER_STAGING = "sql/ade_porzione_hist_staging.sql";
+	public static final String ADE_PORZIONE_TER_STAGING_INSERT = "sql/ade_porzione_hist_staging_insert.sql";
 	public static final String PROPRIETARIO_HIST_STAGING = "sql/proprietario_hist_staging.sql";
 	public static final String PROPRIETARIO_HIST_STAGING_INSERT = "sql/proprietario_hist_staging_insert.sql";
 	

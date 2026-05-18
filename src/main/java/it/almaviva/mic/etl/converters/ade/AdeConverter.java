@@ -14,12 +14,14 @@ import it.almaviva.mic.etl.dto.ade.fabbricati.FabbricatoTipoRecord1Dto;
 import it.almaviva.mic.etl.dto.ade.fabbricati.IndirizzoDto;
 import it.almaviva.mic.etl.dto.ade.soggetti.ProprietarioDTO;
 import it.almaviva.mic.etl.dto.ade.terreni.DeduzioneParticellaDTO;
+import it.almaviva.mic.etl.dto.ade.terreni.PorzioneDTO;
 import it.almaviva.mic.etl.dto.ade.terreni.RiservaParticellaDTO;
 import it.almaviva.mic.etl.dto.ade.terreni.TerrenoTipoRecord1DTO;
 import it.almaviva.mic.etl.entities.ade.AdeDatoCatastaleHist;
 import it.almaviva.mic.etl.entities.ade.AdeDeduzioneTerHist;
 import it.almaviva.mic.etl.entities.ade.AdeIndirizzoHist;
 import it.almaviva.mic.etl.entities.ade.AdeParticellaHist;
+import it.almaviva.mic.etl.entities.ade.AdePorzioneTerHist;
 import it.almaviva.mic.etl.entities.ade.AdeRiservaTerHist;
 import it.almaviva.mic.etl.entities.ade.AdeUnitaImmHist;
 import it.almaviva.mic.etl.entities.ade.BatchJob;
@@ -176,6 +178,20 @@ public class AdeConverter
 		
 		/* creazione dell'entita' con conversione dei campi standard */
 		AdeRiservaTerHist destination = modelMapper.map(source, AdeRiservaTerHist.class);
+		
+		/* aggiunta del calcolo dell'hashing */
+		destination.setHash(HashingUtils.getHashingForAnnotatedCols(-1, source));
+		
+		return destination;
+	}
+	
+	public static AdePorzioneTerHist convertPorzioneFromDTO(PorzioneDTO source)
+	{
+		/* creazione del mapper */
+		ModelMapper modelMapper = new ModelMapper();
+		
+		/* creazione dell'entita' con conversione dei campi standard */
+		AdePorzioneTerHist destination = modelMapper.map(source, AdePorzioneTerHist.class);
 		
 		/* aggiunta del calcolo dell'hashing */
 		destination.setHash(HashingUtils.getHashingForAnnotatedCols(-1, source));

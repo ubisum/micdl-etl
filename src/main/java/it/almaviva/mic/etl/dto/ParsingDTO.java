@@ -14,6 +14,7 @@ import it.almaviva.mic.etl.dto.ade.soggetti.ProprietarioDTO;
 import it.almaviva.mic.etl.dto.ade.terreni.TerrenoTipoRecord1DTO;
 import it.almaviva.mic.etl.dto.ade.terreni.TerrenoTipoRecord2DTO;
 import it.almaviva.mic.etl.dto.ade.terreni.TerrenoTipoRecord3DTO;
+import it.almaviva.mic.etl.dto.ade.terreni.TerrenoTipoRecord4DTO;
 import it.almaviva.mic.etl.dto.ade.titolarita.TitolaritaDTO;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -77,6 +78,9 @@ public class ParsingDTO extends EsitoDTO
 	
 	@JsonIgnore
 	private List<TerrenoTipoRecord3DTO> listaRiserve;
+	
+	@JsonIgnore
+	private List<TerrenoTipoRecord4DTO> listaPorzioni;
 	
 	/* ************************************* FLUSSO SOG ******************************************** */
 	@JsonIgnore

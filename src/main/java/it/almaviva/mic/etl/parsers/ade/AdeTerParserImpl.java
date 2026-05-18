@@ -18,10 +18,12 @@ import org.springframework.stereotype.Component;
 
 import it.almaviva.mic.etl.dto.ParsingDTO;
 import it.almaviva.mic.etl.dto.ade.terreni.DeduzioneParticellaDTO;
+import it.almaviva.mic.etl.dto.ade.terreni.PorzioneDTO;
 import it.almaviva.mic.etl.dto.ade.terreni.RiservaParticellaDTO;
 import it.almaviva.mic.etl.dto.ade.terreni.TerrenoTipoRecord1DTO;
 import it.almaviva.mic.etl.dto.ade.terreni.TerrenoTipoRecord2DTO;
 import it.almaviva.mic.etl.dto.ade.terreni.TerrenoTipoRecord3DTO;
+import it.almaviva.mic.etl.dto.ade.terreni.TerrenoTipoRecord4DTO;
 import it.almaviva.mic.etl.enums.AdeTipoRecordEnum;
 import it.almaviva.mic.etl.exceptions.MicdlETLException;
 import it.almaviva.mic.etl.parsers.CsvMapper;
@@ -56,8 +58,13 @@ public class AdeTerParserImpl implements ParserInterface
 		 List<TerrenoTipoRecord1DTO> listaTerreni = new ArrayList<>();
 		 List<TerrenoTipoRecord2DTO> listaDeduzioni = new ArrayList<>();
 		 List<TerrenoTipoRecord3DTO> listaRiserve = new ArrayList<>();
+		 List<TerrenoTipoRecord4DTO> listaPorzioni = new ArrayList<>();
 		 TerrenoTipoRecord2DTO deduzioneTemp = null;
 		 TerrenoTipoRecord3DTO riservaTemp = null;
+		 TerrenoTipoRecord4DTO porzioneTemp = null;
+		 
+		 /* contatore record non validi */
+		 int recordNonvalidi = 0;
 		 
 		 /* output */
 		 ParsingDTO output = new ParsingDTO();
@@ -272,13 +279,75 @@ public class AdeTerParserImpl implements ParserInterface
 						}
 						
 						ultimoTipoRecord = AdeTipoRecordEnum.ADE_TIPO_RECORD_3;
+						rowCounter++;
 						
 						break;
 					case ADE_TIPO_RECORD_4:
-						break;
-					case ADE_TIPO_RECORD_5:
+						if(elementiRiga.length <= 6 || (elementiRiga.length - 6) %8 != 0)
+						{
+							/* dati delle riserve delle porzioni non presenti */
+							aggiungiErrore(erroriRecord, rowCounter, Arrays.asList(MicDlEtlConsts.ERR_POR_MISSING_ELEMS));
+							rowCounter++;
+							break;
+						}
+						
+						/* validazione campi comuni */
+						TerrenoTipoRecord4DTO nuovoTerreno4 = CsvMapper.associaCampi(Arrays.copyOfRange(elementiRiga, 0, 6), TerrenoTipoRecord4DTO.class);
+						Set<ConstraintViolation<TerrenoTipoRecord4DTO>> violations_terr4 = validator.validate(nuovoTerreno4);
+						
+						if(CollectionUtils.isNotEmpty(violations_terr4))
+						{
+							logger.info("Errore sul record {}", rowCounter);
+							logger.error(MicDlEtlConsts.ERR_VALIDATION);
+							aggiungiErrore(erroriRecord, rowCounter, estraiDescrizioniErrori(violations_terr4));
+							
+							rowCounter++;
+							break;
+						}
+						
+						/* creazione nuove porzioni */
+						List<PorzioneDTO> porzioni = new ArrayList<>();
+						
+						for(int index = 6; index < elementiRiga.length; index = index+8)
+						{
+							/* validazione nuova riserva */
+							PorzioneDTO por = CsvMapper.associaCampi(Arrays.copyOfRange(elementiRiga, index, index + 8), PorzioneDTO.class);
+							Set<ConstraintViolation<PorzioneDTO>> violations4 = validator.validate(por);
+							
+							/* se una sola riserva e' sbagliata, si elimina l'interno record */
+							if(violations4.size() != 0)
+							{
+								aggiungiErrore(erroriRecord, rowCounter, estraiDescrizioniErrori(violations4));
+								rowCounter++;
+								break switchLabel;
+							}
+							
+							porzioni.add(por);
+						}
+						
+						/* record multipli */
+						if(ultimoTipoRecord == AdeTipoRecordEnum.ADE_TIPO_RECORD_4)
+						{
+							porzioneTemp.getListaPorzioni().addAll(porzioni);
+						}
+						
+						else
+						{
+							/* record singolo o primo di una sequenza */
+							if(porzioneTemp != null)
+								listaPorzioni.add(porzioneTemp);
+							
+							nuovoTerreno4.setListaPorzioni(porzioni);
+							porzioneTemp = nuovoTerreno4; 
+						}
+						
+						ultimoTipoRecord = AdeTipoRecordEnum.ADE_TIPO_RECORD_4;
+						rowCounter++;
+						
 						break;
 					default:
+						recordNonvalidi++;
+						rowCounter++;
 						break;
 				
 				}
@@ -291,10 +360,15 @@ public class AdeTerParserImpl implements ParserInterface
 			if(riservaTemp != null)
 				listaRiserve.add(riservaTemp);
 			
+			if(porzioneTemp != null)
+				listaPorzioni.add(porzioneTemp);
+			
 			output.setListaTerreni(listaTerreni);
 			output.setListaDeduzioni(listaDeduzioni);
 			output.setListaRiserve(listaRiserve);
+			output.setListaPorzioni(listaPorzioni);
 			output.setReportRecord(erroriRecord);
+			output.setRecordNonValidi(recordNonvalidi);
 		 }
 		 
 		 catch (Throwable e) 
