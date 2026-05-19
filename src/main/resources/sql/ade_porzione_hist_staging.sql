@@ -4,6 +4,7 @@ CREATE TEMPORARY TABLE ADE_PORZIONE_HIST_STAGING
 	sezione varchar(1),
 	id_imm_catasto varchar(9),
 	tipo_catasto varchar(1),
+	id_porzione varchar(2),
 	qualita varchar(3),
 	classe varchar(2),
 	ettari varchar(5),

@@ -12,7 +12,7 @@ BEGIN
 	SET v_oggi = DATE(v_oggi_dt);
 	
 	-- ----------------------------------------------------------
-	-- 1. CHIUSURA RECORD RELATIVI A DATI CASTATALI 
+	-- 1. CHIUSURA RECORD RELATIVI ALLE RISERVE 
 	-- ----------------------------------------------------------
 	UPDATE
 		ade_riserva_ter_hist ris

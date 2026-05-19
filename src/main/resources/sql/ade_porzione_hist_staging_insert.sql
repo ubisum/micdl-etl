@@ -4,6 +4,7 @@ INSERT INTO ADE_PORZIONE_HIST_STAGING
 	sezione,
 	id_imm_catasto,
 	tipo_catasto,
+	id_porzione,
 	qualita,
 	classe,
 	ettari,
@@ -16,5 +17,5 @@ INSERT INTO ADE_PORZIONE_HIST_STAGING
 )
 VALUES
 (	?,?,?,?,?,?,?,?,?,?,
-	?,?,?
+	?,?,?,?
 );

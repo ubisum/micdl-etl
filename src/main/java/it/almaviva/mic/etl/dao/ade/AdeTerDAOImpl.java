@@ -684,6 +684,7 @@ public class AdeTerDAOImpl implements AdeTerDAO
 	    ps.setString(indice++, sezione);
 	    ps.setString(indice++, idImmCatasto);
 	    ps.setString(indice++, tipoCatasto);
+	    ps.setString(indice++, entita.getIdPorzione());
 	    ps.setString(indice++, entita.getQualita());
 	    ps.setString(indice++, entita.getClasse());
 	    ps.setString(indice++, entita.getEttari());
@@ -696,7 +697,7 @@ public class AdeTerDAOImpl implements AdeTerDAO
 	    ps.setBigDecimal(indice++, batchId);
 	    
 	    /* safety check */
-	    if (indice != 14) 
+	    if (indice != 15) 
 	    {
 	    	logger.info("Numero parametri errato per porzione");
 	        throw new MicdlETLException("Numero parametri errato per porzione", HttpStatus.INTERNAL_SERVER_ERROR);

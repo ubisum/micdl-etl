@@ -119,6 +119,14 @@ public class AdeETLTerServiceImpl implements MicDllEtlService
 				          parsingResult.getRecordInseritiInStaging() + numeroRecordInseriti : numeroRecordInseriti);
 				
 				logger.info("Inserite {} porzioni sulla tabella di staging", numeroRecordInseriti);
+				
+				logger.info("Esecuzione stored procedure per porzioni...");
+				Integer porzioniInserite = genericDAO.eseguiStoredProcedureContaRecord(MicDlEtlConsts.ADE_PORZIONE_SP);
+				parsingResult.setRecordInseriti(parsingResult.getRecordInseriti() != null ? 
+						                        parsingResult.getRecordInseriti() + porzioniInserite : 
+						                        	porzioniInserite);
+				
+				logger.info("Esecuzione stored procedure {} terminata", MicDlEtlConsts.ADE_PORZIONE_SP);
 			}
 		}
 			

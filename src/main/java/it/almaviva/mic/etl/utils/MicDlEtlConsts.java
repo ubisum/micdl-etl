@@ -39,6 +39,7 @@ public class MicDlEtlConsts
 	public static final String ADE_PARTICELLA_SP = "sp_particella_scd2_load";
 	public static final String ADE_DEDUZIONE_SP = "sp_deduzione_scd2_load";
 	public static final String ADE_RISERVA_SP = "sp_riserva_scd2_load";
+	public static final String ADE_PORZIONE_SP = "sp_porzione_scd2_load";
 	public static final String PROPRIETARIO_SP = "sp_proprietario_scd2_load";
 	
 }
