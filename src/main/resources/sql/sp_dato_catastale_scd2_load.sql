@@ -87,7 +87,15 @@ BEGIN
 	AND 
 		imm.tipo_catasto COLLATE utf8mb4_unicode_ci = staging.tipo_catasto COLLATE utf8mb4_unicode_ci
 	WHERE
-		imm.is_current = 1;
+		imm.is_current = 1
+	AND NOT EXISTS
+	(
+		SELECT 1
+		FROM
+			ade_dato_catastale_hist test
+		WHERE
+			test.id_imm_hist = imm.id_imm_hist
+	);
 		
 	SET v_count = v_count + ROW_COUNT();
 	

@@ -47,7 +47,7 @@ BEGIN
 	AND 
 		imm.tipo_catasto COLLATE utf8mb4_unicode_ci = staging.tipo_catasto COLLATE utf8mb4_unicode_ci
 	WHERE
-		imm.is_current = 1;
+		imm.is_current = 1;		
 		
 	SET v_count = v_count + ROW_COUNT();
 		
