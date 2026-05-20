@@ -2,7 +2,7 @@ package it.almaviva.mic.etl.dto.ade.terreni;
 
 import java.util.List;
 
-import it.almaviva.mic.etl.dto.ade.BeneImmobiliareDTO;
+import it.almaviva.mic.etl.dto.ade.NewBeneImmobiliareDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-public class TerrenoTipoRecord2DTO extends BeneImmobiliareDTO
+public class TerrenoTipoRecord2DTO extends NewBeneImmobiliareDTO
 {
 	private List<DeduzioneParticellaDTO> listaDeduzione;
 }

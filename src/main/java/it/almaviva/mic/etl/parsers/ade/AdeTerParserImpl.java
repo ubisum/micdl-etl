@@ -20,7 +20,7 @@ import it.almaviva.mic.etl.dto.ParsingDTO;
 import it.almaviva.mic.etl.dto.ade.terreni.DeduzioneParticellaDTO;
 import it.almaviva.mic.etl.dto.ade.terreni.PorzioneDTO;
 import it.almaviva.mic.etl.dto.ade.terreni.RiservaParticellaDTO;
-import it.almaviva.mic.etl.dto.ade.terreni.TerrenoTipoRecord1DTO;
+import it.almaviva.mic.etl.dto.ade.terreni.NewTerrenoTipoRecord1DTO;
 import it.almaviva.mic.etl.dto.ade.terreni.TerrenoTipoRecord2DTO;
 import it.almaviva.mic.etl.dto.ade.terreni.TerrenoTipoRecord3DTO;
 import it.almaviva.mic.etl.dto.ade.terreni.TerrenoTipoRecord4DTO;
@@ -55,7 +55,7 @@ public class AdeTerParserImpl implements ParserInterface
 		
 		 /* strutture di appoggio */
 		 Map<Integer, List<String>> erroriRecord = new HashMap<>();
-		 List<TerrenoTipoRecord1DTO> listaTerreni = new ArrayList<>();
+		 List<NewTerrenoTipoRecord1DTO> listaTerreni = new ArrayList<>();
 		 List<TerrenoTipoRecord2DTO> listaDeduzioni = new ArrayList<>();
 		 List<TerrenoTipoRecord3DTO> listaRiserve = new ArrayList<>();
 		 List<TerrenoTipoRecord4DTO> listaPorzioni = new ArrayList<>();
@@ -133,8 +133,8 @@ public class AdeTerParserImpl implements ParserInterface
 				{
 					case ADE_TIPO_RECORD_1:
 						/* costruzione del record di tipo 1 */
-						TerrenoTipoRecord1DTO terreno1 = CsvMapper.associaCampi(elementiRiga, TerrenoTipoRecord1DTO.class);
-						Set<ConstraintViolation<TerrenoTipoRecord1DTO>> violations1 = validator.validate(terreno1);
+						NewTerrenoTipoRecord1DTO terreno1 = CsvMapper.associaCampi(elementiRiga, NewTerrenoTipoRecord1DTO.class);
+						Set<ConstraintViolation<NewTerrenoTipoRecord1DTO>> violations1 = validator.validate(terreno1);
 						
 						/* incremento dell'indice di riga */
 						rowCounter++;

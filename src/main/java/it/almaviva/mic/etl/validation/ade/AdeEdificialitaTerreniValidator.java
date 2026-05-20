@@ -2,14 +2,14 @@ package it.almaviva.mic.etl.validation.ade;
 
 import org.apache.commons.lang3.StringUtils;
 
-import it.almaviva.mic.etl.dto.ade.terreni.TerrenoTipoRecord1DTO;
+import it.almaviva.mic.etl.dto.ade.terreni.NewTerrenoTipoRecord1DTO;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
-public class AdeEdificialitaTerreniValidator implements ConstraintValidator<AdeEdificialitaTerreni, TerrenoTipoRecord1DTO>
+public class AdeEdificialitaTerreniValidator implements ConstraintValidator<AdeEdificialitaTerreni, NewTerrenoTipoRecord1DTO>
 {
 	@Override
-	public boolean isValid(TerrenoTipoRecord1DTO value, ConstraintValidatorContext context) 
+	public boolean isValid(NewTerrenoTipoRecord1DTO value, ConstraintValidatorContext context) 
 	{
 		/* controllo della presenza dell'edificialita' */
 		if(StringUtils.isBlank(value.getEdificialita()))
