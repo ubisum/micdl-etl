@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class BeneImmobiliareDTO 
+public class NewBeneImmobiliareDTO 
 {
 	@NotNull(message = "Il codice comune non puo' essere nullo")
 	@Pattern(regexp = "[A-Z]{1}[0-9]{3}", message = "Formato del codice comune non corretto")
