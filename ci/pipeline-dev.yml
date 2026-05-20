@@ -6,7 +6,7 @@ stages:
 default: {}
 
 variables:
-  APP_NAME: "be-ticket"
+  APP_NAME: "etl-smidt"
   MVN_CONFIGURATION: "dev"
   IMAGE_TAG: ""
 
@@ -60,7 +60,7 @@ update-helm-values:
   image: node:20-alpine
   variables:
     GIT_TERMINAL_PROMPT: "0"
-    APP_NAME: "be-ticket"
+    APP_NAME: "etl-smidt"
     GIT_SSH_COMMAND: "ssh -o StrictHostKeyChecking=yes -o UserKnownHostsFile=$CI_PROJECT_DIR/.ssh/known_hosts -i $CI_PROJECT_DIR/.ssh/id_ed25519"
   before_script:
     - if [ -f variables.env ]; then source variables.env; fi
