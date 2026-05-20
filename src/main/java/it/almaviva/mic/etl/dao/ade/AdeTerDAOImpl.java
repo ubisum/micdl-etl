@@ -21,7 +21,7 @@ import it.almaviva.mic.etl.converters.ade.AdeConverter;
 import it.almaviva.mic.etl.dto.ade.terreni.DeduzioneParticellaDTO;
 import it.almaviva.mic.etl.dto.ade.terreni.PorzioneDTO;
 import it.almaviva.mic.etl.dto.ade.terreni.RiservaParticellaDTO;
-import it.almaviva.mic.etl.dto.ade.terreni.TerrenoTipoRecord1DTO;
+import it.almaviva.mic.etl.dto.ade.terreni.NewTerrenoTipoRecord1DTO;
 import it.almaviva.mic.etl.dto.ade.terreni.TerrenoTipoRecord2DTO;
 import it.almaviva.mic.etl.dto.ade.terreni.TerrenoTipoRecord3DTO;
 import it.almaviva.mic.etl.dto.ade.terreni.TerrenoTipoRecord4DTO;
@@ -405,7 +405,7 @@ public class AdeTerDAOImpl implements AdeTerDAO
 	}
 	
 	@Override
-	public Integer insertParticelle(List<TerrenoTipoRecord1DTO> listaTerreni, BigDecimal idBatch) 
+	public Integer insertParticelle(List<NewTerrenoTipoRecord1DTO> listaTerreni, BigDecimal idBatch) 
 	{
 		logger.info("Richiesta di inserimento delle particelle nella tabella di staging...");
 		
@@ -465,7 +465,7 @@ public class AdeTerDAOImpl implements AdeTerDAO
 			/* contatore dei record */
 			int counter = 0;
 			
-			for(TerrenoTipoRecord1DTO terreno : listaTerreni)
+			for(NewTerrenoTipoRecord1DTO terreno : listaTerreni)
 			{
 				/* conversione DTO -> entita' */
 				AdeParticellaHist particella = AdeConverter.convertParticellaFromDTO(terreno);

@@ -5,12 +5,12 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.util.List;
 
-import it.almaviva.mic.etl.dto.ade.BeneImmobiliareDTO;
+import it.almaviva.mic.etl.dto.ade.NewBeneImmobiliareDTO;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class TerrenoTipoRecord4DTO extends BeneImmobiliareDTO
+public class TerrenoTipoRecord4DTO extends NewBeneImmobiliareDTO
 {
 	private List<PorzioneDTO> listaPorzioni;
 }
