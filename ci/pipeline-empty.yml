@@ -1,0 +1,4 @@
+noop:
+  stage: .pre
+  script:
+    - echo "Nessuna pipeline attiva per questo branch"

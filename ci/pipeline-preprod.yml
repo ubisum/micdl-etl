@@ -1,0 +1,98 @@
+stages:
+  - build
+  - container
+  - update-helm-values
+
+default: {}
+
+variables:
+  APP_NAME: "be-ticket"
+  MVN_CONFIGURATION: "preprod"
+  IMAGE_TAG: ""
+
+build-maven:
+  stage: build
+  image: maven:3.9-eclipse-temurin-21
+  variables:
+    MAVEN_CLI_OPTS: "-B -DskipTests"
+  cache:
+    key: "m2-cache"
+    paths:
+      - .m2/repository
+  script:
+    - echo "=== Build Maven (Java 21) ==="
+    - VERSION=$(mvn -q -DforceStdout help:evaluate -Dexpression=project.version)
+    - echo "Versione trovata nel pom.xml:\ $VERSION"
+    - echo "IMAGE_TAG=$VERSION-$MVN_CONFIGURATION" > variables.env
+    - mvn $MAVEN_CLI_OPTS clean package
+  artifacts:
+    paths:
+      - target/*.jar
+      - target/*.war
+      - variables.env
+    expire_in: 1 hour
+
+container-build-push:
+  stage: container
+  image: registry.access.redhat.com/ubi9/buildah:latest
+  variables:
+    STORAGE_DRIVER: vfs
+    BUILDAH_ISOLATION: chroot
+  before_script:
+    - if [ -f variables.env ]; then source variables.env; fi
+    - IMAGE_FULL="$REGISTRY/$REGISTRY_REPOSITORY_GROUP/$APP_NAME:$IMAGE_TAG"
+    - echo "Using IMAGE_FULL=$IMAGE_FULL"
+  script:
+    - echo "=== Buildah info ==="
+    - buildah info
+
+    - echo "=== Build immagine backend Java ==="
+    - buildah bud --storage-driver=vfs --layers -t "${IMAGE_FULL}" .
+
+    - echo "=== Login al registry Quay Enterprise ==="
+    - buildah login -u "${REGISTRY_USERNAME}" -p "${REGISTRY_PASSWORD}" "${REGISTRY}"
+
+    - echo "=== Push immagine ==="
+    - buildah push "${IMAGE_FULL}"
+
+update-helm-values:
+  stage: update-helm-values
+  image: node:20-alpine
+  variables:
+    GIT_TERMINAL_PROMPT: "0"
+    APP_NAME: "be-ticket"
+    GIT_SSH_COMMAND: "ssh -o StrictHostKeyChecking=yes -o UserKnownHostsFile=$CI_PROJECT_DIR/.ssh/known_hosts -i $CI_PROJECT_DIR/.ssh/id_ed25519"
+  before_script:
+    - if [ -f variables.env ]; then source variables.env; fi
+  script:
+    - apk add --no-cache git openssh-client ca-certificates python3 py3-yaml
+
+    - mkdir -p "$CI_PROJECT_DIR/.ssh"
+    - chmod 700 "$CI_PROJECT_DIR/.ssh"
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' > "$CI_PROJECT_DIR/.ssh/id_ed25519"
+    - chmod 600 "$CI_PROJECT_DIR/.ssh/id_ed25519"
+    - ssh-keyscan -H gitlab.cineca.it > "$CI_PROJECT_DIR/.ssh/known_hosts"
+    - chmod 600 "$CI_PROJECT_DIR/.ssh/known_hosts"
+
+    - echo "Using IMAGE_TAG=$IMAGE_TAG"
+
+    - git clone "git@gitlab.cineca.it:micdl-identita-digitale/configurations/helm-values.git" helm-values
+    - cd "helm-values/${SUITE_NAME}/${APP_NAME}"
+
+    - |
+      python3 <<EOF
+      import yaml
+      version = "${IMAGE_TAG}"
+      with open("values.preprod.yaml") as f:
+        data = yaml.safe_load(f) or {}
+      data.setdefault("image", {})
+      data["image"]["imageTag"] = version
+      with open("values.preprod.yaml", "w") as f:
+        yaml.safe_dump(data, f, default_flow_style=False, sort_keys=False)
+      EOF
+
+    - git config user.name  "ci-bot"
+    - git config user.email "ci-bot@gitlab.local"
+    - git add values.preprod.yaml
+    - git commit -m "${APP_NAME} -> tag ${IMAGE_TAG} (pipeline ${CI_PIPELINE_ID})" || echo "Nessuna modifica"
+    - git push origin HEAD:main
