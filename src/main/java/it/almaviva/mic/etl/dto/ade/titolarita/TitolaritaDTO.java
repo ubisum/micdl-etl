@@ -54,7 +54,7 @@ public class TitolaritaDTO
 	private String quotaDenominatore;
 	
 	@CsvPosition(10)
-	@Pattern(regexp = "C|D|P|S", message = "Valore del regime non valido")
+	@Pattern(regexp = "C|D|P|S|[ ]+", message = "Valore del regime non valido")
 	private String regime;
 	
 	@CsvPosition(11)
