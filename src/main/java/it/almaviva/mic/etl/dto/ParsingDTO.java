@@ -11,7 +11,7 @@ import it.almaviva.mic.etl.dto.ade.fabbricati.FabbricatoTipoRecord1Dto;
 import it.almaviva.mic.etl.dto.ade.fabbricati.FabbricatoTipoRecord2Dto;
 import it.almaviva.mic.etl.dto.ade.fabbricati.FabbricatoTipoRecord3Dto;
 import it.almaviva.mic.etl.dto.ade.soggetti.ProprietarioDTO;
-import it.almaviva.mic.etl.dto.ade.terreni.NewTerrenoTipoRecord1DTO;
+import it.almaviva.mic.etl.dto.ade.terreni.TerrenoTipoRecord1DTO;
 import it.almaviva.mic.etl.dto.ade.terreni.TerrenoTipoRecord2DTO;
 import it.almaviva.mic.etl.dto.ade.terreni.TerrenoTipoRecord3DTO;
 import it.almaviva.mic.etl.dto.ade.terreni.TerrenoTipoRecord4DTO;
@@ -71,7 +71,7 @@ public class ParsingDTO extends EsitoDTO
 	
 	/* ************************************* FLUSSO TER ******************************************** */
 	@JsonIgnore
-	private List<NewTerrenoTipoRecord1DTO> listaTerreni;
+	private List<TerrenoTipoRecord1DTO> listaTerreni;
 	
 	@JsonIgnore
 	private List<TerrenoTipoRecord2DTO> listaDeduzioni;
