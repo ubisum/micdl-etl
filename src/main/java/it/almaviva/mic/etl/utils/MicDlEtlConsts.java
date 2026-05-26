@@ -29,6 +29,7 @@ public class MicDlEtlConsts
 	public static final String ADE_PORZIONE_TER_STAGING_INSERT = "sql/ade_porzione_hist_staging_insert.sql";
 	public static final String PROPRIETARIO_HIST_STAGING = "sql/proprietario_hist_staging.sql";
 	public static final String PROPRIETARIO_HIST_STAGING_INSERT = "sql/proprietario_hist_staging_insert.sql";
+	public static final String ADE_TITOLARITA_HIST_STAGING = "sql/ade_titolarita_hist_staging.sql";
 	
 	/* stored procedure */
 	public static final String ADE_UNITA_IMM_SP = "sp_unita_imm_scd2_load"; 

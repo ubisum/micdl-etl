@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import it.almaviva.mic.etl.dao.ade.AdeTitDAO;
 import it.almaviva.mic.etl.dto.ParsingDTO;
 import it.almaviva.mic.etl.exceptions.MicdlETLException;
 import it.almaviva.mic.etl.parsers.ParserInterface;
@@ -24,6 +25,9 @@ public class AdeETLTitServiceImpl implements MicDllEtlService
 	@Autowired
 	@Qualifier("adeTitParserImpl")
 	private ParserInterface parser;
+	
+	@Autowired
+	private AdeTitDAO titDAO;
 	
 	private static final Logger logger = LoggerFactory.getLogger(AdeETLTitServiceImpl.class);
 
@@ -42,6 +46,7 @@ public class AdeETLTitServiceImpl implements MicDllEtlService
 			parsingResult = parser.parseFile(csvReader);
 			
 			logger.info("Salvataggio delle titolarita' sulla tabella di staging...");
+			Integer recordInStage = titDAO.insertTitolarita(parsingResult.getTitolarita(), idBatch);
 		}
 		
 		catch(MicdlETLException mee)

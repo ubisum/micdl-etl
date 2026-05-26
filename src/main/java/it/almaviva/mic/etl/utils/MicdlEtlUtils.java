@@ -2,6 +2,7 @@ package it.almaviva.mic.etl.utils;
 
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -71,5 +72,13 @@ public class MicdlEtlUtils
 		
 		/* conversione */
 		return ldt.format(formatter);
+	}
+	
+	public static LocalDate convertDateFromString(String date)
+	{
+		/* definizione del pattern */
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy");
+		
+		return LocalDate.parse(date, formatter);
 	}
 }

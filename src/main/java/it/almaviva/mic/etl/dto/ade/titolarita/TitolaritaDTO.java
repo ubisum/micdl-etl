@@ -21,6 +21,7 @@ public class TitolaritaDTO
 	private String sezione;
 	
 	@CsvPosition(2)
+	@NotBlank(message = "L'ID soggetto non puo' essere assente")
 	@Size(max = 15, message = "Il campo soggetto non puo' superare i 15 caratteri")
 	private String idSoggetto;
 	
@@ -29,6 +30,7 @@ public class TitolaritaDTO
 	private String idTipoSoggetto;
 	
 	@CsvPosition(4)
+	@NotBlank(message = "L'ID immobile catasto non puo' essere assente")
 	@Size(max = 15, message = "Il campo ID immobile catasto non puo' superare i 15 caratteri")
 	private String idImmCatasto;
 	
@@ -122,19 +124,25 @@ public class TitolaritaDTO
 	private String idMutazioneFin;
 	
 	@CsvPosition(27)
-	@Size(max = 3, message = "Il campo codice causale atto generante puo' avere al massimo lunghezza 3")
-	private String cdCausaleAttoGenerante;
+	@Size(max = 15, message = "L'identificativo titolarita' non puo' superare i 15 caratteri")
+	private String idTitolarita;
 	
 	@CsvPosition(28)
+	@Size(max = 50, message = "Il campo codice causale atto generante puo' avere al massimo lunghezza 3")
+	private String cdCausaleAttoGenerante;
+	
+	@CsvPosition(29)
 	@Size(max = 100, message = "Il campo descrizione atto generante puo' avere al massimo lunghezza 100")
 	private String descrizioneAttoGenerante;
 	
-	@CsvPosition(29)
-	@Size(max = 3, message = "Il campo codice causale atto conclusivo puo' avere al massimo lunghezza 3")
+	@CsvPosition(30)
+	@Size(max = 50, message = "Il campo codice causale atto conclusivo puo' avere al massimo lunghezza 3")
 	private String cdCausaleAttoConclusivo;
 	
-	@CsvPosition(30)
+	@CsvPosition(31)
 	@Size(max = 100, message = "Il campo descrizione atto conclusivo puo' avere al massimo lunghezza 100")
 	private String descrizioneAttoConclusivo;
+	
+	private Integer rowId;
 	
 }
