@@ -20,13 +20,22 @@ BEGIN
 		ade_particella_hist part
 	ON 
 		ris.id_part_hist = part.id_part_hist
-	AND 
-		ris.is_current = 1
+	INNER JOIN 
+		ADE_RISERVA_TER_STAGING staging
+	ON
+		staging.cod_comune COLLATE utf8mb4_unicode_ci = part.cod_comune COLLATE utf8mb4_unicode_ci 
 	AND
-		part.is_current = 0
+		staging.sezione COLLATE utf8mb4_unicode_ci = part.sezione COLLATE utf8mb4_unicode_ci 
+	AND
+		staging.id_imm_catasto COLLATE utf8mb4_unicode_ci = part.id_imm_catasto COLLATE utf8mb4_unicode_ci 
+	AND
+		staging.tipo_catasto COLLATE utf8mb4_unicode_ci = part.tipo_catasto COLLATE utf8mb4_unicode_ci 
+		
 	SET
 		ris.valid_to = v_oggi,
-		ris.is_current = 0;
+		ris.is_current = 0
+	WHERE
+		ris.is_current = 1;
 	
 	-- ----------------------------------------------------------
 	-- 2. ELIMINAZIONE DEI RIFERIMENTI NON STORICIZZATI ---------
@@ -83,13 +92,13 @@ BEGIN
 	-- AND
 		-- staging.tipo_record COLLATE utf8mb4_unicode_ci = part.tipo_record COLLATE utf8mb4_unicode_ci 
 	WHERE
-		part.is_current = 1
-	AND NOT EXISTS
-	(
-		SELECT 1
-		FROM ade_riserva_ter_hist test
-		where test.id_part_hist = part.id_part_hist
-	);
+		part.is_current = 1;
+	-- AND NOT EXISTS
+	-- (
+	--	SELECT 1
+	--	FROM ade_riserva_ter_hist test
+	--	where test.id_part_hist = part.id_part_hist
+	-- );
 	
 	-- CONTEGGIO RECORD INSERITI
 	SET v_count = v_count + ROW_COUNT();

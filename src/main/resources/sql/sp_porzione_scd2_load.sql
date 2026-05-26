@@ -20,13 +20,21 @@ BEGIN
 		ade_particella_hist part
 	ON 
 		por.id_part_hist = part.id_part_hist
-	AND 
-		por.is_current = 1
+	INNER JOIN 
+		ADE_PORZIONE_HIST_STAGING staging
+	ON
+		staging.cod_comune COLLATE utf8mb4_unicode_ci = part.cod_comune COLLATE utf8mb4_unicode_ci 
 	AND
-		part.is_current = 0
+		staging.sezione COLLATE utf8mb4_unicode_ci = part.sezione COLLATE utf8mb4_unicode_ci 
+	AND
+		staging.id_imm_catasto COLLATE utf8mb4_unicode_ci = part.id_imm_catasto COLLATE utf8mb4_unicode_ci 
+	AND
+		staging.tipo_catasto COLLATE utf8mb4_unicode_ci = part.tipo_catasto COLLATE utf8mb4_unicode_ci 
 	SET
 		por.valid_to = v_oggi,
-		por.is_current = 0;
+		por.is_current = 0
+	WHERE
+		por.is_current = 1;
 		
 	-- ----------------------------------------------------------
 	-- 2. ELIMINAZIONE DEI RIFERIMENTI NON STORICIZZATI ---------
@@ -91,15 +99,15 @@ BEGIN
 	AND
 		staging.tipo_catasto COLLATE utf8mb4_unicode_ci = part.tipo_catasto COLLATE utf8mb4_unicode_ci 
 	WHERE
-		part.is_current = 1
-	AND NOT EXISTS
-	(
-		SELECT 1
-		FROM 
-			ade_porzione_ter_hist test
-		WHERE 
-			test.id_part_hist = part.id_part_hist
-	);
+		part.is_current = 1;
+	-- AND NOT EXISTS
+	-- (
+	-- 	SELECT 1
+	-- 	FROM 
+	--		ade_porzione_ter_hist test
+	--	WHERE 
+	--		test.id_part_hist = part.id_part_hist
+	-- );
 	
 	-- CONTEGGIO RECORD INSERITI
 	SET v_count = v_count + ROW_COUNT();
