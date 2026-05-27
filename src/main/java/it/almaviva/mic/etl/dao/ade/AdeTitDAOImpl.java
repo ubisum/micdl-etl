@@ -2,7 +2,11 @@ package it.almaviva.mic.etl.dao.ade;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.ZoneId;
 import java.util.List;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -14,7 +18,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
+import it.almaviva.mic.etl.converters.ade.AdeConverter;
 import it.almaviva.mic.etl.dto.ade.titolarita.TitolaritaDTO;
+import it.almaviva.mic.etl.entities.ade.AdeTitolaritaHist;
 import it.almaviva.mic.etl.exceptions.MicdlETLException;
 import it.almaviva.mic.etl.utils.MicDlEtlConsts;
 import it.almaviva.mic.etl.utils.MicdlEtlUtils;
@@ -29,7 +35,8 @@ public class AdeTitDAOImpl implements AdeTitDAO
 	 
 	@Value("${spring.jpa.properties.hibernate.jdbc.batch_size}")
 	private String batchSize;
-		
+	
+	private static final ZoneId ZONE_ROME = ZoneId.of("Europe/Rome");
 	private static final Logger logger = LoggerFactory.getLogger(AdeTitDAOImpl.class);
 	
 	@Override
@@ -77,6 +84,54 @@ public class AdeTitDAOImpl implements AdeTitDAO
 			
 			logger.info("Creazione tabella temporanea...");
 			createStagingStmt.executeUpdate(sqlTabellaTemporanea);
+			
+			logger.info("Lettura codice SQL per l'inserimento dei dati nella tabella di staging...");
+			String sqlInserimentoTitolarita = MicdlEtlUtils.readContentFromFile(MicDlEtlConsts.ADE_TITOLARITA_HIST_STAGING_INSERT);
+			if(StringUtils.isEmpty(sqlInserimentoTitolarita))
+			{
+				logger.info("Impossibile leggere il codice per l'inserimento dei dati nella tabella di staging");
+				throw new MicdlETLException("Impossibile leggere il codice per l'inserimento dei dati nella tabella di staging", 
+						                    HttpStatus.INTERNAL_SERVER_ERROR);
+			}
+			
+			/* creazione del prepared statement */
+			PreparedStatement inserimentoStagingPs = conn.prepareStatement(sqlInserimentoTitolarita);
+			
+			/* contatore dei record */
+			int counter = 0;
+			
+			for(TitolaritaDTO titolarita : listaTitolarita)
+			{
+				/* riempimento dei parametri per l'i-simo record */
+				popolaTitolarita(inserimentoStagingPs, titolarita, batchId);
+				
+				/* aggiunta al batch */
+				inserimentoStagingPs.addBatch();
+				
+				/* controllo del raggiungimento del numero massimo di elementi per batch */
+				if(++counter % Integer.valueOf(batchSize) == 0)
+					inserimentoStagingPs.executeBatch();
+			}
+			
+			/* esecuzione del batch, se non avvenuto nel ciclo */
+			inserimentoStagingPs.executeBatch();
+			
+			logger.info("Inserimento terminato");
+			
+			/* verifica del numero dei record effettivamente scritti */
+			logger.info("Verifica dei record effettivamente scritti sulla tabella temporanea...");
+			
+			String sqlCountRecords = "SELECT COUNT(*) FROM ADE_TITOLARITA_HIST_STAGING";
+			Statement countRecords = conn.createStatement();
+			
+			ResultSet result = countRecords.executeQuery(sqlCountRecords);
+			Integer numeroRecordScritti = result.next() ? result.getInt(1) : 0;
+			
+			logger.info("Titolarita' effettivamente inserite sulla tabella di staging: {}", numeroRecordScritti);
+			
+			logger.info("Terminato inserimento Titolarita' in tabella di staging");
+			
+			return numeroRecordScritti;
 		}
 		
 		catch(Throwable ex)
@@ -85,8 +140,100 @@ public class AdeTitDAOImpl implements AdeTitDAO
 			throw new MicdlETLException("Si e' verificato un errore durante l'inserimento degli indirizzi", 
 					                    HttpStatus.INTERNAL_SERVER_ERROR);   
 		}
-		
-		return null;
+	}
+	
+	/* popolamento staging */
+	private void popolaTitolarita(PreparedStatement ps, TitolaritaDTO titolarita, BigDecimal batchId) throws SQLException
+	{
+		/* indice di puntamento */
+	    int indice = 1;
+	    
+	    /* conversione DTO -> entita' */
+	    AdeTitolaritaHist entita = AdeConverter.convertTitolaritaFromDTO(titolarita);
+	    
+	    ps.setInt(indice++, titolarita.getRowId());
+	    
+	    ps.setString(indice++, entita.getCodAmm());
+	    ps.setString(indice++, entita.getSezione());
+	    ps.setString(indice++, entita.getIdSoggetto());
+	    ps.setString(indice++, entita.getIdTipoSoggetto());
+	    ps.setString(indice++, entita.getIdImmCatasto());
+	    ps.setString(indice++, entita.getIdTipoImmobile());
+	    ps.setString(indice++, entita.getCodDiritto());
+	    ps.setString(indice++, entita.getTitoloNonCodificato());
+	    
+	    if(entita.getQuotaNumeratore() != null)
+	    	ps.setInt(indice++, entita.getQuotaNumeratore());
+	    	
+    	else
+    		ps.setNull(indice++, java.sql.Types.INTEGER);
+    	
+	    if(entita.getQuotaDenominatore() != null)
+	    	ps.setInt(indice++, entita.getQuotaNumeratore());
+	    
+	    else
+    		ps.setNull(indice++, java.sql.Types.INTEGER);
+	    
+	    if(StringUtils.isNotBlank(entita.getRegime()) && StringUtils.isNotBlank(entita.getRegime().trim()))
+	    		ps.setString(indice++, entita.getRegime().trim());
+	    
+	    else
+	    	ps.setNull(indice++, java.sql.Types.VARCHAR);
+	    
+	    ps.setString(indice++, entita.getSoggettoRiferimento());
+	    if(entita.getDataValiditaReg() != null)
+	    	ps.setDate(indice++, java.sql.Date.valueOf(entita.getDataValiditaReg()));
+	    
+	    else
+	    	ps.setNull(indice++, java.sql.Types.DATE);
+	    
+	    ps.setString(indice++, entita.getTipoNotaReg());
+	    ps.setString(indice++, entita.getNumeroNotaReg());
+	    ps.setString(indice++, entita.getProgressivoNotaReg());
+	    ps.setString(indice++, entita.getAnnoNotaReg());
+	    
+	    if(entita.getDataRegistrazioneAttiReg() != null)
+	    	ps.setDate(indice++, java.sql.Date.valueOf(entita.getDataRegistrazioneAttiReg()));
+	    
+	    else
+	    	ps.setNull(indice++, java.sql.Types.DATE);
+	    
+	    ps.setString(indice++, entita.getPartitaReg());
+	    
+	    if(entita.getDataValiditaConcl() != null)
+	    	ps.setDate(indice++, java.sql.Date.valueOf(entita.getDataValiditaConcl()));	
+	    
+	    else
+	    	ps.setNull(indice++, java.sql.Types.DATE);
+	    
+	    ps.setString(indice++, entita.getTipoNotaConcl());
+	    ps.setString(indice++, entita.getNumeroNotaConcl());
+	    ps.setString(indice++, entita.getProgressivoNotaConcl());
+	    ps.setString(indice++, entita.getAnnoNotaConcl());
+	    
+	    if(entita.getDataRegistrazioneAttiConcl() != null)
+	    	ps.setDate(indice++, java.sql.Date.valueOf(entita.getDataRegistrazioneAttiConcl()));
+	    
+	    else
+	    	ps.setNull(indice++, java.sql.Types.DATE);
+	    
+	    ps.setString(indice++, entita.getIdMutazioneIniz());
+	    ps.setString(indice++, entita.getIdMutazioneFin());
+	    ps.setString(indice++, entita.getIdTitolarita());
+	    ps.setString(indice++, entita.getCdCausaleAttoGenerante());
+	    ps.setString(indice++, entita.getDescrizioneAttoGenerante());
+	    ps.setString(indice++, entita.getCdCausaleAttoConclusivo());
+	    ps.setString(indice++, entita.getDescrizioneAttoConclusivo());
+	    ps.setString(indice++, entita.getHash());
+	    
+	    ps.setBigDecimal(indice++, batchId);
+	    
+	    if (indice != 36) 
+	    {
+	    	logger.info("Numero parametri errato per titolarita'");
+	        throw new MicdlETLException("Numero parametri errato per titolarita'", HttpStatus.INTERNAL_SERVER_ERROR);
+	    }
+	    
 	}
 
 }

@@ -1,7 +1,6 @@
 CREATE TEMPORARY TABLE ADE_TITOLARITA_HIST_STAGING 
 (
 	row_index int,
-	id_titolarita_hist bigint,
 	cod_comune varchar(4),
 	sezione varchar(1),
 	id_soggetto varchar(9),
@@ -35,8 +34,5 @@ CREATE TEMPORARY TABLE ADE_TITOLARITA_HIST_STAGING
 	conc_cd_causale_atto_conclusivo varchar(50),
 	conc_descrizione_atto_conclusivo varchar(100),
 	hash varchar(64),
-	valid_from date,
-	valid_to date,
-	is_current tinyint(1),
 	batch_id bigint 
 )

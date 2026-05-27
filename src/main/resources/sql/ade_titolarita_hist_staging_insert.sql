@@ -1,7 +1,6 @@
 INSERT INTO ADE_TITOLARITA_HIST_STAGING 
 (
 	row_index,
-	id_titolarita_hist,
 	cod_comune,
 	sezione,
 	id_soggetto,
@@ -35,9 +34,6 @@ INSERT INTO ADE_TITOLARITA_HIST_STAGING
 	conc_cd_causale_atto_conclusivo,
 	conc_descrizione_atto_conclusivo,
 	hash,
-	valid_from,
-	valid_to,
-	is_current,
 	batch_id 
 )
 VALUES
@@ -45,5 +41,5 @@ VALUES
 	?,?,?,?,?,?,?,?,?,?,
 	?,?,?,?,?,?,?,?,?,?,
 	?,?,?,?,?,?,?,?,?,?,
-	?,?,?,?,?,?,?,?,?
+	?,?,?,?,?
 );

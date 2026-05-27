@@ -47,6 +47,8 @@ public class AdeETLTitServiceImpl implements MicDllEtlService
 			
 			logger.info("Salvataggio delle titolarita' sulla tabella di staging...");
 			Integer recordInStage = titDAO.insertTitolarita(parsingResult.getTitolarita(), idBatch);
+			parsingResult.setRecordInseritiInStaging(parsingResult.getRecordInseritiInStaging() != null ? 
+			          parsingResult.getRecordInseritiInStaging() + recordInStage : recordInStage);
 		}
 		
 		catch(MicdlETLException mee)
