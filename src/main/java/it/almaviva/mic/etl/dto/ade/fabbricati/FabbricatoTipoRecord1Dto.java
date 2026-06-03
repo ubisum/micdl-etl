@@ -15,31 +15,31 @@ public class FabbricatoTipoRecord1Dto extends BeneImmobiliareDTO
 {
 	/* ---------------------------- classe dell'unita' immobiliare ---------------------------------- */
 	@CsvPosition(6)
-	@Size(max = 3, message = "Formato della zona censuaria non valido")
+	@Size(max = 3, message = "010 - Formato della zona censuaria non valido")
 	private String zonaCensuaria;
 	
 	@CsvPosition(7)
-	@Size(max = 4, message = "Formato della categoria non valido")
+	@Size(max = 4, message = "011 - Formato della categoria non valido")
 	private String categoria;
 	
 	@CsvPosition(8)
-	@Size(max = 2, message = "Formato della classe non valido")
+	@Size(max = 2, message = "012 - Formato della classe non valido")
 	private String classe;
 	
 	@CsvPosition(9)
-	@Size(max = 7, message = "Formato della consistenza non valido")
+	@Size(max = 7, message = "013 - Formato della consistenza non valido")
 	private String consistenza;
 	
 	@CsvPosition(10)
-	@Pattern(regexp = "^([0-9]{1,5})$", message = "Formato della superficie non valido")
+	@Pattern(regexp = "^([0-9]{1,5})$", message = "014 - Formato della superficie non valido")
 	private String superficie;
 	
 	@CsvPosition(11)
-	@Pattern(regexp = "^([,0-9]{1,15})$", message = "Formato della rendita in lire non valido")
+	@Pattern(regexp = "^(?=.{1,15}$)\\d+(,\\d{1,3})?$", message = "015 - Formato della rendita in lire non valido")
 	private String renditaLire;
 	
 	@CsvPosition(12)
-	@Pattern(regexp = "^([,0-9]{1,18})$", message = "Formato della rendita in euro non valido")
+	@Pattern(regexp = "^(?=.{1,18}$)\\d+(,\\d{1,3})?$", message = "Formato della rendita in euro non valido")
 	private String renditaEuro;
 	
 	/* ----------------------------- ubicazione immobile ----------------------------------------- */

@@ -29,6 +29,7 @@ import it.almaviva.mic.etl.entities.ade.AdeTitolaritaHist;
 import it.almaviva.mic.etl.entities.ade.AdeUnitaImmHist;
 import it.almaviva.mic.etl.entities.ade.BatchJob;
 import it.almaviva.mic.etl.entities.ade.ProprietarioHist;
+import it.almaviva.mic.etl.utils.ColumnRange;
 import it.almaviva.mic.etl.utils.HashingUtils;
 
 public class AdeConverter 
@@ -215,7 +216,9 @@ public class AdeConverter
 		AdeTitolaritaHist destination = modelMapper.map(source, AdeTitolaritaHist.class);
 		
 		/* aggiunta del calcolo dell'hashing */
-		destination.setHash(HashingUtils.getHashingForAnnotatedCols(5, source));
+		ColumnRange range1 = new ColumnRange(7, 7);
+		ColumnRange range2 = new ColumnRange(10, 31);
+		destination.setHash(HashingUtils.getHashingForAnnotatedCols(source, range1, range2));
 		
 		return destination;
 	}

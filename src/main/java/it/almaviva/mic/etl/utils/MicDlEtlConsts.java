@@ -4,13 +4,15 @@ public class MicDlEtlConsts
 {
 	/* errori parsing file */
 	public static final String ERR_MISSING_ELEMS = "Il record non contiene abbastanza elementi"; 
-	public static final String ERR_WRONG_TYPE = "Tipo record non corretto";
+	public static final String ERR_WRONG_TYPE = "008 - Tipo record non corretto";
 	public static final String ERR_VALIDATION = "Uno o piu' vincoli violati sul record";
 	public static final String ERR_ESTATE_REG_NUM = "Numero dei campi dei dati catastali non corretto";
 	public static final String ERR_ADDR_NUM = "Numero dei campi degli indirizzi non corretto";
 	public static final String ERR_DED_MISSING_ELEMS = "Dati delle deduzioni non presenti";
 	public static final String ERR_RIS_MISSING_ELEMS = "Dati delle riserve non presenti";
 	public static final String ERR_POR_MISSING_ELEMS = "Dati delle porzioni non presenti";
+	public static final String ERR_TIT_MISSING_ID_SOGGETTO = "ID soggetto non rilevato sul database";
+	public static final String ERR_TIT_MISSING_SOGGETTO_RIF = "Soggetto di riferimento non rilevato sul database";
 	
 	/* file SQL per operazioni CRUD */
 	public static final String ADE_UNITA_IMM_CREATE_STAGING = "sql/ade_unita_imm_hist_staging.sql";
@@ -43,5 +45,6 @@ public class MicDlEtlConsts
 	public static final String ADE_RISERVA_SP = "sp_riserva_scd2_load";
 	public static final String ADE_PORZIONE_SP = "sp_porzione_scd2_load";
 	public static final String PROPRIETARIO_SP = "sp_proprietario_scd2_load";
+	public static final String ADE_TITOLARITA_SP = "sp_titolarita_scd2_load";
 	
 }

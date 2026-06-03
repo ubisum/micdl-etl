@@ -1,13 +1,19 @@
 package it.almaviva.mic.etl.dao.ade;
 
 import java.math.BigDecimal;
+import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Types;
 import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -19,6 +25,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import it.almaviva.mic.etl.converters.ade.AdeConverter;
+import it.almaviva.mic.etl.dto.ParsingDTO;
 import it.almaviva.mic.etl.dto.ade.titolarita.TitolaritaDTO;
 import it.almaviva.mic.etl.entities.ade.AdeTitolaritaHist;
 import it.almaviva.mic.etl.exceptions.MicdlETLException;
@@ -234,6 +241,119 @@ public class AdeTitDAOImpl implements AdeTitDAO
 	        throw new MicdlETLException("Numero parametri errato per titolarita'", HttpStatus.INTERNAL_SERVER_ERROR);
 	    }
 	    
+	}
+
+	@Override
+	public Integer executeSCD2Procedure(ParsingDTO result) {
+
+	    logger.info("Invocazione procedura SCD2 per titolarita'...");
+
+	    /* strutture dati */
+	    CallableStatement stmt = null;
+	    ResultSet rs = null;
+	    
+	    try 
+	    {
+	    	/* richiesta connessione */
+	    	logger.info("Preparazione connessione...");
+	        Session session = entityManager.unwrap(Session.class);
+	        Connection connection = session.doReturningWork(c -> c);
+
+	        /* preparazione invocazione stored procedure */
+	        stmt = connection.prepareCall("CALL " + MicDlEtlConsts.ADE_TITOLARITA_SP + "(?)");
+
+	        logger.info("Preparazione parametri...");
+	        stmt.registerOutParameter(1, Types.INTEGER);
+
+	        /* esecuzione procedure */
+	        logger.info("Esecuzione stored procedure...");
+	        boolean hasResultSet = stmt.execute();
+	        Integer totaleInseriti = stmt.getInt(1);
+	       
+	        logger.info("Analisi presenza eventuali record non validi...");
+
+	        if (hasResultSet) 
+	        {
+	        	logger.info("Rilevato ResultSet come risultato della procedure. "
+	        			  + "Si procede all'analisi di eventuali record non validi");
+	        	
+	            rs = stmt.getResultSet();
+	        }
+	        
+	        else
+	        {
+	        	logger.info("Nessun record non valido rilevato");
+	        	return totaleInseriti;
+	        }
+	        
+	        logger.info("Inizio analisi di eventuali record non validi...");
+	        Map<Integer, List<String>> temporaryErrorList = new HashMap<>();
+	        while(rs.next())
+	        {
+	        	/* estrazione indici e flag */
+	        	Integer rowIndex = rs.getInt(1);
+	        	Integer sogMissing = rs.getInt(2);
+	        	Integer rifMissing = rs.getInt(3);
+                
+                if(!temporaryErrorList.containsKey(rowIndex))
+                	temporaryErrorList.put(rowIndex, new ArrayList<>());
+                
+                /* composizione messaggio d'errore */
+                if(sogMissing == 1)
+                	temporaryErrorList.get(rowIndex).add(MicDlEtlConsts.ERR_TIT_MISSING_ID_SOGGETTO);
+                
+                if(rifMissing == 1)
+                	temporaryErrorList.get(rowIndex).add(MicDlEtlConsts.ERR_TIT_MISSING_SOGGETTO_RIF);
+	        }
+	        	        
+	        if(result.getReportRecord() != null)
+	        	result.getReportRecord().putAll(temporaryErrorList);
+	        
+	        else
+	        	result.setReportRecord(temporaryErrorList);
+	        
+	        logger.info("Terminata analisi. Record non validi trovati: {}", temporaryErrorList.size());
+	        
+	        return totaleInseriti;
+
+	    } 
+	    
+	    catch (Throwable ex) 
+	    {
+	        logger.error("Errore durante esecuzione SCD2", ex);
+	        throw new MicdlETLException("Errore interno SCD2", HttpStatus.INTERNAL_SERVER_ERROR);
+	    }
+	    
+	    finally
+	    {
+	    	if (rs != null) 
+	    	{
+	            try 
+	            {
+	                rs.close();
+	            } 
+	            
+	            catch (SQLException ex) 
+	            {
+	                logger.info("Errore chiusura ResultSet", ex);
+	                throw new MicdlETLException("Si e' verificata un'eccezione interna", HttpStatus.INTERNAL_SERVER_ERROR);
+	            }
+	        }
+
+	        if (stmt != null) 
+	        {
+	            try 
+	            {
+	                stmt.close();
+	            } 
+	            
+	            catch (SQLException ex) 
+	            {
+	                logger.warn("Errore chiusura CallableStatement", ex);
+	                throw new MicdlETLException("Si e' verificata un'eccezione interna", HttpStatus.INTERNAL_SERVER_ERROR);
+	            }
+	        }
+	    }
 	}
 
 }

@@ -49,6 +49,12 @@ public class AdeETLTitServiceImpl implements MicDllEtlService
 			Integer recordInStage = titDAO.insertTitolarita(parsingResult.getTitolarita(), idBatch);
 			parsingResult.setRecordInseritiInStaging(parsingResult.getRecordInseritiInStaging() != null ? 
 			          parsingResult.getRecordInseritiInStaging() + recordInStage : recordInStage);
+			
+			logger.info("Avvio stored procedure per titolarita'...");
+			Integer recordInseriti = titDAO.executeSCD2Procedure(parsingResult);
+			parsingResult.setRecordInseriti(parsingResult.getRecordInseriti() != null ? 
+					                        parsingResult.getRecordInseriti() + recordInseriti :
+					                        recordInseriti);
 		}
 		
 		catch(MicdlETLException mee)

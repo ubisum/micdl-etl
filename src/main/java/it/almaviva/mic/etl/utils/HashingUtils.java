@@ -6,6 +6,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -69,6 +70,48 @@ public class HashingUtils
              throw new MicdlETLException("Si e' verificato un errore interno", HttpStatus.INTERNAL_SERVER_ERROR);
 	     }
 	     
+	}
+	
+	public static String getHashingForAnnotatedCols(Object dto, ColumnRange... ranges)
+	{
+	    Field[] fields = dto.getClass().getDeclaredFields();
+
+	    // predicate che verifica se una posizione è dentro almeno un range
+	    Predicate<Integer> inRange = pos -> {
+	        for (ColumnRange r : ranges) {
+	            if (pos >= r.getStartInclusive() && pos <= r.getEndInclusive()) {
+	                return true;
+	            }
+	        }
+	        return false;
+	    };
+
+	    String input = Arrays.stream(fields)
+	            .filter(f -> f.isAnnotationPresent(CsvPosition.class))
+	            .filter(f -> {
+	                int pos = f.getAnnotation(CsvPosition.class).value();
+	                return ranges == null || ranges.length == 0 || inRange.test(pos);
+	            })
+	            .sorted(Comparator.comparingInt(f ->
+	                    f.getAnnotation(CsvPosition.class).value()))
+	            .map(f -> {
+	                f.setAccessible(true);
+	                try {
+	                    Object value = f.get(dto);
+	                    return value != null ? value.toString() : "NULL";
+	                } catch (IllegalAccessException e) {
+	                    logger.error("Si e' verificata un'eccezione durante l'applicazione dell'algoritmo di hashing", e);
+	                    throw new MicdlETLException("Si e' verificato un errore interno", HttpStatus.INTERNAL_SERVER_ERROR);
+	                }
+	            })
+	            .collect(Collectors.joining("|"));
+
+	    try {
+	        return getHashingCode(input);
+	    } catch (Throwable ex) {
+	        logger.error("Si e' verificata un'eccezione durante l'applicazione dell'algoritmo di hashing", ex);
+	        throw new MicdlETLException("Si e' verificato un errore interno", HttpStatus.INTERNAL_SERVER_ERROR);
+	    }
 	}
 	
 	private static String getHashingCode(String input) throws NoSuchAlgorithmException
