@@ -250,6 +250,8 @@ public class GenericdDAOImpl implements GenericDAO
 		
 		catch(MicdlETLException mee)
 		{
+			logger.info("Si e' verificata un'eccezione durante l'aggiornamento del job", mee);
+			
 			/* si rilancia l'eccezione verso il controller */
 			throw new MicdlETLException(mee.getMessage(), mee.getStatus());
 		}

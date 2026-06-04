@@ -62,7 +62,10 @@ BEGIN
 	WHERE
 		src.sog_id IS NOT NULL
 	AND
-		src.rif_id IS NOT NULL
+	(
+		src.soggetto_riferimento IS NULL
+		OR src.rif_id IS NOT NULL
+	)
 	AND
 		tgt.hash COLLATE utf8mb4_unicode_ci <> src.hash COLLATE utf8mb4_unicode_ci;
 		
@@ -179,7 +182,10 @@ BEGIN
 	AND 
 		src.sog_id IS NOT NULL
 	AND
-		src.rif_id IS NOT NULL;
+	(
+		src.soggetto_riferimento IS NULL
+		OR src.rif_id IS NOT NULL
+	);
 	
 	SET v_count = v_count + ROW_COUNT();
 	
@@ -300,7 +306,7 @@ BEGIN
 	SELECT
 		rd.row_index,
 		CASE WHEN rd.sog_id IS NULL THEN 1 ELSE 0 END,
-		CASE WHEN rd.rif_id IS NULL THEN 1 ELSE 0 END
+		CASE WHEN rd.soggetto_riferimento IS NOT NULL AND rd.rif_id IS NULL THEN 1 ELSE 0 END
 	FROM
 		RECORD_VALIDI rd
 	WHERE
