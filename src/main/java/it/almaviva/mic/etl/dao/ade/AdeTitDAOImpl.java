@@ -11,7 +11,6 @@ import java.sql.Types;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -43,7 +42,6 @@ public class AdeTitDAOImpl implements AdeTitDAO
 	@Value("${spring.jpa.properties.hibernate.jdbc.batch_size}")
 	private String batchSize;
 	
-	private static final ZoneId ZONE_ROME = ZoneId.of("Europe/Rome");
 	private static final Logger logger = LoggerFactory.getLogger(AdeTitDAOImpl.class);
 	
 	@Override
@@ -294,6 +292,7 @@ public class AdeTitDAOImpl implements AdeTitDAO
 	        	Integer rowIndex = rs.getInt(1);
 	        	Integer sogMissing = rs.getInt(2);
 	        	Integer rifMissing = rs.getInt(3);
+	        	Integer immMissing = rs.getInt(4);
                 
                 if(!temporaryErrorList.containsKey(rowIndex))
                 	temporaryErrorList.put(rowIndex, new ArrayList<>());
@@ -304,6 +303,9 @@ public class AdeTitDAOImpl implements AdeTitDAO
                 
                 if(rifMissing == 1)
                 	temporaryErrorList.get(rowIndex).add(MicDlEtlConsts.ERR_TIT_MISSING_SOGGETTO_RIF);
+                
+                if(immMissing == 1)
+                	temporaryErrorList.get(rowIndex).add(MicDlEtlConsts.ERR_TIT_MISSING_ID_IMMOBILE);
 	        }
 	        	        
 	        if(result.getReportRecord() != null)

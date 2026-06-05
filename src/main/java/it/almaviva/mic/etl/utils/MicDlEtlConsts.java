@@ -13,6 +13,7 @@ public class MicDlEtlConsts
 	public static final String ERR_POR_MISSING_ELEMS = "Dati delle porzioni non presenti";
 	public static final String ERR_TIT_MISSING_ID_SOGGETTO = "ID soggetto non rilevato sul database";
 	public static final String ERR_TIT_MISSING_SOGGETTO_RIF = "Soggetto di riferimento non rilevato sul database";
+	public static final String ERR_TIT_MISSING_ID_IMMOBILE = "Identificativo dell'immobile non presente nel database";
 	
 	/* file SQL per operazioni CRUD */
 	public static final String ADE_UNITA_IMM_CREATE_STAGING = "sql/ade_unita_imm_hist_staging.sql";

@@ -23,7 +23,7 @@ public class DatoCatastaleDto
 	private String foglio;
 	
 	@CsvPosition(2)
-	@Pattern(regexp = "[.?A-Za-z0-9]{1,5}", message = "Formato del numero/particella non valido")
+	@Pattern(regexp = "[ .?A-Za-z0-9]{1,5}", message = "Formato del numero/particella non valido")
 	private String numero;
 	
 	@CsvPosition(3)

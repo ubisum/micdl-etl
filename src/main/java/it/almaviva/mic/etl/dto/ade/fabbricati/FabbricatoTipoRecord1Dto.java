@@ -170,7 +170,7 @@ public class FabbricatoTipoRecord1Dto extends BeneImmobiliareDTO
 	private String concDescrAttoConclusivo;
 	
 	@CsvPosition(44)
-	@Pattern(regexp = "1|2|3|4|5", message = "048 - Formato del flag classamento non valido")
+	@Pattern(regexp = "0|1|2|3|4|5", message = "048 - Formato del flag classamento non valido")
 	private String concFlagClassamento;
 
 }

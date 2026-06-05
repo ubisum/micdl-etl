@@ -19,7 +19,9 @@ BEGIN
 	SELECT 
 		staging.*, 
 		prop_soggetto.id_proprietario_hist AS sog_id,
-		prop_rif.id_proprietario_hist AS rif_id
+		prop_rif.id_proprietario_hist AS rif_id,
+		unita.id_imm_hist AS unita_id,
+		particella.id_part_hist AS particella_id
 	FROM 
 		ADE_TITOLARITA_HIST_STAGING staging
 	LEFT JOIN 
@@ -29,7 +31,31 @@ BEGIN
 	LEFT JOIN 
 		proprietario_hist prop_rif
 	ON
-		staging.soggetto_riferimento COLLATE utf8mb4_unicode_ci = prop_rif.id_soggetto COLLATE utf8mb4_unicode_ci;
+		staging.soggetto_riferimento COLLATE utf8mb4_unicode_ci = prop_rif.id_soggetto COLLATE utf8mb4_unicode_ci
+	LEFT JOIN 
+		ade_unita_imm_hist unita
+	ON
+		staging.cod_comune  COLLATE utf8mb4_unicode_ci = unita.cod_comune COLLATE utf8mb4_unicode_ci 
+	AND
+		staging.sezione COLLATE utf8mb4_unicode_ci = unita.sezione COLLATE utf8mb4_unicode_ci 
+	AND
+		staging.id_imm_catasto COLLATE utf8mb4_unicode_ci = unita.id_imm_catasto COLLATE utf8mb4_unicode_ci 
+	AND 
+		staging.tipo_catasto COLLATE utf8mb4_unicode_ci = unita.tipo_catasto COLLATE utf8mb4_unicode_ci 
+	AND
+		unita.is_current = 1
+	LEFT JOIN
+		ade_particella_hist particella
+	ON
+		staging.cod_comune COLLATE utf8mb4_unicode_ci = particella.cod_comune COLLATE utf8mb4_unicode_ci 
+	AND
+		staging.sezione COLLATE utf8mb4_unicode_ci = particella.sezione COLLATE utf8mb4_unicode_ci 
+	AND
+		staging.id_imm_catasto COLLATE utf8mb4_unicode_ci = particella.id_imm_catasto COLLATE utf8mb4_unicode_ci 
+	AND 
+		staging.tipo_catasto COLLATE utf8mb4_unicode_ci = particella.tipo_catasto COLLATE utf8mb4_unicode_ci
+	AND
+		particella.is_current = 1;
 		
 	-- ---------------------------------------
     -- 1. CHIUSURA RECORD MODIFICATI
@@ -65,6 +91,10 @@ BEGIN
 	(
 		src.soggetto_riferimento IS NULL
 		OR src.rif_id IS NOT NULL
+	)
+	AND
+	(
+		src.unita_id IS NOT NULL OR src.particella_id IS NOT NULL
 	)
 	AND
 		tgt.hash COLLATE utf8mb4_unicode_ci <> src.hash COLLATE utf8mb4_unicode_ci;
@@ -185,6 +215,10 @@ BEGIN
 	(
 		src.soggetto_riferimento IS NULL
 		OR src.rif_id IS NOT NULL
+	)
+	AND
+	(
+		src.unita_id IS NOT NULL OR src.particella_id IS NOT NULL
 	);
 	
 	SET v_count = v_count + ROW_COUNT();
@@ -306,11 +340,12 @@ BEGIN
 	SELECT
 		rd.row_index,
 		CASE WHEN rd.sog_id IS NULL THEN 1 ELSE 0 END,
-		CASE WHEN rd.soggetto_riferimento IS NOT NULL AND rd.rif_id IS NULL THEN 1 ELSE 0 END
+		CASE WHEN rd.soggetto_riferimento IS NOT NULL AND rd.rif_id IS NULL THEN 1 ELSE 0 END,
+		CASE WHEN rd.unita_id IS NULL AND rd.particella_id IS NULL THEN 1 ELSE 0 END
 	FROM
 		RECORD_VALIDI rd
 	WHERE
-		rd.sog_id IS null OR rd.rif_id IS NULL;
+		rd.sog_id IS null OR rd.rif_id IS NULL OR (rd.unita_id IS NULL AND rd.particella_id IS NULL);
 		
 	DROP TEMPORARY TABLE RECORD_VALIDI;
 	
