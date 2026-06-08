@@ -22,7 +22,7 @@ public class AdeEdificialitaTerreniValidator implements ConstraintValidator<AdeE
 			context.disableDefaultConstraintViolation();
 			
 			/*costruzione del nuovo vincolo violato */
-			context.buildConstraintViolationWithTemplate("Se l'edificialita' e' presente, puo' assumere il solo valore E")
+			context.buildConstraintViolationWithTemplate("061 - Se l'edificialita' e' presente, puo' assumere il solo valore E")
 			                                            .addPropertyNode("numero")
 			                                            .addConstraintViolation();
 			
@@ -36,7 +36,7 @@ public class AdeEdificialitaTerreniValidator implements ConstraintValidator<AdeE
 			context.disableDefaultConstraintViolation();
 			
 			/*costruzione del nuovo vincolo violato */
-			context.buildConstraintViolationWithTemplate("Se l'edificialita' vale E, il numero dev'essere nella forma .[0-9]{4}")
+			context.buildConstraintViolationWithTemplate("061 - Se l'edificialita' vale E, il numero dev'essere nella forma .[0-9]{4}")
 			                                            .addPropertyNode("numero")
 			                                            .addConstraintViolation();
 					                                     
