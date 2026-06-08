@@ -23,7 +23,7 @@ public class AdeEdificialitaValidator implements ConstraintValidator<AdeEdificia
 			context.disableDefaultConstraintViolation();
 			
 			/*costruzione del nuovo vincolo violato */
-			context.buildConstraintViolationWithTemplate("Se l'edificialita' e' presente, puo' assumere il solo valore E")
+			context.buildConstraintViolationWithTemplate("051 - Se l'edificialita' e' presente, puo' assumere il solo valore E")
 			                                            .addPropertyNode("numero")
 			                                            .addConstraintViolation();
 			
@@ -31,13 +31,13 @@ public class AdeEdificialitaValidator implements ConstraintValidator<AdeEdificia
 		}
 				
 		else if(StringUtils.isNotBlank(value.getEdificialita()) && value.getEdificialita().equals("E") &&
-			   (StringUtils.isBlank(value.getNumero()) || !value.getNumero().matches("^\\.[0-9]{4}$")))
+			   (StringUtils.isBlank(value.getNumero()) || !value.getNumero().matches("^ ?\\.\\d{4}$")))
 		{
 			/* rimozione del messaggio di default */
 			context.disableDefaultConstraintViolation();
 			
 			/*costruzione del nuovo vincolo violato */
-			context.buildConstraintViolationWithTemplate("Se l'edificialita' vale E, il numero dev'essere nella forma .[0-9]{4}")
+			context.buildConstraintViolationWithTemplate("051 - Se l'edificialita' vale E, il numero dev'essere nella forma ' ^ ?\\.\\d{4}$'")
 			                                            .addPropertyNode("numero")
 			                                            .addConstraintViolation();
 					                                     
