@@ -13,11 +13,11 @@ import lombok.NoArgsConstructor;
 public class RiservaParticellaDTO 
 {
 	@CsvPosition(0)
-	@NotBlank(message = "Uno o piu' codici riserva non sono presenti")
-	@Size(max = 1, message = "Uno o piu' codici riserva superano la lunghezza 1")
+	@NotBlank(message = "097 - Uno o piu' codici riserva non sono presenti")
+	@Size(max = 1, message = "098 - Uno o piu' codici riserva superano la lunghezza 1")
 	private String codiceRiserva;
 	
 	@CsvPosition(1)
-	@Size(max = 7, message = "Uno o piu' partite iscrizione riserva superano la lunghezza 7")
+	@Size(max = 7, message = "099 - Uno o piu' partite iscrizione riserva superano la lunghezza 7")
 	private String partitaIscrizioneRiserva;
 }

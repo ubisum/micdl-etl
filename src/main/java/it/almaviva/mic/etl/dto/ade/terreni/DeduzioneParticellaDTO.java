@@ -12,6 +12,6 @@ import lombok.NoArgsConstructor;
 public class DeduzioneParticellaDTO 
 {
 	@CsvPosition(0)
-	@Size(max = 6, message = "Uno o piu' simboli deduzione superano la lunghezza 6")
+	@Size(max = 6, message = "096 - Uno o piu' simboli deduzione superano la lunghezza 6")
 	private String simboloDeduzione;
 }
