@@ -3,6 +3,7 @@ package it.almaviva.mic.etl.services.ade;
 import java.io.Reader;
 import java.math.BigDecimal;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,15 +50,18 @@ public class AdeETLSogServiceImpl implements MicDllEtlService
 			logger.info("Scansione del file...");
 			parsingResult = parser.parseFile(csvReader);
 			
-			logger.info("Salvataggio dei soggetti sulla tabella di staging...");
-			Integer recordInStaging = sogDAO.inserisciProprietari(parsingResult.getListaSoggetti(), idBatch);
-			parsingResult.setRecordInseritiInStaging(recordInStaging);
-			
-			logger.info("Esecuzione della stored procedure di inserimento dei dati...");
-			Integer recordInseriti = genericDAO.eseguiStoredProcedureContaRecord(MicDlEtlConsts.PROPRIETARIO_SP);
-			
-			logger.info("Numero record inseriti: {}", recordInseriti);
-			parsingResult.setRecordInseriti(recordInseriti);
+			if(CollectionUtils.isNotEmpty(parsingResult.getListaSoggetti()))
+			{
+				logger.info("Salvataggio dei soggetti sulla tabella di staging...");
+				Integer recordInStaging = sogDAO.inserisciProprietari(parsingResult.getListaSoggetti(), idBatch);
+				parsingResult.setRecordInseritiInStaging(recordInStaging);
+				
+				logger.info("Esecuzione della stored procedure di inserimento dei dati...");
+				Integer recordInseriti = genericDAO.eseguiStoredProcedureContaRecord(MicDlEtlConsts.PROPRIETARIO_SP);
+				
+				logger.info("Numero record inseriti: {}", recordInseriti);
+				parsingResult.setRecordInseriti(recordInseriti);
+			}
 			
 			logger.info("Fine servizio di scansione e salvataggio");
 		}
