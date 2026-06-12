@@ -3,6 +3,7 @@ package it.almaviva.mic.etl.services.ade;
 import java.io.Reader;
 import java.math.BigDecimal;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,16 +46,19 @@ public class AdeETLTitServiceImpl implements MicDllEtlService
 			logger.info("Scansione del file...");
 			parsingResult = parser.parseFile(csvReader);
 			
-			logger.info("Salvataggio delle titolarita' sulla tabella di staging...");
-			Integer recordInStage = titDAO.insertTitolarita(parsingResult.getTitolarita(), idBatch);
-			parsingResult.setRecordInseritiInStaging(parsingResult.getRecordInseritiInStaging() != null ? 
-			          parsingResult.getRecordInseritiInStaging() + recordInStage : recordInStage);
-			
-			logger.info("Avvio stored procedure per titolarita'...");
-			Integer recordInseriti = titDAO.executeSCD2Procedure(parsingResult);
-			parsingResult.setRecordInseriti(parsingResult.getRecordInseriti() != null ? 
-					                        parsingResult.getRecordInseriti() + recordInseriti :
-					                        recordInseriti);
+			if(CollectionUtils.isNotEmpty(parsingResult.getTitolarita()))
+			{
+				logger.info("Salvataggio delle titolarita' sulla tabella di staging...");
+				Integer recordInStage = titDAO.insertTitolarita(parsingResult.getTitolarita(), idBatch);
+				parsingResult.setRecordInseritiInStaging(parsingResult.getRecordInseritiInStaging() != null ? 
+				          parsingResult.getRecordInseritiInStaging() + recordInStage : recordInStage);
+				
+				logger.info("Avvio stored procedure per titolarita'...");
+				Integer recordInseriti = titDAO.executeSCD2Procedure(parsingResult);
+				parsingResult.setRecordInseriti(parsingResult.getRecordInseriti() != null ? 
+						                        parsingResult.getRecordInseriti() + recordInseriti :
+						                        recordInseriti);
+			}
 		}
 		
 		catch(MicdlETLException mee)
