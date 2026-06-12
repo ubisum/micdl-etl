@@ -15,26 +15,26 @@ import lombok.NoArgsConstructor;
 public class DatoCatastaleDto 
 {
 	@CsvPosition(0)
-	@Size(max = 3, message = "Formato della sezione urbana non valido")
+	@Size(max = 3, message = "049 - Formato della sezione urbana non valido")
 	private String sezioneUrbana;
 	
 	@CsvPosition(1)
-	@Size(max = 4, message = "Formato del foglio non valido")
+	@Size(max = 4, message = "050 - Formato del foglio non valido")
 	private String foglio;
 	
 	@CsvPosition(2)
-	@Pattern(regexp = "[.?A-Za-z0-9]{1,5}", message = "Formato del numero/particella non valido")
+	/* il codice 051 e' dichiarato all'interno dell'annotazione @AdeEdificialita e nelle classi correlate */
 	private String numero;
 	
 	@CsvPosition(3)
-	@Pattern(regexp = "[0-9]{1,4}", message = "Formato del denominatore non valido")
+	@Pattern(regexp = "[0-9]{1,4}", message = "052 - Formato del denominatore non valido")
 	private String denominatore;
 	
 	@CsvPosition(4)
-	@Size(max = 4, message = "Formato del subalterno non valido")
+	@Size(max = 4, message = "053 - Formato del subalterno non valido")
 	private String subalterno;
 	
 	@CsvPosition(5)
-	@Pattern(regexp = "E", message = "Il valore dell'edificialita', se presente, deve essere pari ad 'E'")
+	/* il codice di errore correlato alla validazione di questo campo e' sempre 051 */
 	private String edificialita;
 }

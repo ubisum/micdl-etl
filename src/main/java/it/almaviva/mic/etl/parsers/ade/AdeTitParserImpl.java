@@ -93,7 +93,11 @@ public class AdeTitParserImpl implements ParserInterface
 				}
 				
 				else
+				{
+					titolarita.setRowId(rowCounter);
 					listaTitolarita.add(titolarita);
+				}
+					
 				
 				rowCounter++;
 			 }

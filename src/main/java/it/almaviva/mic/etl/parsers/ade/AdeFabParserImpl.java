@@ -90,7 +90,7 @@ public class AdeFabParserImpl implements ParserInterface {
 					logger.info(MicDlEtlConsts.ERR_MISSING_ELEMS);
 					aggiungiErrore(erroriRecord, rowCounter, Arrays.asList(MicDlEtlConsts.ERR_MISSING_ELEMS));
 					rowCounter++;
-					break;
+					continue;
 				}
 				
 				/* controllo tipo */
@@ -102,7 +102,7 @@ public class AdeFabParserImpl implements ParserInterface {
 					aggiungiErrore(erroriRecord, rowCounter, Arrays.asList(MicDlEtlConsts.ERR_WRONG_TYPE));
 					rowCounter++;
 					
-					break;
+					continue;
 				}
 				
 				/* estrazione tipo */
@@ -116,12 +116,13 @@ public class AdeFabParserImpl implements ParserInterface {
 					aggiungiErrore(erroriRecord, rowCounter, Arrays.asList(MicDlEtlConsts.ERR_WRONG_TYPE));
 					rowCounter++;
 					
-					break;
+					continue;
 				}
 				
 				/* ramificazione per tipo */
 				AdeTipoRecordEnum tipoRecord = AdeTipoRecordEnum.getFromValue(tipoEstratto);
 				
+				switchLabel:
 				switch(tipoRecord)
 				{
 					case ADE_TIPO_RECORD_1:
@@ -146,7 +147,7 @@ public class AdeFabParserImpl implements ParserInterface {
 						listaFabbricati.add(fabbricato1);
 						ultimoTipoRecord = AdeTipoRecordEnum.ADE_TIPO_RECORD_1;
 						
-						break;
+						break switchLabel;
 						
 					case ADE_TIPO_RECORD_2:
 						
@@ -200,7 +201,7 @@ public class AdeFabParserImpl implements ParserInterface {
 								aggiungiErrore(erroriRecord, rowCounter, estraiDescrizioniErrori(violationsDatoCatastale));
 								
 								rowCounter++;
-								break;
+								break switchLabel;
 							}
 							
 							/* inserimento del dato catastale nel record di tipo 2 */
@@ -277,7 +278,7 @@ public class AdeFabParserImpl implements ParserInterface {
 								aggiungiErrore(erroriRecord, rowCounter, estraiDescrizioniErrori(violationsIndirizzo));
 								
 								rowCounter++;
-								break;
+								break switchLabel;
 							}
 							
 							/* aggiunta dell'indirizzo */

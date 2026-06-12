@@ -13,7 +13,7 @@ import jakarta.validation.Payload;
 @Constraint(validatedBy = AdeEdificialitaValidator.class)
 public @interface AdeEdificialita 
 {
-	 	String message() default "Se il campo edificialita' vale E, il numero dev'essere nella forma .[0-9]{4}";
+	 	String message() default "051 - Se il campo edificialita' vale E, il numero dev'essere nella forma .[0-9]{4}";
 	    Class<?>[] groups() default {};
 	    Class<? extends Payload>[] payload() default {};
 }

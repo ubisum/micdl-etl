@@ -520,3 +520,55 @@ VALUES
 ('997', 'sop var ter'),
 ('998', 'soppresso'),
 ('999', 'disponibile');
+
+-- --------------------------------------------------------
+-- ------------------ CODICI DIRITTO ---------------------
+-- --------------------------------------------------------
+INSERT INTO lkp_codici_diritto (codice, descrizione) VALUES ('3 ', 'Comproprietario');
+INSERT INTO lkp_codici_diritto (codice, descrizione) VALUES ('4 ', 'Comproprietario per');
+INSERT INTO lkp_codici_diritto (codice, descrizione) VALUES ('7 ', 'Comproprietario del fabbricato');
+INSERT INTO lkp_codici_diritto (codice, descrizione) VALUES ('8 ', 'Comproprietario per l`area');
+INSERT INTO lkp_codici_diritto (codice, descrizione) VALUES ('12 ', 'Concedente in parte');
+INSERT INTO lkp_codici_diritto (codice, descrizione) VALUES ('14 ', 'Livellario parziale per');
+INSERT INTO lkp_codici_diritto (codice, descrizione) VALUES ('15 ', 'Usufruttuario parziale per');
+INSERT INTO lkp_codici_diritto (codice, descrizione) VALUES ('20 ', 'Livellario');
+INSERT INTO lkp_codici_diritto (codice, descrizione) VALUES ('21 ', 'Livellario per');
+INSERT INTO lkp_codici_diritto (codice, descrizione) VALUES ('22 ', 'Livellario in parte');
+INSERT INTO lkp_codici_diritto (codice, descrizione) VALUES ('25 ', 'Enfiteuta in parte');
+INSERT INTO lkp_codici_diritto (codice, descrizione) VALUES ('26 ', 'Colono perpetuo');
+INSERT INTO lkp_codici_diritto (codice, descrizione) VALUES ('27 ', 'Colono perpetuo per');
+INSERT INTO lkp_codici_diritto (codice, descrizione) VALUES ('28 ', 'Colono perpetuo in parte');
+INSERT INTO lkp_codici_diritto (codice, descrizione) VALUES ('30 ', 'Usufruttuario parziale');
+INSERT INTO lkp_codici_diritto (codice, descrizione) VALUES ('33 ', 'Cousufruttuario generale');
+INSERT INTO lkp_codici_diritto (codice, descrizione) VALUES ('36 ', 'Usufruttuario generale di livello');
+INSERT INTO lkp_codici_diritto (codice, descrizione) VALUES ('37 ', 'Usufruttuario parziale di livello');
+INSERT INTO lkp_codici_diritto (codice, descrizione) VALUES ('39 ', 'Usufruttuario parziale di enfiteusi');
+INSERT INTO lkp_codici_diritto (codice, descrizione) VALUES ('40 ', 'Usufruttuario generale di colonia');
+INSERT INTO lkp_codici_diritto (codice, descrizione) VALUES ('41 ', 'Usufruttuario parziale di colonia');
+INSERT INTO lkp_codici_diritto (codice, descrizione) VALUES ('42 ', 'Usufruttuario generale di dominio diretto');
+INSERT INTO lkp_codici_diritto (codice, descrizione) VALUES ('43 ', 'Usufruttuario parziale di dominio diretto');
+INSERT INTO lkp_codici_diritto (codice, descrizione) VALUES ('50 ', 'Cousufruttuario per');
+INSERT INTO lkp_codici_diritto (codice, descrizione) VALUES ('52 ', 'Usuario perpetuo');
+INSERT INTO lkp_codici_diritto (codice, descrizione) VALUES ('53 ', 'Usuario a tempo determinato');
+INSERT INTO lkp_codici_diritto (codice, descrizione) VALUES ('60 ', 'Cousufruttuario di livello');
+INSERT INTO lkp_codici_diritto (codice, descrizione) VALUES ('61 ', 'Cousufruttuario generale di livello');
+INSERT INTO lkp_codici_diritto (codice, descrizione) VALUES ('62 ', 'Usufruttuario di livello di');
+INSERT INTO lkp_codici_diritto (codice, descrizione) VALUES ('64 ', 'Comproprietario per parte di');
+INSERT INTO lkp_codici_diritto (codice, descrizione) VALUES ('70 ', 'Usufruttuario di colonia per');
+INSERT INTO lkp_codici_diritto (codice, descrizione) VALUES ('71 ', 'Usufruttuario di dominio diretto per');
+INSERT INTO lkp_codici_diritto (codice, descrizione) VALUES ('72 ', 'Cousufruttuario generale con diritto di accrescimento');
+INSERT INTO lkp_codici_diritto (codice, descrizione) VALUES ('16 ', 'Utilista della superficie');
+INSERT INTO lkp_codici_diritto (codice, descrizione) VALUES ('17 ', 'Utilista della superficie per');
+INSERT INTO lkp_codici_diritto (codice, descrizione) VALUES ('35 ', 'Beneficiario');
+INSERT INTO lkp_codici_diritto (codice, descrizione) VALUES ('65 ', 'Beneficiario per');
+INSERT INTO lkp_codici_diritto (codice, descrizione) VALUES ('54 ', 'Beneficiario di dominio diretto');
+INSERT INTO lkp_codici_diritto (codice, descrizione) VALUES ('46 ', 'Possessore');
+INSERT INTO lkp_codici_diritto (codice, descrizione) VALUES ('47 ', 'Possessore per');
+INSERT INTO lkp_codici_diritto (codice, descrizione) VALUES ('48 ', 'Compossessore');
+INSERT INTO lkp_codici_diritto (codice, descrizione) VALUES ('49 ', 'Compossessore per');
+INSERT INTO lkp_codici_diritto (codice, descrizione) VALUES ('55 ', 'Contestatario');
+INSERT INTO lkp_codici_diritto (codice, descrizione) VALUES ('56 ', 'Contestatario per');
+INSERT INTO lkp_codici_diritto (codice, descrizione) VALUES ('57 ', 'Contestatario per usufrutto');
+INSERT INTO lkp_codici_diritto (codice, descrizione) VALUES ('99 ', 'Presenza di titolo non codificato');
+INSERT INTO lkp_codici_diritto (codice, descrizione) VALUES ('990', 'Presenza di titolo non codificato');
+INSERT INTO lkp_codici_diritto (codice, descrizione) VALUES ('0 ', 'Assenza di titolo');

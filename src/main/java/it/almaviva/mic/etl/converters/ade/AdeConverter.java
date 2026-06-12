@@ -8,6 +8,7 @@ import org.modelmapper.ModelMapper;
 
 import it.almaviva.mic.etl.converters.LocalDateTimeToStringConverter;
 import it.almaviva.mic.etl.converters.StringToIntegerConverter;
+import it.almaviva.mic.etl.converters.StringToLocalDateConverter;
 import it.almaviva.mic.etl.dto.BatchJobDTO;
 import it.almaviva.mic.etl.dto.ade.fabbricati.DatoCatastaleDto;
 import it.almaviva.mic.etl.dto.ade.fabbricati.FabbricatoTipoRecord1Dto;
@@ -17,15 +18,18 @@ import it.almaviva.mic.etl.dto.ade.terreni.DeduzioneParticellaDTO;
 import it.almaviva.mic.etl.dto.ade.terreni.PorzioneDTO;
 import it.almaviva.mic.etl.dto.ade.terreni.RiservaParticellaDTO;
 import it.almaviva.mic.etl.dto.ade.terreni.TerrenoTipoRecord1DTO;
+import it.almaviva.mic.etl.dto.ade.titolarita.TitolaritaDTO;
 import it.almaviva.mic.etl.entities.ade.AdeDatoCatastaleHist;
 import it.almaviva.mic.etl.entities.ade.AdeDeduzioneTerHist;
 import it.almaviva.mic.etl.entities.ade.AdeIndirizzoHist;
 import it.almaviva.mic.etl.entities.ade.AdeParticellaHist;
 import it.almaviva.mic.etl.entities.ade.AdePorzioneTerHist;
 import it.almaviva.mic.etl.entities.ade.AdeRiservaTerHist;
+import it.almaviva.mic.etl.entities.ade.AdeTitolaritaHist;
 import it.almaviva.mic.etl.entities.ade.AdeUnitaImmHist;
 import it.almaviva.mic.etl.entities.ade.BatchJob;
 import it.almaviva.mic.etl.entities.ade.ProprietarioHist;
+import it.almaviva.mic.etl.utils.ColumnRange;
 import it.almaviva.mic.etl.utils.HashingUtils;
 
 public class AdeConverter 
@@ -195,6 +199,26 @@ public class AdeConverter
 		
 		/* aggiunta del calcolo dell'hashing */
 		destination.setHash(HashingUtils.getHashingForAnnotatedCols(-1, source));
+		
+		return destination;
+	}
+	
+	public static AdeTitolaritaHist convertTitolaritaFromDTO(TitolaritaDTO source)
+	{
+		/* creazione del mapper */
+		ModelMapper modelMapper = new ModelMapper();
+		
+		/* aggiunta dei convertitori necessari */
+		modelMapper.addConverter(new StringToIntegerConverter());
+		modelMapper.addConverter(new StringToLocalDateConverter());
+		
+		/* creazione dell'entita' con conversione dei campi standard */
+		AdeTitolaritaHist destination = modelMapper.map(source, AdeTitolaritaHist.class);
+		
+		/* aggiunta del calcolo dell'hashing */
+		ColumnRange range1 = new ColumnRange(7, 7);
+		ColumnRange range2 = new ColumnRange(10, 31);
+		destination.setHash(HashingUtils.getHashingForAnnotatedCols(source, range1, range2));
 		
 		return destination;
 	}

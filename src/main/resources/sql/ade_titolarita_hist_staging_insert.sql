@@ -1,0 +1,45 @@
+INSERT INTO ADE_TITOLARITA_HIST_STAGING 
+(
+	row_index,
+	cod_comune,
+	sezione,
+	id_soggetto,
+	tipo_record,
+	id_imm_catasto,
+	tipo_catasto,
+	cod_diritto,
+	titolo_non_codificato,
+	quota_numeratore,
+	quota_denominatore,
+	regime,
+	soggetto_riferimento,
+	reg_data_validita,
+	reg_tipo_nota,
+	reg_numero_nota,
+	reg_progressivo_nota,
+	reg_anno_nota,
+	reg_data_reg_atto,
+	partita,
+	conc_data_validita,
+	conc_tipo_nota,
+	conc_numero_nota,
+	conc_progressivo_nota,
+	conc_anno_nota,
+	conc_data_registrazione_atti,
+	conc_id_mutazione_iniz,
+	conc_id_mutazione_fin,
+	id_titolarita,
+	conc_cd_causale_atto_generante,
+	conc_descrizione_atto_generante,
+	conc_cd_causale_atto_conclusivo,
+	conc_descrizione_atto_conclusivo,
+	hash,
+	batch_id 
+)
+VALUES
+(
+	?,?,?,?,?,?,?,?,?,?,
+	?,?,?,?,?,?,?,?,?,?,
+	?,?,?,?,?,?,?,?,?,?,
+	?,?,?,?,?
+);
