@@ -5,11 +5,11 @@ DELIMITER $$
 CREATE PROCEDURE sp_titolarita_scd2_load(OUT totale_inseriti INT)
 BEGIN
 	DECLARE v_oggi_dt DATETIME;
-	DECLARE v_oggi DATE;
+	-- DECLARE v_oggi DATE;
 	DECLARE v_count INT DEFAULT 0;
 	
 	SET v_oggi_dt = NOW();
-	SET v_oggi = DATE(v_oggi_dt);
+	-- SET v_oggi = DATE(v_oggi_dt);
 	
 	-- ---------------------------------------
     -- 0. INDIVIDUAZIONE RECORD VALIDI
@@ -84,7 +84,7 @@ BEGIN
 		tgt.quota_denominatore COLLATE utf8mb4_unicode_ci = src.quota_denominatore COLLATE utf8mb4_unicode_ci
 	SET
 		tgt.is_current = 0,
-		tgt.valid_to = v_oggi
+		tgt.valid_to = v_oggi_dt
 	WHERE
 		src.sog_id IS NOT NULL
 	AND
@@ -175,7 +175,7 @@ BEGIN
 		conc_cd_causale_atto_conclusivo,
 		conc_descrizione_atto_conclusivo,
 		hash,
-		v_oggi,
+		v_oggi_dt,
 		NULL,
 		1,
 		batch_id,
@@ -278,7 +278,7 @@ BEGIN
 	WHERE
 		new_tit.is_current = 1
 	AND
-		new_tit.valid_from = v_oggi
+		new_tit.valid_from = v_oggi_dt
 	AND NOT EXISTS
 	(
 		SELECT 1
@@ -303,7 +303,7 @@ BEGIN
 		AND
 			old_tit.quota_denominatore = new_tit.quota_denominatore
 		AND
-			old_tit.valid_from < v_oggi
+			old_tit.valid_from < v_oggi_dt
 	)
 	AND NOT EXISTS
 	(
