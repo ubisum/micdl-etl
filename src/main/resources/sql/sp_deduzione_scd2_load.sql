@@ -32,7 +32,7 @@ BEGIN
 		staging.tipo_catasto COLLATE utf8mb4_unicode_ci = part.tipo_catasto COLLATE utf8mb4_unicode_ci 
 		
 	SET
-		ded.valid_to = v_oggi,
+		ded.valid_to = v_oggi_dt,
 		ded.is_current = 0
 	WHERE
 		ded.is_current = 1;
@@ -71,7 +71,7 @@ BEGIN
 		staging.simbolo_deduzione,
 		staging.seq,
 		staging.hash,
-		v_oggi,
+		v_oggi_dt,
 		NULL,
 		1,
 		staging.batch_id

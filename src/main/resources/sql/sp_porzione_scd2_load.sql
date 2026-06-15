@@ -31,7 +31,7 @@ BEGIN
 	AND
 		staging.tipo_catasto COLLATE utf8mb4_unicode_ci = part.tipo_catasto COLLATE utf8mb4_unicode_ci 
 	SET
-		por.valid_to = v_oggi,
+		por.valid_to = v_oggi_dt,
 		por.is_current = 0
 	WHERE
 		por.is_current = 1;
@@ -82,7 +82,7 @@ BEGIN
 		staging.reddito_dominicale_euro,
 		staging.reddito_agrario_euro,
 		staging.hash,
-		v_oggi,
+		v_oggi_dt,
 		NULL,
 		1,
 		staging.batch_id

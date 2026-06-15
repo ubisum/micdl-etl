@@ -32,7 +32,7 @@ BEGIN
 		staging.tipo_catasto COLLATE utf8mb4_unicode_ci = part.tipo_catasto COLLATE utf8mb4_unicode_ci 
 		
 	SET
-		ris.valid_to = v_oggi,
+		ris.valid_to = v_oggi_dt,
 		ris.is_current = 0
 	WHERE
 		ris.is_current = 1;
@@ -73,7 +73,7 @@ BEGIN
 		staging.partita_iscrizione_riserva,
 		staging.seq,
 		staging.hash,
-		v_oggi,
+		v_oggi_dt,
 		NULL,
 		1,
 		staging.batch_id
