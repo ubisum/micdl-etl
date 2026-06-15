@@ -5,11 +5,11 @@ DELIMITER $$
 CREATE PROCEDURE sp_proprietario_scd2_load(OUT totale_inseriti INT)
 BEGIN
 	DECLARE v_oggi_dt DATETIME;
-	DECLARE v_oggi DATE;
+	-- DECLARE v_oggi DATE;
 	DECLARE v_count INT DEFAULT 0;
 	
 	SET v_oggi_dt = NOW();
-	SET v_oggi = DATE(v_oggi_dt);
+	-- SET v_oggi = DATE(v_oggi_dt);
 	
 	-- ---------------------------------------
     -- 1. CHIUSURA RECORD MODIFICATI
@@ -26,7 +26,7 @@ BEGIN
 		tgt.tipo_record COLLATE utf8mb4_unicode_ci = src.tipo_record COLLATE utf8mb4_unicode_ci
 	SET 
         tgt.is_current = 0,
-        tgt.valid_to = v_oggi
+        tgt.valid_to = v_oggi_dt
     WHERE 
 		tgt.is_current = 1
       AND 
@@ -71,7 +71,7 @@ BEGIN
 		denominazione,
 		sede,
 		hash,
-		v_oggi,
+		v_oggi_dt,
 		NULL,
 		1,
 		batch_id
@@ -144,7 +144,7 @@ BEGIN
 	WHERE 
 		new_prop.is_current = 1
 	AND
-		new_prop.valid_from = v_oggi
+		new_prop.valid_from = v_oggi_dt
 	AND NOT EXISTS
 	(
 		SELECT 
@@ -160,7 +160,7 @@ BEGIN
 		AND 
 			old_prop.tipo_record = new_prop.tipo_record
 		AND 
-			old_prop.valid_from < v_oggi
+			old_prop.valid_from < v_oggi_dt
 	)
 	AND NOT EXISTS 
 	(

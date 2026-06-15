@@ -6,11 +6,11 @@ CREATE PROCEDURE sp_unita_imm_scd2_load(OUT totale_inseriti INT)
 BEGIN
 
 	DECLARE v_oggi_dt DATETIME;
-    DECLARE v_oggi DATE;
+    -- DECLARE v_oggi DATE;
 	DECLARE v_count INT DEFAULT 0;
 	
 	SET v_oggi_dt = NOW();
-	SET v_oggi = DATE(v_oggi_dt);
+	-- SET v_oggi = DATE(v_oggi_dt);
 	
     -- ---------------------------------------
     -- 1. CHIUSURA RECORD MODIFICATI
@@ -118,7 +118,7 @@ BEGIN
 	WHERE 
 		new_imm.is_current = 1
 	AND 
-		new_imm.valid_from = v_oggi
+		new_imm.valid_from = v_oggi_dt
 	AND NOT EXISTS 
 	(
       SELECT 1
@@ -136,7 +136,7 @@ BEGIN
        AND 
 		old_imm.tipo_record = new_imm.tipo_record
        AND 
-		old_imm.valid_from < v_oggi
+		old_imm.valid_from < v_oggi_dt
 	)
 	AND NOT EXISTS 
 	(

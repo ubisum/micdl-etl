@@ -5,11 +5,11 @@ DELIMITER $$
 CREATE PROCEDURE sp_riserva_scd2_load(OUT totale_inseriti INT)
 BEGIN
 	DECLARE v_oggi_dt DATETIME;
-    DECLARE v_oggi DATE;
+    -- DECLARE v_oggi DATE;
 	DECLARE v_count INT DEFAULT 0;
 	
 	SET v_oggi_dt = NOW();
-	SET v_oggi = DATE(v_oggi_dt);
+	-- SET v_oggi = DATE(v_oggi_dt);
 	
 	-- ----------------------------------------------------------
 	-- 1. CHIUSURA RECORD RELATIVI ALLE RISERVE 

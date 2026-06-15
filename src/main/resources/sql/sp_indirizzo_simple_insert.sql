@@ -6,9 +6,9 @@ CREATE PROCEDURE sp_indirizzo_simple_insert(OUT totale_inseriti INT)
 BEGIN
 	DECLARE v_oggi_dt DATETIME;
 	DECLARE v_count INT DEFAULT 0;
-	DECLARE v_oggi DATE;
+	-- DECLARE v_oggi DATE;
 	SET v_oggi_dt = NOW();
-	SET v_oggi = DATE(v_oggi_dt);
+	-- SET v_oggi = DATE(v_oggi_dt);
 
 	INSERT INTO ade_indirizzo_hist
 	(
