@@ -36,7 +36,7 @@ BEGIN
 		staging.civico3,
 		staging.cod_strada,
 		staging.hash,
-		v_oggi,
+		v_oggi_dt,
 		NULL,
 		1,
 		staging.batch_id

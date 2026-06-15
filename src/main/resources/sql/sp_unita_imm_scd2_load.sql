@@ -25,7 +25,7 @@ BEGIN
        AND tgt.tipo_record COLLATE utf8mb4_unicode_ci = src.tipo_record COLLATE utf8mb4_unicode_ci
     SET 
         tgt.is_current = 0,
-        tgt.valid_to = v_oggi
+        tgt.valid_to = v_oggi_dt
     WHERE tgt.is_current = 1
       AND tgt.hash COLLATE utf8mb4_unicode_ci <> src.hash COLLATE utf8mb4_unicode_ci;
 
@@ -63,7 +63,7 @@ BEGIN
 		conc_cd_atto_conclusivo, conc_descr_atto_conclusivo,
 		conc_flag_classamento,
 		hash,
-        v_oggi,
+        v_oggi_dt,
         NULL,
         1, 
 		batch_id

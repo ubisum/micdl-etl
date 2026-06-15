@@ -33,7 +33,7 @@ BEGIN
 		staging.subalterno,
 		staging.edificialita,
 		staging.hash,
-		v_oggi,
+		v_oggi_dt,
 		NULL,
 		1,
 		staging.batch_id

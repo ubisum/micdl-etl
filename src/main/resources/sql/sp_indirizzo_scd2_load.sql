@@ -27,7 +27,7 @@ BEGIN
 	AND 
 		imm.tipo_catasto COLLATE utf8mb4_unicode_ci = staging.tipo_catasto COLLATE utf8mb4_unicode_ci 
 	SET
-		ind_hist.valid_to = v_oggi,
+		ind_hist.valid_to = v_oggi_dt,
 		ind_hist.is_current = 0
 	WHERE
 		ind_hist.is_current = 1;
@@ -76,7 +76,7 @@ BEGIN
 		staging.civico3,
 		staging.cod_strada,
 		staging.hash,
-		v_oggi,
+		v_oggi_dt,
 		NULL,
 		1,
 		staging.batch_id
