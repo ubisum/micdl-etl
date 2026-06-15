@@ -1,7 +1,7 @@
 package it.almaviva.mic.etl.entities.ade;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import jakarta.persistence.Column;
@@ -160,10 +160,10 @@ public class AdeParticellaHist
 	private String hash;
 	
 	@Column(name = "valid_from")
-	private LocalDate validFrom;
+	private LocalDateTime validFrom;
 	
 	@Column(name = "valid_to")
-	private LocalDate validTo;
+	private LocalDateTime validTo;
 	
 	@Column(name = "is_current")
 	private Integer isCurrent;

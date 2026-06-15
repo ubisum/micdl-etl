@@ -1,7 +1,7 @@
 package it.almaviva.mic.etl.entities.ade;
 
 import java.math.BigDecimal;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import jakarta.persistence.CascadeType;
@@ -167,10 +167,10 @@ public class AdeUnitaImmHist
 	private String hash;
 	
 	@Column(name = "valid_from")
-	private Date validFrom;
+	private LocalDateTime validFrom;
 	
 	@Column(name = "valid_to")
-	private Date validTo;
+	private LocalDateTime validTo;
 	
 	@Column(name = "is_current")
 	private Boolean isCurrent;

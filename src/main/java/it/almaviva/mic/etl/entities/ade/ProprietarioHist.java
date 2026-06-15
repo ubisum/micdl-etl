@@ -2,6 +2,7 @@ package it.almaviva.mic.etl.entities.ade;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -68,10 +69,10 @@ public class ProprietarioHist
 	private String hash;
 	
 	@Column(name = "valid_from")
-	private LocalDate validFrom;
+	private LocalDateTime validFrom;
 	
 	@Column(name = "valid_to")
-	private LocalDate validTo;
+	private LocalDateTime validTo;
 	
 	@Column(name = "is_current")
 	private Integer isCurrent;
